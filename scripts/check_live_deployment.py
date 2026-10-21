@@ -209,6 +209,31 @@ try:
     assert profiles['body']['after_kw'] is not None
     check('Hourly profiles retain project and expected_calculation_id query parameters and 8760 aligned hours')
 
+    # Frontend and Docker deployments can finish at different times. Retry only
+    # a read, keeping the one QA identity and current result unchanged.
+    export_query = '?' + urlencode({'project_id': project_id, 'scope': 'result',
+        'revision': snapshot['campus']['revision'], 'expected_calculation_id': result['calculation_id']})
+    deadline = time.monotonic() + 180
+    while True:
+        brief = driver.execute_async_script('''const [path,id,done]=arguments;
+          fetch(path,{credentials:'include'}).then(async response=>{const text=await response.text();
+            done({status:response.status,context_matches:text.includes(id),
+              emission_scope:text.includes('Modellenen işletme emisyonu'),
+              attachment:(response.headers.get('Content-Disposition')||'').includes('attachment')})
+          }).catch(()=>done({status:0}));''','/api/export/html'+export_query,result['calculation_id'])
+        if brief.get('status') == 200:
+            assert brief['context_matches'] and brief['emission_scope'] and brief['attachment']
+            break
+        if time.monotonic() >= deadline:
+            raise AssertionError('Decision-brief backend deployment did not become available')
+        print('Waiting for Render decision-brief endpoint; status:',brief.get('status'),flush=True)
+        time.sleep(5)
+    exported = api('/api/export/json'+export_query)
+    assert exported['status']==200 and exported['body']['calculation_id']==result['calculation_id']
+    assert driver.find_elements(By.CSS_SELECTOR,'.electrification-impact dd[data-metric=carbon]')
+    assert not driver.find_elements(By.CSS_SELECTOR,'.topbar #project-select')
+    check('Production HTML decision brief and JSON export match the current result; electrification effects and workspace selectors are visible')
+
     building_id = snapshot['campus']['buildings'][0]['id']
     packages = api('/api/buildings/' + building_id + '/packages' + query)
     assert packages['status'] == 200

@@ -89,3 +89,58 @@ SDG eşleşmesi için ana öneri enerji verimliliği hedefi **7.3**, ikincil ili
 Görev 2 PDR: problem/kullanıcı, neden mevcut yöntem yetmiyor, çözüm akışı, dürüst benchmark, prototip sınırı, sentetik etki ve bilinmeyenler tek sayfaya sığmalı. Görev 3: çalışan link, özel fizik/MILP gerekçesiyle React/FastAPI stack'i, gerçek inference ve açık mock/veri ayrımı. Google AI Studio/Gemini kullanılmadı; kullanılan Codex ve scikit-learn doğru yazılmalı.
 
 Görev 4 için eksikler: özgün Task 1 belgesinin final hâli, tek sayfalık final PDR PDF, iki dakikalık gerçek çalışan demo videosu ve bu videonun paylaşılabilir bağlantısı. Bunların teslim edildiği iddia edilmez. Bu görev yalnız değerlendirme/temizlik ve girişte doğru adres yönlendirmesi yaptı; video, gerçek saha ölçümü veya uygulanmış yatırım üretmedi.
+
+## 21 Ekim — önerilerin uygulamaya aktarılması
+
+Takip geliştirmesinin hedefi, teknik kapsamı büyütmeden kararın anlaşılmasını ve hesap kanıtının paylaşılmasını kolaylaştırmaktır.
+
+| Alan | Kaynakta görülen durum | Uygulanan değişiklik |
+| --- | --- | --- |
+| Ürün hikâyesi | Kampüs problemi detaylar arasında kaybolabiliyor | Giriş yardımında hedef kullanıcı/soru net; PDR taslağı kampüse odaklı |
+| Üst çubuk | Tema hesap menüsündeydi | Etiketli tema seçimi proje/bina seçicilerinin yanında; dar ekranda hesap menüsü kısa etiketle yer kazanır |
+| Veri hazırlığı | “Örnek yüklendi” teknik bir durum mesajıydı | API profil tutarlılığı, başlangıç bağlantı ihlalleri ve uygun sistem varsayımı eksikleri gösterilir. Gerçek pilot veri listesi açılabilir; saha doğrulaması iddia edilmez |
+| Bina | Kat/paket/ML bölümleri için uzun kaydırma | Bölüm bağlantıları; dışarıda bırakılan müdahale seçilmiş gibi adlandırılmaz; eski kat seçimleri paket başlığında korunur |
+| Sonuç | Uzun bina/paket cümlesi kararı okumayı zorlaştırıyor | Kısa karar, aynı alan/yıl kapsamı, KPI ve teknik kanıt sırası; negatif enerji farkı artış olarak yazılır; elektrik artışı/toplam enerji azaltımı ayrılır |
+| AI | ComStock ilk görünümde Kayseri için tahmin vermeyebilir | Seçili binanın sentetik ML/fizik karşılaştırması önde; ABD kapsamlı model ayrı açılır ayrıntı, açılmadan sorgulanmaz. Inference korunur; yeni eğitim/LLM çağrısı yok |
+| Paylaşım | CSV/JSON yönetim/jüri için uzun | Güncel hesaptan yazdırılabilir HTML karar özeti: yatırım, enerji, bağlantılar, karşılaştırma, kaynaklar ve hesap kimliği. Tarayıcıdan PDF kaydedilebilir; dosya hesabın anlık kopyasıdır |
+| Backend | Ana API `read_result` ile bağlamı korur; export yardımcısı yalnız revizyon/ID denetler | Export yardımcısı da proje, girdi özeti ve motoru denetler. HTML yalnız `scope=result`, revizyon ve hesap ID ile indirilir. Kullanıcı metni HTML olarak çalıştırılmaz |
+
+Fizik denklemleri, aday evreni ve optimizasyon hedefi değiştirilmedi. %25 hedef/veriler başarı iddiasına göre ayarlanmadı. Aynı sentetik kampüs hesabı tekrar yürütülünce yukarıdaki sayılar korundu.
+
+### Sonraki geliştirmeler — her açıdan öncelik sırası
+
+| Öncelik / açı | Öneri ve gerekçe | Kabul kanıtı |
+| --- | --- | --- |
+| 1 · Operasyon | Kalıcı Render diski ve özel yedekten geri dönüş. JSON/SQLite tek process prototip için uygundur; yeniden başlatmada kayıp teslimi zedeler | Ayrı test verisi deploy sonrası korunur. Panel erişimi olmadan gerçek disk bağlantısı doğrulanmaz |
+| 1 · Fikir | Kampüsün karar süreci, kimin neyi onayladığı ve mevcut Excel/etüt yaklaşımıyla görüşme | Görüşme notu ve izinli fatura/alan/bağlantı örneği; yapılmış gibi sunulmaz |
+| 1 · Sunum | İki dakikalık gerçek kayıt: kampüs → bütçe → hesap → etki → ML farkı → karar özeti | İzleyici aynı akışı deneyebilir; yalnız ekran görüntüsü dizisi video sayılmaz |
+| 2 · Fizik / mantık | Gerçek tarifeler, tasarım sıcaklığında COP/pompa kapasitesi, kazan kapasitesi ve hizmet koşulları | Aynı dönem/alan için ölçümle enerji dengesi ve pik saat denetimi. Mevsimsel SCOP saatlik saha performansı değildir |
+| 2 · AI | Bağımsız veride referansa göre hata/süre ve kullanıcı faydası | Ayrılmış bina grupları, bilinen kapsam ve görünür hata. Fayda kanıtı olmadan ML plan seçimine bağlanmaz |
+| 2 · Arayüz | Bir teknik işler kullanıcısıyla görev testi: bütçeyi değiştir, limiti bul, yatırımları karşılaştır, belge indir | Tamamlama süresi ve takıldığı yerler; Chrome otomasyonu kullanıcı araştırması değildir |
+| 3 · Backend ölçeği | Eşzamanlı kullanıcı arttığında işlem kuyruğu ve ilişkisel depolama. Şimdi global hesap kilidi ikinci hesabı 409 ile reddeder | İzolasyon, iptal/süre sınırı ve kayıt dönüşümü; talep yokken büyük yeniden yazım yapılmaz |
+| 3 · Hesap desteği | Gerçek müşteriden önce e-posta doğrulama, parola sıfırlama ve veri saklama/silme politikası | Yetkisiz erişim ve kurtarma testleri; bugünkü demo desteklediğini iddia etmez |
+
+Görsel kontrollerde [W3C reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) ve [etkileşim hedefi](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum) rehberleri referans alındı. Tam WCAG uygunluğu iddia edilmez.
+
+### Son yönlendirme: elektrifikasyon odağı ve uygulama ayarları
+
+Kullanıcının son yönlendirmesiyle ana fikir “bina ısıtmasının elektrifikasyon etkisini yatırım öncesinde öngörmek” olarak netleştirildi; kampüs ilk uygulama alanı kalır. Bu bir canlı kontrol modülü değildir. Binaların/inşaatın toplam karbonu ile yalnız ısıtma emisyonu birbirine eşitlenmez. Isı pompası her koşulda karbon azaltıyor denmez. [Fiziksel gerekçe, kaynaklar ve yarışma anlatımı](electrification-positioning.md).
+
+Proje/bina seçimi üst çubuktan içerikteki çalışma alanına taşındı. Proje/pilot yönetimi sayfanın altına alındı; olağan karar akışının önüne geçmez. Ayarlar, görünüm/dil, hareket tercihi, senaryo ayarlarına geçiş ve kaynak erişimi sağlar. Tema mobilde Ayarlar'dan, masaüstünde ayrıca üst çubuktan seçilir.
+
+TR/EN ana arayüz sözlüğü yerel kod içindedir. Dil değişimi sayı/tarih gösterimini değiştirir, para birimini veya hesap girdisini dönüştürmez. Kullanıcı proje/bina adları, kaynak metinleri, backend'in özgün anlatımları ve bazı ileri teknik ayrıntılar Türkçe kalabilir; tam belge/API çevirisi iddia edilmez. HTML karar özeti Türkçedir. Bu sınır Ayarlar'da açıkça yazılıdır. Çeviri DOM metni değiştirmez, ağ/LLM çağrısı yapmaz; kanonik API enum değerleri ve taslak anahtarları çevrilmez.
+
+Sonuçtaki elektrifikasyon kartı yalnız API sonucu kullanır: yıllık elektrik/gaz değişimi, varsayımsal karbon farkı, ısı pompası faydalı ısısı ve kalan kazan ısısı. Faydalı ısı nihai enerjiye ikinci kez eklenmez. Enerji/yatırım optimumu karbon optimumu diye etiketlenmez. İndirilebilir karar özeti, mevcut CSV/JSON ve eski sonuç koruması devam eder.
+
+### Yürütülen yerel kabul — 21 Ekim 2026
+
+- Backend `python -m unittest discover -s backend`: **76 test geçti**. Yeni HTML özetin gerçek değer/kayıt tutarlılığı, kimlik/sürüm/özet koruması, XSS kaçışı, oturum gereksinimi ve çözümsüz sonuç testleri dahil. LLM otomatik testleri harici sağlayıcıyı taklit eder; eğitim yapılmaz.
+- Frontend `npm.cmd test`: **21 test geçti**. Dil/hareket tercihi, sayı formatı, özel adların korunması ve müdahale başlıkları dahil. TypeScript/Vite üretim derlemesi geçti.
+- Gerçek yerel Chrome'da **320, 390, 500, 768, 1280, 1536 px**: giriş, proje özeti, bina/katlar, senaryo, sonuç ve model ekranlarında sayfa taşması kontrolü. Geniş tablolar/grafik kendi alanında kayar. İlk anlamlı veri konumu kontrolü gevşetilmeden gereksiz üst boşluklar azaltıldı. Üç tema ve yenilemede korunması çalıştı.
+- Ayarlar/TR/EN: açık senaryo taslağı dil değişiminde korunur; dil/hareket tercihi yenilemede kalır; proje/girdi/hesap bağlamı aynıdır. İngilizce bina formu `Education` gösterirken API enum değeri `Eğitim` kalır. Kat sayısal taslağının anahtarları da çevrilmez.
+- Elektrifikasyon kartının üç farkı API değerleriyle bire bir karşılaştırıldı. HTML karar özeti gerçekten indirildi, tarayıcıda açıldı ve hesap kimliğiyle eşleşti. Girdi değişince indirme görünmez; eski bağlam GET isteği 409, yeniden hesap sonrasında güncel sonuç.
+- ML gerçek inference ve paket değişimine bağlı değişen çıktı, büyük fark uyarısı; imkânsız hedef, kaydedilmemiş taslakta Kal, tekrar giriş ve tanıtım tekrarlamama geçti. Paket yüklemesinde ML düğmesinin erken etkinleşmesi düzeltildi; geçerli aday listesi hazır olmadan çalışmaz.
+- Tarayıcıda yakalanmamış hata yok; özgün JSON SHA-256 özetleri aynı. Geçici yerel hesap dışında kullanıcı kaydı düzenlenmedi; QA hesapları temizlendi. Ortam dosyası, model artefaktları ve kayıt şeması değişmedi. Özel kanıtlar `artifacts/task3-ui/` altında Git dışındadır. Türkçe/İngilizce masaüstü, mobil, Ayarlar ve elektrikleşme görüntüleri ayrıca açılıp görsel olarak incelendi.
+- PDR taslağı tek sayfalık PDF'ye çevrildi ve sayfa sayısı kontrol edildi; içerik `docs/pdr-draft.md`, yerel paylaşılabilir PDF `artifacts/presentation/portfolio25-pdr-taslak.pdf`. Özgün Task 1 belgesinin veya bir saha ölçümünün yerine geçmez.
+
+Yerel geliştirme sunucusu eski CSS sunarken kimliği/portu doğrulanarak yeniden başlatıldı. Uzun QA turunda yerel backend sağlık isteği zaman aşımına uğradı; kayıt silinmeden aynı portta kontrollü yeniden başlatıldı ve son tur tamamlandı. Kalıcı altyapı/üretim yük testi yapıldığı iddia edilmez. TestClient için Starlette/httpx deprecation uyarısı var; test hatası değildir, bağımlılık yükseltme bu kapsama alınmadı. Canlı yayın kontrolü yerel kabulden ayrı raporlanır.

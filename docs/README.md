@@ -3,6 +3,8 @@
 | İhtiyaç | Belge |
 | --- | --- |
 | Kampüs odağı, Climathon ölçütleri ve öneriler | [Ürün değerlendirmesi](product-review.md) |
+| Isıtma elektrifikasyonu, karbon ve uygulanabilirlik gerekçesi | [Ürün konumlandırması](electrification-positioning.md) |
+| Teslim için gözden geçirilecek kısa içerik | [PDR taslağı](pdr-draft.md) |
 | Görev 3 formuna uygun anlatım ve kısa gösterim | [Teslim metni](task3-submission.md) |
 | Render/Vercel, Origin reddi, disk ve ortam | [Yayın rehberi](deploy-render-vercel.md) |
 | Gerçek HTTPS kabul kontrolü ve sınırlar | [Canlı rapor](live-deployment-report.md) |

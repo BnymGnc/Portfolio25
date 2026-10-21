@@ -4,6 +4,10 @@ Bu sürüm önceki sistem incelemesindeki envanterin yerini alır. Kaynak `backe
 
 ## Ortak kurallar
 
+Karar özeti: `GET /api/export/html?project_id=…&scope=result&revision=…&expected_calculation_id=…`. Aynı oturum/proje sahipliği ve güncel hesap kontrolleri uygulanır. `scope=auto/inputs` veya eksik kimlik 422; değişen revizyon/hesap/motor/girdi özeti 409. Yanıt `text/html`, attachment ve no-store'dur; kullanıcı metinleri escape edilir, CSP harici kaynak/script'i engeller. Yatırım, önce/sonra, her bina/grup kapasitesi, karşılaştırma ve kaynakları tek hesap kopyasında sunar. Güncel çözümsüz hesap API'den plan yok açıklamasıyla alınabilir; arayüz indirmeyi uygun sonuç kartında gösterir. JSON/CSV sözleşmesi korunur.
+
+Dil/görünüm tercihleri yalnız tarayıcıdadır; API'ye `language` alanı veya çevrilmiş enum eklenmedi. Elektrifikasyon kartı mevcut `calculation.baseline/after` elektrik, ısıtma+diğer gaz ve `emissions_kg_year` farklarını; `selected_packages` pompa/kazan faydalı ısı toplamlarını gösterir. Yeni tahmin veya başka optimizasyon amacı değildir. Karar özetinin gösterge tablosuna aynı API emisyonları eklendi.
+
 Bütün proje endpoint’lerinde `project_id` OpenAPI’de vardır. Önce oturum açılır ve `/api/projects` listesinden hesaba ait kimlik seçilir. Middleware proje kimliğini kullanıcıya özel veri kökünde doğrular; başka kullanıcı projesi 404 döner. Eski campus-demo-25 otomatik kullanıcıya atanmaz. Proje kimliği yetki anahtarı değildir. Health/OpenAPI ve oturum başlangıcı dışında uygulama verileri kimlik doğrulama gerektirir. Yazma istekleri ayrıca Origin ve X-CSRF-Token gerektirir.
 
 ## Hesap ve ikinci ML sağlayıcısı

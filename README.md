@@ -1,6 +1,6 @@
 # Portfolio25-GRID
 
-Bütçe ve elektrik bağlantı sınırları altında bina enerji yatırımlarını değerlendiren karar destek prototipi.
+Binaların ısıtmasını elektrikleştirmeden önce enerji, karbon, yatırım bütçesi ve elektrik bağlantı etkilerini birlikte değerlendiren karar destek prototipi. İlk kullanım odağı kampüs yatırımlarını önceliklendirmektir; canlı cihaz kontrolü yapmaz.
 
 **Canlı demo:** https://buildingportfolio25.vercel.app
 
@@ -17,7 +17,7 @@ Kendi hesabınızı oluşturabilirsiniz. Dört proje / sekiz bina içeren Kayser
 1. Proje ve bina seçin; tüketim, kat dağılımı ve varsayımları inceleyin.
 2. Senaryoda bütçe/hedef ve gerçek bağlantı gruplarını düzenleyin.
 3. Mod A ile en yüksek enerji tasarrufunu veya Mod B ile hedefe en düşük yatırımı hesaplayın.
-4. Önce/sonra enerji, yoğunluk, net ekonomik tasarruf ve kapasiteyi karşılaştırın; güncel sonucu CSV/JSON indirin.
+4. Önce/sonra enerji, yoğunluk, net ekonomik tasarruf ve kapasiteyi karşılaştırın. “Karar özeti indir” güncel hesaptan HTML üretir; tarayıcıda açıp PDF yazdırabilirsiniz. CSV/JSON ayrıntıları korunur.
 5. Bina detaylarında deneysel ML tahminini fizik hesabıyla karşılaştırın.
 
 **Ücretsiz sunucu:** Kullanılmadığında uyuyabilir. İlk bağlantı yaklaşık bir dakika, bazen daha uzun sürebilir. Girişte bağlantı hatası olursa **Bağlantıyı yeniden dene** ile oturumu kontrol edin; alanlarınız korunur. Başarısız kayıt/giriş isteği otomatik yinelenmez. Arayüzdeki bu iyileştirme platform kaynaklı 502/503 hatasını ortadan kaldırmaz.
@@ -83,3 +83,7 @@ Tarayıcı kontrolleri Selenium/Chrome gerektirir. `scripts/check_live_deploymen
 [API](docs/api-inventory.md) · [Veri sözleşmesi](docs/data-contract.md) · [Varsayımlar](docs/assumptions.md) · [Pilot](docs/pilot-kayseri.md) · [Sentetik model](docs/model-card-synthetic.md) · [ComStock](docs/model-card.md) · [Form yanıtları / kısa demo](docs/task3-submission.md)
 
 [Belge dizini](docs/README.md) · [Climathon değerlendirmesi ve öneriler](docs/product-review.md) · [Depo temizliği](docs/repository-cleanup.md)
+
+Proje ve bina seçimi içerikteki çalışma alanındadır. Üst çubukta TR/EN, hesap ve Ayarlar bulunur; masaüstünde tema ayrıca görünür, mobilde Ayarlar'dan değiştirilir. Dil/görünüm/hareket tercihleri tarayıcıda saklanır, proje verisini değiştirmez. Ana akış çevirileri yereldir; kullanıcı adları ve özgün API kaynak/teknik açıklamaları korunur. Karar özeti bu sürümde Türkçedir.
+
+Bina sayfasında kat, yatırım ve ML bölüm bağlantıları vardır. Model ve veri sayfasında pilotun sentetik modeli öndedir; ComStock ayrı ABD kapsamlı ayrıntıdır. Sonuçtaki elektrifikasyon kartı API hesabından elektrik/gaz/karbon farkını ve pompa/kazan faydalı ısısını gösterir. [Ürün gerekçesi](docs/electrification-positioning.md) · [PDR taslağı](docs/pdr-draft.md); özgün Task 1 veya ölçülmüş baseline yerine geçmez.

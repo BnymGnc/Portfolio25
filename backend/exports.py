@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from fastapi import HTTPException
 
 from models import CampusResponse, CalculationResult
+from calculation_context import stale_reason
 
 
 def calculation_id(result: CalculationResult | None) -> str | None:
@@ -20,6 +21,8 @@ def guarded_export(snapshot: CampusResponse, scope: str, revision: int | None, e
             raise HTTPException(422, 'Sonuç dışa aktarımı kayıt revizyonu ve hesap kimliği gerektirir.')
         if not snapshot.calculation or snapshot.calculation.input_revision != revision:
             raise HTTPException(409, 'Bu revizyon için güncel hesap yok. Yeniden hesaplayın.')
+        if stale_reason(snapshot.campus, snapshot.calculation):
+            raise HTTPException(409, 'Dışa aktarım durduruldu: hesap proje, girdi veya motor bağlamıyla eşleşmiyor.')
         if calculation_id(snapshot.calculation) != expected_calculation_id:
             raise HTTPException(409, 'Hesap aynı revizyonda yeniden üretildi veya mod değişti. Ekranı yenileyin.')
     if scope == 'inputs':

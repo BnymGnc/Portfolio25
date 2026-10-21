@@ -6,6 +6,9 @@ import './themes.css';
 import './layout.css';
 import './account.css';
 import {applyTheme, readTheme} from './theme';
+import {LocaleProvider} from './Locale';
+import {applyPreferences,readPreferences} from './preferences';
 
 applyTheme(readTheme());
-createRoot(document.getElementById('root')!).render(<StrictMode><AuthGate /></StrictMode>);
+applyPreferences(readPreferences());
+createRoot(document.getElementById('root')!).render(<StrictMode><LocaleProvider><AuthGate /></LocaleProvider></StrictMode>);

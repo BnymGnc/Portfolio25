@@ -91,7 +91,7 @@ export async function calculateCampus(revision: number, mode: 'A' | 'B', time_li
     body: JSON.stringify({ revision, mode, time_limit_s }) }, Math.max(90000,2*time_limit_s*1000+30000))).json();
 }
 
-export async function downloadCampus(format: 'csv' | 'json', scope: 'inputs' | 'result', revision: number, calculationId?: string | null, mode?: 'A' | 'B') {
+export async function downloadCampus(format: 'csv' | 'json' | 'html', scope: 'inputs' | 'result', revision: number, calculationId?: string | null, mode?: 'A' | 'B') {
   const params = new URLSearchParams({scope, revision: String(revision)});
   if (calculationId) params.set('expected_calculation_id', calculationId);
   const blob = await (await request(`/api/export/${format}?${params}`)).blob();

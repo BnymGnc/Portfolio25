@@ -2,7 +2,7 @@
 
 - `start-local.ps1`, `restart_backend.ps1`, `stop-local.ps1`: kayıtlı PID/başlangıç zamanını koruyan yerel süreç yönetimi; dolu portta ikinci sunucu başlatılmaz.
 - `browser_auth_recovery.py`: metin/HTML 502/503 giriş hatası, alanların korunması ve manuel yeniden bağlanma; geçici yerel QA hesabı temizlenir.
-- `browser_task3.py`: güncel oturumlu proje/bina, tema, taslak, hesap, sonuç ve ML tarayıcı kontrolü. Yerel QA hesabı temizlenir.
+- `browser_task3.py`: güncel oturumlu proje/bina, tema, TR/EN, Ayarlar, taslak, hesap/karbon kartı, karar özeti indirme/eski sonuç reddi ve ML kontrolü. 320–1536 px gerçek Chrome; yerel QA hesabı temizlenir. Selenium Manager ağda takılırsa mevcut uyumlu sürücüyü `SE_CHROMEDRIVER` ortamıyla gösterin; otomatik yeni sürüm kurmak zorunlu değildir.
 - `check_live_deployment.py`: Vercel üzerinden gerçek HTTPS kayıt/çıkış/giriş, hesap ve sentetik inference. Ayrı QA hesabı sunucuda kalır; silme API'si yoktur. Parola ve tokenlar kaydedilmez.
 - `check_docker_deployment.py`: Linux Docker imajı, bağlama/PORT ve geçici kalıcı kayıt testi.
 - `check_llm_connection.py`: isteğe bağlı gerçek LLM bağlantısı; ücretli çağrı yapabilir, standart kontrol akışında çalıştırılmaz.

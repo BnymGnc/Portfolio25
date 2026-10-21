@@ -21,6 +21,8 @@ Kendi hesabınızı oluşturup sentetik pilotla deneyebilirsiniz. Şifre paylaş
 
 Portfolio25-GRID, kampüslerin teknik işler, enerji ve tesis yönetimi ekiplerinin sınırlı enerji dönüşümü bütçesini hangi binalara ve müdahalelere ayıracağını değerlendiren çalışan bir karar destek prototipidir. Kullanıcı tüketimleri, bütçeyi, enerji hedefini ve fiziksel elektrik bağlantı sınırlarını düzenler. Sistem fiziksel enerji hesapları ve matematiksel optimizasyonla yalıtım, ısı pompası ve uygun müdahale kombinasyonlarını değerlendirir; bütçe ve kapasite sınırları altında yatırım planı hesaplar. Aynı bina, alan ve yıllık dönem için başlangıca göre nihai enerji, kWh/m²-yıl, net ekonomik tasarruf ve bağlantı grubu kapasitesi karşılaştırılır. %25 azaltım düzenlenebilir bir senaryo hedefidir; garanti edilmiş veya sahada ölçülmüş sonuç değildir. Tek bina/konut desteği sonraki kapsam genişlemesidir.
 
+Güncel konumlandırma: **bina ısıtmasının elektrifikasyonunu yatırım öncesinde öngörmek**. Gaz kazanından ısı pompasına geçişte elektrik/gaz/karbon ve kapasite etkileri birlikte gösterilir. Canlı cihaz kontrolü yapılmaz. Emisyonlar varsayımsal faktörlerle işletme tüketiminden hesaplanır; bütün bina/inşaat yaşam döngüsü veya karbon optimumu iddia edilmez. [Gerekçe ve kaynaklar](electrification-positioning.md).
+
 ## Araçlar, teknolojiler ve seçilme nedeni
 
 Arayüzü React, TypeScript ve Vite; backend’i Python ve FastAPI ile geliştirdim. Fiziksel enerji hesaplarını bütçe ve elektrik kapasitesi kısıtlarıyla birlikte değerlendirmek için SciPy MILP, ayrı yıllık tüketim tahminleri için scikit-learn kullandım. Geliştirme ve hata gidermede VS Code içindeki Codex’ten yararlandım. Frontend Vercel, backend Render üzerinde yayımlanıyor; kod GitHub’da bulunuyor.
@@ -46,7 +48,7 @@ Yatırım planını ayrı fizik ve matematiksel optimizasyon motoru oluşturur. 
 1. Kendi hesabınızla giriş yapın. “Temsilî kampüs” projesindeki dört binayı gösterin; sentetik etiketini belirtin. Diğer üç projenin dört binası ayrı bütçe ve bağlantılara sahiptir; kampüs hesabına eklenmez.
 2. Senaryo girdilerinde varsayılan bütçe/hedef/bağlantıyı gösterip Mod A ile hesaplayın. Önce/sonra enerji yoğunluğu, yatırım, net ekonomik tasarruf ve kapasiteyi açıklayın. Sonuçlar API'den gelir; bu belge sayıları sabitlemez.
 3. Bina detaylarında uygun birleşik paketi seçip “ML ve fizik sonucunu karşılaştır” çalıştırın. Yıllık elektrik/toplam gaz, büyük fark uyarısı ve saha doğrulaması sınırını gösterin.
-4. Güncel sonucu dışa aktarın. İsterseniz bütçeyi değiştirip eski sonucun güncel olmadığını gösterin. “%25 hedef; gerçekleşmiş tasarruf değil” diyerek bitirin.
+4. Elektrifikasyon kartında elektrik artışı, gaz/karbon farkı ve faydalı ısı ayrımını gösterin. “Karar özeti indir” ile güncel belgeyi alın. Bütçeyi değiştirince eski sonuç indirilemez; yeniden hesaplayın. “%25 hedef; gerçekleşmiş tasarruf değil” diyerek bitirin.
 
 Mevcut uygulamada kısa kapsam/demo açıklaması giriş yardımında ve Uygulama hakkında bölümündedir. Hesap, optimizasyon, ML artefaktı ve kayıt şeması bu değerlendirmede değiştirilmedi. [Canlı kabul kanıtı](live-deployment-report.md), [sentetik model kartı](model-card-synthetic.md), [güncel kampüs değerlendirmesi](product-review.md).
 

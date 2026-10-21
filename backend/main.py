@@ -540,6 +540,8 @@ def get_campus_profiles(expected_calculation_id:str|None=None):
 @app.get("/api/export/{file_format}")
 def export_campus(file_format: str, scope: Literal['auto','inputs','result'] = 'auto',
                   revision: int | None = None, expected_calculation_id: str | None = None):
+    if file_format == 'html' and scope != 'result':
+        raise HTTPException(422, 'Karar özeti yalnız güncel hesaplanmış sonuç için indirilebilir.')
     with lock:
         campus = read_campus()
         snapshot = response(campus)
@@ -547,6 +549,11 @@ def export_campus(file_format: str, scope: Literal['auto','inputs','result'] = '
     suffix = '' if scope == 'auto' else f'-{scope}-r{campus.revision}' + (f'-{snapshot.calculation.mode}' if snapshot.calculation else '')
     prefix='portfolio25-grid' if campus.id=='campus-demo-25' else f'portfolio25-grid-{campus.id}'
     filename = f'{prefix}{suffix}.{file_format}'
+    if file_format == 'html':
+        from decision_brief import render_brief
+        return Response(render_brief(snapshot, metadata), media_type='text/html',
+                        headers={'Content-Disposition': f'attachment; filename="{filename}"',
+                                 'X-Content-Type-Options': 'nosniff'})
     if file_format == "json":
         import json
         body = snapshot.model_dump(mode='json')
@@ -555,7 +562,7 @@ def export_campus(file_format: str, scope: Literal['auto','inputs','result'] = '
         return Response(json.dumps(body,ensure_ascii=False,indent=2), media_type="application/json",
                         headers={"Content-Disposition": f'attachment; filename="{filename}"'})
     if file_format != "csv":
-        raise HTTPException(404, "Desteklenen biçimler: csv, json")
+        raise HTTPException(404, "Desteklenen biçimler: csv, json, html (karar özeti)")
     output = io.StringIO(newline="")
     writer = csv.writer(output)
     writer.writerow(["id", "name", "use_type", "area_m2", "year_built", "electricity_kwh_year",

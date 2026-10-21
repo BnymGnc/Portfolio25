@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import type { ReactNode } from 'react';
 import type { Building, RetrofitAssumptions, PackageName } from './types';
 
@@ -37,7 +38,7 @@ export function CampusMap({ buildings, onSelect, packages, selectedId,extras }: 
   const mapHeight=Math.max(250,Math.ceil(buildings.length/4)*80+65);
   const colors = {none:{fill:'var(--map-none)',text:'var(--map-none-text)',stroke:'var(--border)'},insulation:{fill:'var(--warning-bg)',text:'var(--warning)',stroke:'var(--accent)'},heat_pump:{fill:'var(--info-bg)',text:'var(--info)',stroke:'var(--info)'},combined:{fill:'var(--primary)',text:'var(--on-primary)',stroke:'var(--primary)'}};
   return <div className="campus-map">
-    <div className="map-caption"><span className="eyebrow">BİNA YERLEŞİMİ</span><span>Şematik gösterim</span></div>
+    <div className="map-caption"><span className="eyebrow">{t("BİNA YERLEŞİMİ")}</span><span>{t("Şematik gösterim")}</span></div>
     <svg viewBox={`0 0 530 ${mapHeight}`} role="group" aria-label="Şematik senaryo modeli; etkisini incelemek için bir bina seçin">
       <defs><pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.7" fill="var(--border)" /></pattern></defs>
       <rect width="530" height={mapHeight} fill="url(#dots)" />
@@ -52,10 +53,10 @@ export function CampusMap({ buildings, onSelect, packages, selectedId,extras }: 
         <path d={`M${x + 9} ${y + 8}h${w - 18}v${h - 16}h-${w - 18}Z`} fill="none" stroke={i === 0 ? 'var(--border)' : 'var(--border)'} />
         <text x={x + w / 2} y={y + h / 2 + 4} textAnchor="middle" fill={color.text} fontSize="11" fontFamily="inherit" fontWeight="600">{buildings[i].id}</text><text x={x+w/2} y={y+h-3} textAnchor="middle" fontSize="9" fill={color.text}>{extras?.[buildings[i].id]?.join(" · ")}</text>
       </g>; })}
-      <text x="22" y="242" fill="var(--muted)" fontSize="10">Gerçek konum verisi içermez</text>
+      <text x="22" y="242" fill="var(--muted)" fontSize="10">{t("Gerçek konum verisi içermez")}</text>
       <path d="m502 224 0-19m-4 5 4-5 4 5" stroke="var(--muted)" fill="none" /><text x="499" y="239" fontSize="9" fill="var(--muted)">K</text>
     </svg>
-    <div className="map-bottom"><span><i className="dot green" />{buildings.length} örnek bina</span><span>Binaları seçerek inceleyin <Icon name="arrow" size={14} /></span></div>
+    <div className="map-bottom"><span><i className="dot green" />{buildings.length} örnek bina</span><span>{t("Binaları seçerek inceleyin")+" "}<Icon name="arrow" size={14} /></span></div>
   </div>;
 }
 
