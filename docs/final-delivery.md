@@ -4,7 +4,7 @@
 
 **Yayın düzeni güncellendi:** Render kök Dockerfile ile Docker runtime kullanır. Vercel Node proxy kaldırılmış, `/api` → `https://portfolio25-api.onrender.com/api` rewrite olarak yapılandırılmıştır. Frontend `https://buildingportfolio25.vercel.app`; yer tutucu kaldırıldı. Aşağıdaki ilk teslimdeki proxy ayrıntılarının yerine [güncel yayın rehberi](deploy-render-vercel.md) geçerlidir.
 
-Yerel uygulama: **http://127.0.0.1:5173/**. Backend yaşam kontrolü: **http://127.0.0.1:8000/api/health**. Mevcut frontend korundu; backend aynı portta kontrollü yeniden başlatıldı. Sunucular teslimde açık bırakılır. İnternet yayını henüz yapılmadı.
+Yerel uygulama: **http://127.0.0.1:5173/**. Backend yaşam kontrolü: **http://127.0.0.1:8000/api/health**. Önceki yerel teslimde sunucular açık bırakılmıştı. Sonraki canlı yayın: **https://buildingportfolio25.vercel.app**; kayıt/giriş/çıkış, proje yükleme, optimizasyon ve sentetik ML inference doğrulandı. [Canlı rapor ve sınırlar](live-deployment-report.md). Aşağıdaki ilk teslim tablosu tarihsel kontrolleri anlatır.
 
 GitHub aktarımı doğrulandı: [BnymGnc/Portfolio25](https://github.com/BnymGnc/Portfolio25), `main` dalı. İlk teslim commit'i `0c2b2cb`; gerçek ortam dosyaları ve kullanıcı kayıtları gönderilmedi.
 

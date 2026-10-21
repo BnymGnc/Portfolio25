@@ -2,6 +2,8 @@
 
 **Güncel yayın düzeni:** Render **Docker** runtime; depo kökünde `Dockerfile`, Root Directory boş, kalıcı disk `/var/data`. Vercel kökü `frontend`, Vite çıktısı `dist`, tarayıcı API çağrıları aynı origin `/api` üzerinden `https://portfolio25-api.onrender.com/api` hedefine rewrite edilir. Frontend: https://buildingportfolio25.vercel.app. Üretimde `BACKEND_ORIGIN` ortam değişkeni gerekmez. Render'da `COOKIE_SECURE=true`, `FRONTEND_ORIGINS=https://buildingportfolio25.vercel.app` gerekir. [Kesin ekran ayarları ve cookie/CSRF koşulları](docs/deploy-render-vercel.md).
 
+**Canlı doğrulama:** Vercel üzerinden kayıt → proje yükleme → gerçek ofis optimizasyonu → ML inference → çıkış → yeniden giriş akışı 21 Ekim 2026'da geçti. Çıkış sonrası kayıt modunda kalma hatası düzeltildi. Çerez/CSRF, sorgu aktarımı, test sonuçları ve erişilmeyen kontroller [canlı kabul raporunda](docs/live-deployment-report.md).
+
 **21 Ekim teslim güncellemesi:** Gerçek kayıt/giriş/çıkış, kullanıcıya ait dört proje ve sekiz bina, kalıcı tanıtım, kat karar önizlemesi, sentetik ML sağlayıcısı ve Render/Vercel dağıtım dosyaları eklendi. Güncel sınırlar ve kontroller: [teslim raporu](docs/final-delivery.md). Eski bölümler önceki aşamaların kaydıdır; güncel hesap/veri erişimi için aşağıdaki kurallar geçerlidir.
 
 Uygulamayı `http://127.0.0.1:5173/` adresinden açıp **Kayıt olun** seçeneğiyle başlayın. Her hesap kendi sentetik pilotunu alır. Önceki yerel projeler silinmedi; otomatik ilk hesaba atanmaz. Açık ve yedekli aktarım: [hesap ve kayıt rehberi](docs/auth-and-storage.md).

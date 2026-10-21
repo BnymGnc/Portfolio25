@@ -47,7 +47,7 @@ Render'daki mevcut FRONTEND_ORIGINS değeri tam `https://buildingportfolio25.ver
 4. Render yeniden başlatıldıktan sonra kullanıcı, onboarding ve revizyon korunmalı.
 5. Logout eski cookie'yi iptal etmeli; yanlış Origin/CSRF 403 dönmeli.
 
-Canlı kontrolleri yayın sonrasında ayrı çalıştırın; aşağıdaki geçmiş yerel/Docker testleri Vercel'in canlı uçtan uca davranışının yerine geçmez. Kontrol başlangıcında Render health 200, eski Vercel rewrite health 502 `DNS_HOSTNAME_NOT_FOUND` döndü. Canlı doğrulama betiği ve sonuçları teslim raporunda ayrıca belirtilir.
+Canlı kontroller tamamlandı: Vercel üzerinden health, kayıt/giriş/çıkış, çerez/CSRF, dört proje, gerçek ofis optimizasyonu ve sentetik ML inference geçti. Bulunan çıkış/giriş UI hatası düzeltildi. Aradaki başarısız snapshot denemesi ve son başarılı tam akış dahil [canlı kabul raporu](live-deployment-report.md). Aşağıdaki geçmiş Docker testleri bu canlı kontrolün yerine geçmez.
 
 ## Önceki Docker hazırlığında çalıştırılan doğrulama
 
@@ -68,7 +68,7 @@ npm.cmd test
 npm.cmd run build
 ```
 
-Konteyner testinin host bağlantısı HTTP, gönderdiği frontend Origin HTTPS'tir; gerçek HTTPS cookie davranışı ayrıca TestClient HTTPS origin ile sınanır. Bunlar gerçek Vercel edge rewrite'ını çalıştırmaz. Canlı servis URL'si gelince yukarıdaki dağıtım sonrası kontrol zorunlu kalır. Yerel kanıtlar Git dışında `artifacts/docker-deployment/report.json`, `artifacts/final-delivery/docker-build.txt` ve `deployment-backend-tests.txt` içinde tutulur.
+Konteyner testinin host bağlantısı HTTP, gönderdiği frontend Origin HTTPS'tir; gerçek HTTPS cookie davranışı ayrıca TestClient HTTPS origin ile sınanır. Gerçek Vercel edge rewrite'ı sonraki canlı kontrolde çalıştırıldı. Önceki yerel kanıtlar Git dışında `artifacts/docker-deployment/report.json`, `artifacts/final-delivery/docker-build.txt` ve `deployment-backend-tests.txt` içinde tutulur. Canlı kontrolü tekrarlamak için Selenium kurulu Python ile `python -X utf8 scripts/check_live_deployment.py` kullanın; ayrı bir QA hesabı oluşturur ve LLM çağrısı yapmaz.
 
 ## Modeller ve sırlar
 

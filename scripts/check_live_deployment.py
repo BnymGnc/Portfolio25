@@ -71,10 +71,12 @@ try:
             if status == 200 and isinstance(health, dict) and health.get('status') == 'ok':
                 if args.expected_asset:
                     with urlopen(ORIGIN + '/?qa=' + secrets.token_hex(4), timeout=30) as page:
-                        if args.expected_asset not in page.read().decode('utf-8'):
-                            last = 'waiting-for-new-frontend-asset'
-                            continue
-                break
+                        asset_ready = args.expected_asset in page.read().decode('utf-8')
+                    if asset_ready:
+                        break
+                    last = 'waiting-for-new-frontend-asset'
+                else:
+                    break
         except (URLError, TimeoutError):
             last = 'unreachable'
         if time.monotonic() >= deadline:
@@ -113,16 +115,31 @@ try:
         driver.execute_script("arguments[0].scrollIntoView({block:'center'})", element)
         element.click()
 
-    def api(path, body=None, token=None):
+    def browser_request(path, body=None, token=None):
         return driver.execute_async_script("""
           const [path,body,token,done]=arguments;
           fetch(path,{method:body===null?'GET':'POST',credentials:'include',
             headers:{'Content-Type':'application/json','X-CSRF-Token':token},
             body:body===null?undefined:JSON.stringify(body),signal:AbortSignal.timeout(90000)})
-          .then(async r=>done({status:r.status,type:r.headers.get('content-type'),
-            cache:r.headers.get('cache-control'),body:await r.json()}))
-          .catch(()=>done({error:'Browser request failed or timed out'}));
+          .then(async r=>{
+            let value;try{value=await r.json()}catch{done({status:r.status,error:'non_json_response'});return}
+            done({status:r.status,type:r.headers.get('content-type'),cache:r.headers.get('cache-control'),body:value})
+          })
+          .catch(e=>done({error:e.name==='TimeoutError'?'request_timeout':'browser_request_failed'}));
         """, path, body, csrf if token is None else token)
+
+    def api(path, body=None, token=None):
+        response = browser_request(path, body, token)
+        # Only read requests may retry once; never repeat registrations/calculations.
+        if body is None and (response.get('error') or response.get('status') in (502, 503, 504)):
+            failure = {'path': urlparse(path).path, 'status': response.get('status'), 'error': response.get('error')}
+            report.setdefault('transient_read_failures', []).append(failure)
+            print('Transient read failure:', failure, flush=True)
+            time.sleep(2)
+            response = browser_request(path)
+        if response.get('error'):
+            report['last_request_error'] = {'path': urlparse(path).path, 'status': response.get('status'), 'error': response['error']}
+        return response
 
     driver.get(ORIGIN)
     wait.until(lambda _: driver.find_elements(By.CSS_SELECTOR, '.auth-card'))
@@ -247,8 +264,13 @@ finally:
     if driver:
         try:
             driver.save_screenshot(str(OUT / 'last-state.png'))
+        except Exception:
+            report['final_screenshot_available'] = False
         finally:
-            driver.quit()
+            try:
+                driver.quit()
+            except Exception:
+                report['browser_close_failed'] = True
     report['finished_at'] = datetime.now(timezone.utc).isoformat()
     report['qa_account_retained'] = report.get('qa_account_created', False)
     (OUT / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
