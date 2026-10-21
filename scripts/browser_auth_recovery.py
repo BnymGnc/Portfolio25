@@ -23,6 +23,7 @@ d.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument',{'source':"""
   if(String(url).includes('/api/auth/register')){
    window.authQa.registerCalls++;
    if(registerFailure){registerFailure=false;return Promise.resolve(new Response('<html>Proxy unavailable</html>',{status:503,headers:{'Content-Type':'text/html'}}))}
+   if(window.authQa.registerCalls===2)return Promise.resolve(new Response(JSON.stringify({detail:'İstek kaynağı izinli değil.'}),{status:403,headers:{'Content-Type':'application/json'}}));
   }
   return fetchOriginal(url,options);
  };
@@ -47,13 +48,19 @@ try:
  assert css('#auth-email').get_attribute('value')==email and css('#auth-password').get_attribute('value')==password
  assert d.execute_script('return window.authQa.registerCalls')==1
  report['checks'].append('Initial text 502 and registration HTML 503 show safe Turkish errors; manual GET recovery retains both inputs without retrying registration')
+ click('Hesap oluştur');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.production-link'))
+ assert 'Sabit üretim adresini kullanın' in css('.auth-error').text
+ assert css('.production-link').get_attribute('href')=='https://buildingportfolio25.vercel.app/'
+ assert css('#auth-email').get_attribute('value')==email and css('#auth-password').get_attribute('value')==password
+ d.save_screenshot(str(OUT/'origin-recovery.png'))
+ report['checks'].append('Origin 403 has a real canonical production link, retains inputs, and does not retry or redirect credentials')
  click('Hesap oluştur');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog.onboarding[open]'));click('Tanıtımı atla')
  wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.inventory-panel tbody tr'))
  with sqlite3.connect(ROOT/'backend/data/accounts.sqlite3') as db:uid=db.execute('SELECT id FROM users WHERE email=?',(email,)).fetchone()[0]
- assert d.execute_script('return window.authQa.registerCalls')==2
+ assert d.execute_script('return window.authQa.registerCalls')==3
  assert not d.find_elements(By.CSS_SELECTOR,'.pilot-card,.sidebar-footer,.flow-steps')
  d.save_screenshot(str(OUT/'compact-overview.png'))
- report['checks'].append('A second explicit submit registers successfully and loads real private pilot; duplicate sidebar content is absent')
+ report['checks'].append('A third explicit submit registers successfully and loads real private pilot; duplicate sidebar content is absent')
  report['uncaught_errors']=sum('Uncaught' in e['message'] for e in d.get_log('browser'));assert report['uncaught_errors']==0
  report['completed']=True
 finally:

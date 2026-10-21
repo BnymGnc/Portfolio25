@@ -26,4 +26,6 @@ secrets/
 *.key
 *.pfx
 *.p12
+.vscode/settings.json
+*.tsbuildinfo
 

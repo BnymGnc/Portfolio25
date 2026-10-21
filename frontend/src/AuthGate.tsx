@@ -6,6 +6,7 @@ import {API_BASE,setUserScope,loadProjects,setActiveProject,getActiveProject,set
 import {applyTheme,readTheme,themes,type Theme} from './theme';
 import {requestAuth,type AuthPath,type AuthReply,type User} from './authClient';
 import {safeError,ServiceError} from './http';
+import {PRODUCTION_ORIGIN,requiresProductionOrigin,OriginRejectedError} from './deployment';
 
 export async function authRequest(path:AuthPath,body?:unknown){
  const value=await requestAuth(API_BASE,path,body,getCSRF());
@@ -30,12 +31,14 @@ function ColdStartNote(){
 }
 
 export default function AuthGate(){
+ const useProduction=requiresProductionOrigin(window.location.origin);
  const [user,setUser]=useState<User|null>(null),[loading,setLoading]=useState(true);
  const [error,setError]=useState(''),[connectionError,setConnectionError]=useState(false);
+ const [originRejected,setOriginRejected]=useState(false);
  const [mode,setMode]=useState<'login'|'register'>('login'),[email,setEmail]=useState(''),[password,setPassword]=useState('');
  const [visible,setVisible]=useState(false),[busy,setBusy]=useState(false),[tour,setTour]=useState(false),[theme,setTheme]=useState(readTheme());
 
- function reportError(cause:unknown){setError(safeError(cause));setConnectionError(cause instanceof ServiceError)}
+ function reportError(cause:unknown){setError(safeError(cause));setConnectionError(cause instanceof ServiceError);setOriginRejected(cause instanceof OriginRejectedError)}
  async function enter(value:AuthReply){
   const nextUser=value.user??null;
   setUserScope(nextUser?.id??'');
@@ -47,6 +50,7 @@ export default function AuthGate(){
   setUser(nextUser);
  }
  useEffect(()=>{
+  if(useProduction){setLoading(false);return;}
   let alive=true;
   (bootstrap??=authRequest('session')).then(async value=>{if(alive)await enter(value)})
    .catch(cause=>{bootstrap=null;if(alive)reportError(cause)})
@@ -79,6 +83,7 @@ export default function AuthGate(){
   }catch(cause){reportError(cause)}finally{setBusy(false)}
  }
 
+ if(useProduction)return <main className="auth-shell"><section className="auth-card auth-loading"><span className="auth-brand">Portfolio25<span>GRID</span></span><h1>Demoyu üretim adresinde açın</h1><p className="auth-value">Bu dağıtıma özel bağlantı üzerinden giriş yapılmaz. Kayıt ve projeler için sabit adresi kullanın.</p><a className="button primary full production-link" href={PRODUCTION_ORIGIN}>Üretim demosunu aç</a><p className="auth-demo">{PRODUCTION_ORIGIN}</p></section></main>;
  if(loading)return <main className="auth-shell"><section className="auth-card auth-loading"><span className="auth-brand">Portfolio25<span>GRID</span></span><h1>Sunucuya bağlanılıyor</h1><p role="status">Oturum kontrol ediliyor…</p><ColdStartNote/></section></main>;
  if(!user)return <main className="auth-shell"><section className="auth-card" aria-labelledby="auth-title">
   <div className="auth-card-top"><span className="auth-brand">Portfolio25<span>GRID</span></span><label className="auth-theme">Tema<select aria-label="Giriş teması" value={theme} onChange={e=>{const value=e.target.value as Theme;setTheme(value);applyTheme(value)}}>{themes.map(t=><option key={t.id} value={t.id}>{t.label}</option>)}</select></label></div>
@@ -91,6 +96,7 @@ export default function AuthGate(){
    {error&&<p role="alert" className="auth-error">{error}</p>}
    <button className="button primary full" type="submit" aria-busy={busy}>{busy?'İşlem sürüyor…':mode==='login'?'Giriş yap':'Hesap oluştur'}</button>
   </fieldset></form>
+  {originRejected&&<a className="button secondary full production-link" href={PRODUCTION_ORIGIN}>Üretim adresinde giriş yap</a>}
   {connectionError&&<button className="button secondary full auth-reconnect" disabled={busy} onClick={()=>void reconnect()}>Bağlantıyı yeniden dene</button>}
   <button className="text-button auth-switch" disabled={busy} onClick={()=>{setMode(mode==='login'?'register':'login');setError('');setConnectionError(false);setPassword('');setVisible(false)}}>{mode==='login'?'Hesabınız yok mu? Kayıt olun':'Hesabınız var mı? Giriş yapın'}</button>
   <p className="auth-demo">Size ait sentetik pilotla deneyin; saha verisi gerekmez.</p>

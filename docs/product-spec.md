@@ -2,7 +2,7 @@
 
 ## Güncel teslim — 20 Ekim 2026
 
-Kayıt doğrulama, hesap bağlamı, korunan taslaklar, uygulanmış/zorunlu/aday müdahale kombinasyonları ve karar odaklı ekranlar uygulanmıştır. Üç asistan akışı backend'e bağlandı; gerçek sağlayıcı bağlantısı 429 ile sınırlıdır. Ayrı ComStock yıllık tahmin modeli eğitildi ve inference ekranı eklendi; ana fizik/MILP motorunun yerine geçmez, Kayseri kapsam dışıdır. Mevcut kayıtlar ve sentetik pilot korunur. [Yapılanlar, kontroller ve sınırlamalar](improvement-report.md).
+Kayıt doğrulama, hesap bağlamı, korunan taslaklar, uygulanmış/zorunlu/aday müdahale kombinasyonları ve karar odaklı ekranlar uygulanmıştır. Üç asistan akışı backend'e bağlandı; gerçek sağlayıcı bağlantısı 429 ile sınırlıdır. Ayrı ComStock yıllık tahmin modeli eğitildi ve inference ekranı eklendi; ana fizik/MILP motorunun yerine geçmez, Kayseri kapsam dışıdır. Mevcut kayıtlar ve sentetik pilot korunur. [Yapılanlar, kontroller ve sınırlamalar](https://github.com/BnymGnc/Portfolio25/blob/c41071b/docs/improvement-report.md).
 
 Aşağıdaki aşama kayıtları tarihçedir; ML/LLM yok ve kat eylemleri sabittir ifadeleri bu güncellemeyle değişmiştir. Gerçek iklim/konfor, saha doğrulaması, kullanıcı hesabı, otonom kontrol ve genel internet yayını eklenmedi.
 

@@ -2,8 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {requestAuth} from '../src/authClient.ts';
 import {readJsonObject,ServiceError} from '../src/http.ts';
+import {PRODUCTION_ORIGIN,requiresProductionOrigin,OriginRejectedError} from '../src/deployment.ts';
 
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
+
+test('Only other Vercel deployment origins require the fixed production URL; Origin failure is distinct from CSRF',async()=>{
+ assert.equal(requiresProductionOrigin(PRODUCTION_ORIGIN),false);
+ assert.equal(requiresProductionOrigin('http://127.0.0.1:5173'),false);
+ assert.equal(requiresProductionOrigin('http://localhost:5173'),false);
+ assert.equal(requiresProductionOrigin('https://frontend-8ptsie61m-bunyamins-projects-1705a228.vercel.app'),true);
+ assert.equal(requiresProductionOrigin('https://buildingportfolio25.vercel.app.evil.test'),false);
+ await assert.rejects(requestAuth('','login',{},'x',async()=>json({detail:'İstek kaynağı izinli değil.'},403)),OriginRejectedError);
+ await assert.rejects(requestAuth('','login',{},'x',async()=>json({detail:'Oturum doğrulaması yenilenmeli'},403)),error=>!(error instanceof OriginRejectedError));
+});
 
 test('Gateway text, HTML, malformed JSON and misleading success never leak parser or proxy text',async()=>{
  for(const response of [new Response('An error occurred',{status:502}),new Response('<html>Starting</html>',{status:200,headers:{'Content-Type':'text/html'}}),new Response('An error occurred',{status:502,headers:{'Content-Type':'application/json'}}),json({csrf:'x'}),json({user:null,csrf:'x'})]){

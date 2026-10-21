@@ -1,6 +1,6 @@
 # Ürün yol haritası — 20 Ekim 2026
 
-Güncelleme: [Kayseri sentetik pilotunda](pilot-kayseri.md) sınırlı kat/zon paylaştırması ve müdahale önizlemesi uygulanmıştır. Ardından ComStock küçük yıllık alt kümesinde gerçek eğitim/inference ve backend LLM akışları eklendi: [model kartı](model-card.md), [AI mimarisi](ai-architecture.md), [teslim raporu](improvement-report.md). Aşağıdaki modül önerileri önceki gereksinim kaydıdır; yıllık ML ve statik kat paylaştırmasının dar ilk sürümü artık vardır. Ayrıntılı termal ağ, saatlik ML, dinamik konfor ve Türkiye saha doğrulaması gelecek iştir. Pilot mimari plan, hava akışı veya dijital ikiz uygulaması değildir.
+Güncelleme: [Kayseri sentetik pilotunda](pilot-kayseri.md) sınırlı kat/zon paylaştırması ve müdahale önizlemesi uygulanmıştır. Ardından ComStock küçük yıllık alt kümesinde gerçek eğitim/inference ve backend LLM akışları eklendi: [model kartı](model-card.md), [AI mimarisi](ai-architecture.md), [teslim raporu](https://github.com/BnymGnc/Portfolio25/blob/c41071b/docs/improvement-report.md). Aşağıdaki modül önerileri önceki gereksinim kaydıdır; yıllık ML ve statik kat paylaştırmasının dar ilk sürümü artık vardır. Ayrıntılı termal ağ, saatlik ML, dinamik konfor ve Türkiye saha doğrulaması gelecek iştir. Pilot mimari plan, hava akışı veya dijital ikiz uygulaması değildir.
 
 LLM için tek gerçek bağlantı denemesi HTTP 429 aldı; uygulanan açıklayıcı akışları taklit sağlayıcıyla doğrulandı. Otomatik klima konumlandırması veya canlı dijital ikiz geliştirilmedi; bunlar için etkin düğme yoktur.
 

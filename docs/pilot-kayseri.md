@@ -22,7 +22,7 @@ Doğrulama betikleri güncel arayüze uyarlandı: açılır proje yönetimi, yen
 
 Kat/zon ve ortak sistem toplamları elektrik, yakıt ve faydalı ısı için ayrı uzlaşır; iki kırılım toplanmaz, HP ısısı nihai enerjiye ikinci kez eklenmez. Yükleme ve kaydetme testleri kullanıcı dosyaları yerine geçici veri/ayrı QA proje kopyalarında yürütüldü. Canlı pilotta yalnız salt okunur inceleme, kayıt yazmayan önizleme ve mevcut kayıtları koruyan açık örnek yükleme eylemi kullanıldı.
 
-**Güncel motor notu:** Aşağıdaki sayısal pilot teslimi ve sabit kat seçimi açıklamaları önceki sürümün tarihsel kaydıdır. Motor 4.0.0 eski seçimleri zorunlu yatırım olarak korur; açık kullanıcı geçişiyle uygulanmış/zorunlu/aday müdahaleler MILP'ye girer. Yeni çatı hedef U duyarlılığı ayrıdır. Pilot dosyaları yeniden üretilmedi. Ayrı ComStock ML modeli ABD kapsamlıdır ve bu pilot için tahmin vermez; LLM açıklayıcı pilot sayıları üretmez. [Güncel teslim](improvement-report.md), [varsayımlar](assumptions.md), [model kartı](model-card.md).
+**Güncel motor notu:** Aşağıdaki sayısal pilot teslimi ve sabit kat seçimi açıklamaları önceki sürümün tarihsel kaydıdır. Motor 4.0.0 eski seçimleri zorunlu yatırım olarak korur; açık kullanıcı geçişiyle uygulanmış/zorunlu/aday müdahaleler MILP'ye girer. Yeni çatı hedef U duyarlılığı ayrıdır. Pilot dosyaları yeniden üretilmedi. Ayrı ComStock ML modeli ABD kapsamlıdır ve bu pilot için tahmin vermez; LLM açıklayıcı pilot sayıları üretmez. [Güncel teslim](https://github.com/BnymGnc/Portfolio25/blob/c41071b/docs/improvement-report.md), [varsayımlar](assumptions.md), [model kartı](model-card.md).
 
 ## Yükleme ve koruma
 

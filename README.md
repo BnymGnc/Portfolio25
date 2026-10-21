@@ -6,7 +6,11 @@ Bütçe ve elektrik bağlantı sınırları altında bina enerji yatırımların
 
 **Backend:** https://portfolio25-api.onrender.com
 
+**Giriş adresi:** Jüri ve kullanıcılarla yukarıdaki sabit demo adresini paylaşın. `frontend-...vercel.app` dağıtım adresleri ayrı Origin'dir; backend bunlara otomatik izin vermez. Yeni arayüz bu adreslerde form yerine üretim bağlantısını gösterir. Önceden yayımlanmış eski dağıtım sayfaları push ile güncellenmez. [Giriş/yayın açıklaması](docs/deploy-render-vercel.md).
+
 Kendi hesabınızı oluşturabilirsiniz. Dört proje / sekiz bina içeren Kayseri sentetik pilotu her kullanıcı için ayrı oluşturulur. Veriler saha ölçümü değildir; önceki kampüs ve kullanıcı kayıtları otomatik sıfırlanmaz.
+
+**Ürün odağı:** Kampüslerin teknik işler, enerji ve tesis ekipleri için yatırım önceliklendirme; kurum yönetimi yatırım kararı verir. Tek bina, ofis ve konut desteği ikincil kapsamdır. Gerçek Task 1 baseline'ı henüz sağlanmadı; pilot başlangıcı yalnız sentetik demo referansıdır.
 
 ## Demo akışı
 
@@ -77,3 +81,5 @@ npm.cmd run build
 Tarayıcı kontrolleri Selenium/Chrome gerektirir. `scripts/check_live_deployment.py` gerçek HTTPS uçtan uca kontrolüdür; ayrı bir QA hesabı oluşturur. Hiçbiri model eğitimi veya ücretli LLM çağrısı başlatmaz. [Betik rehberi](scripts/README.md). Oturum desteğinden önceki altı eski tarayıcı betiği kaldırıldı; eski doğrulama belgelerindeki komutlar tarihsel kayıttır.
 
 [API](docs/api-inventory.md) · [Veri sözleşmesi](docs/data-contract.md) · [Varsayımlar](docs/assumptions.md) · [Pilot](docs/pilot-kayseri.md) · [Sentetik model](docs/model-card-synthetic.md) · [ComStock](docs/model-card.md) · [Form yanıtları / kısa demo](docs/task3-submission.md)
+
+[Belge dizini](docs/README.md) · [Climathon değerlendirmesi ve öneriler](docs/product-review.md) · [Depo temizliği](docs/repository-cleanup.md)

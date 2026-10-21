@@ -1,4 +1,5 @@
 import {readJsonObject, ServiceError, unavailable} from './http.ts';
+import {OriginRejectedError} from './deployment.ts';
 
 export interface User {id: string; email: string; onboarding_version: number}
 export interface AuthReply {user?: User | null; csrf?: string; completed?: boolean; version?: number}
@@ -21,6 +22,7 @@ export async function requestAuth(base: string, path: AuthPath, body: unknown, c
   if (!response.ok) {
     if (response.status >= 500) throw unavailable(response.status);
     const detail = typeof value.detail === 'string' ? value.detail.slice(0, 400) : null;
+    if (response.status === 403 && detail === 'İstek kaynağı izinli değil.') throw new OriginRejectedError();
     const fallback = response.status === 429 ? 'Çok sayıda deneme yapıldı. Biraz bekleyip tekrar deneyin.'
       : response.status === 422 ? 'E-posta ve parola biçimini kontrol edin. Kayıt parolası en az 12 karakter olmalı.'
       : 'Oturum işlemi tamamlanamadı. Girdileri kontrol edin.';

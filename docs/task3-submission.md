@@ -5,6 +5,7 @@ Gönderilen form genel olarak mevcut prototiple uyumludur. Aşağıdaki metin ki
 ## Netleştirilen noktalar
 
 - %25 değiştirilebilir hedef; gerçekleşmiş veya garanti tasarruf değildir. Aynı alan/dönemde enerji yoğunluğu azaltımı, toplam nihai enerji azaltımıyla karşılaştırılabilir.
+- İlk problem odağı çok binalı kampüslerde yatırım önceliklendirmedir. Hedef kullanıcı teknik işler, enerji ve tesis ekipleri; karar sahibi kurum yönetimidir. Gerçek Task 1 tüketim/yoğunluk baseline'ı henüz sağlanmadı; sekiz sentetik bina bunun yerine sunulmaz.
 - Kat/kullanım dağılımı, sentetik bina girdilerinden alan/kullanım/program varsayımlarıyla modellenir; ölçüm veya rastgele yüzdeler değildir.
 - 240 bağımsız bina veri kümesinin toplamıdır; tamamı eğitim grubunda değildir. Eğitim/validasyon/test bina bazında ayrıdır. Sekiz demo bina eğitim satırı değildir.
 - ML gerçekten inference yapar ama fizik/MILP planını belirlemez. Simülatörü yaklaşık öğrenir; üstünlük ve saha doğruluğu gösterilmedi. Bazı gaz tahminlerinde yüksek hata bulunur.
@@ -18,7 +19,7 @@ Kendi hesabınızı oluşturup sentetik pilotla deneyebilirsiniz. Şifre paylaş
 
 ## Şu anda gerçekten çalışan temel fonksiyon
 
-Portfolio25-GRID, bina sahipleri ve tesis yöneticilerinin sınırlı enerji dönüşümü bütçesini hangi binalara ve müdahalelere ayıracağını değerlendiren çalışan bir karar destek prototipidir. Kullanıcı tek/çok bina projelerinde tüketimleri, bütçeyi, enerji hedefini ve fiziksel elektrik bağlantı sınırlarını düzenler. Sistem fiziksel enerji hesapları ve matematiksel optimizasyonla yalıtım, ısı pompası ve uygun müdahale kombinasyonlarını değerlendirir; bütçe ve kapasite sınırları altında yatırım planı hesaplar. Başlangıca göre yıllık nihai enerji, kWh/m²-yıl, net ekonomik tasarruf ve elektrik yükü karşılaştırılır. %25 enerji yoğunluğu azaltımı düzenlenebilir bir senaryo hedefidir; garanti edilmiş veya sahada ölçülmüş sonuç değildir.
+Portfolio25-GRID, kampüslerin teknik işler, enerji ve tesis yönetimi ekiplerinin sınırlı enerji dönüşümü bütçesini hangi binalara ve müdahalelere ayıracağını değerlendiren çalışan bir karar destek prototipidir. Kullanıcı tüketimleri, bütçeyi, enerji hedefini ve fiziksel elektrik bağlantı sınırlarını düzenler. Sistem fiziksel enerji hesapları ve matematiksel optimizasyonla yalıtım, ısı pompası ve uygun müdahale kombinasyonlarını değerlendirir; bütçe ve kapasite sınırları altında yatırım planı hesaplar. Aynı bina, alan ve yıllık dönem için başlangıca göre nihai enerji, kWh/m²-yıl, net ekonomik tasarruf ve bağlantı grubu kapasitesi karşılaştırılır. %25 azaltım düzenlenebilir bir senaryo hedefidir; garanti edilmiş veya sahada ölçülmüş sonuç değildir. Tek bina/konut desteği sonraki kapsam genişlemesidir.
 
 ## Araçlar, teknolojiler ve seçilme nedeni
 
@@ -42,14 +43,14 @@ Yatırım planını ayrı fizik ve matematiksel optimizasyon motoru oluşturur. 
 
 ## 2–3 dakikalık gösterim
 
-1. Kendi hesabınızla giriş yapın. “Bağımsız ofis” projesini ve tek binayı gösterin; sentetik etiketini belirtin.
+1. Kendi hesabınızla giriş yapın. “Temsilî kampüs” projesindeki dört binayı gösterin; sentetik etiketini belirtin. Diğer üç projenin dört binası ayrı bütçe ve bağlantılara sahiptir; kampüs hesabına eklenmez.
 2. Senaryo girdilerinde varsayılan bütçe/hedef/bağlantıyı gösterip Mod A ile hesaplayın. Önce/sonra enerji yoğunluğu, yatırım, net ekonomik tasarruf ve kapasiteyi açıklayın. Sonuçlar API'den gelir; bu belge sayıları sabitlemez.
 3. Bina detaylarında uygun birleşik paketi seçip “ML ve fizik sonucunu karşılaştır” çalıştırın. Yıllık elektrik/toplam gaz, büyük fark uyarısı ve saha doğrulaması sınırını gösterin.
 4. Güncel sonucu dışa aktarın. İsterseniz bütçeyi değiştirip eski sonucun güncel olmadığını gösterin. “%25 hedef; gerçekleşmiş tasarruf değil” diyerek bitirin.
 
-Mevcut uygulamada eksik olan kısa kapsam/demo açıklaması giriş yardımına ve Uygulama hakkında bölümüne eklendi. Hesap, optimizasyon, ML artefaktı ve kayıt şeması değiştirilmedi. [Canlı kabul kanıtı](live-deployment-report.md), [sentetik model kartı](model-card-synthetic.md).
+Mevcut uygulamada kısa kapsam/demo açıklaması giriş yardımında ve Uygulama hakkında bölümündedir. Hesap, optimizasyon, ML artefaktı ve kayıt şeması bu değerlendirmede değiştirilmedi. [Canlı kabul kanıtı](live-deployment-report.md), [sentetik model kartı](model-card-synthetic.md), [güncel kampüs değerlendirmesi](product-review.md).
 
-## Bu güncellemenin kontrolleri
+## Önceki form arayüzü güncellemesinin kontrolleri (tarihsel)
 
 Frontend `npm.cmd test`: 15 geçti. `npm.cmd run build`: TypeScript/Vite üretim derlemesi geçti. Backend ve model dosyaları değiştirilmedi; bu görevde yeniden eğitim veya LLM çağrısı yapılmadı.
 

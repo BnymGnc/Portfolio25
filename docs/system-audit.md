@@ -1,6 +1,6 @@
 # Portfolio25-GRID — mevcut sistem incelemesi
 
-**Tarihsel inceleme:** Bu bulgular geliştirme öncesi durumu kaydeder; güncel hata listesi değildir. Kaynakta doğrulanıp düzeltilenler, gerçekten çalıştırılan kontroller ve kalan sınırlar [iyileştirme raporunda](improvement-report.md) bulunur. Önceki kanıt dosyaları korunmuştur.
+**Tarihsel inceleme:** Bu bulgular geliştirme öncesi durumu kaydeder; güncel hata listesi değildir. Kaynakta doğrulanıp düzeltilenler, gerçekten çalıştırılan kontroller ve kalan sınırlar [iyileştirme raporunda](https://github.com/BnymGnc/Portfolio25/blob/c41071b/docs/improvement-report.md) bulunur. Önceki kanıt dosyaları korunmuştur.
 
 **Tarih: 20 Ekim 2026.** İnceleme kökü: `C:\Yazılım\Applications\Portfolio25-GRID`. Canlı kanıt ilk toplama zamanı `2026-10-20T08:35Z`; aynı oturumda sonraki tarayıcı ve hata kontrolleri de yapıldı. `git rev-parse HEAD` bu klasörde Git deposu bulamadı; commit/branch, izlenen dosyalar veya değişiklik geçmişi doğrulanamadı. `rg` ile çalışma alanında AGENTS.md bulunmadı.
 

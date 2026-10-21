@@ -39,6 +39,12 @@ Dış-origin rewrite süre sınırı Vercel platformuna bağlıdır; eski Node f
 
 Render'daki mevcut FRONTEND_ORIGINS değeri tam `https://buildingportfolio25.vercel.app` origin'ini içermelidir; örnek dosya bu değeri gösterir, gerçek ortam dosyası değiştirilmez. Preview adresleri otomatik izinli değildir. Cookie akışını farklı siteler arası bağımlı hale getirmemek için tarayıcıyı doğrudan Render API adresine yönlendirmeyin.
 
+### “İstek kaynağı izinli değil” ve dağıtım adresi
+
+`https://frontend-8ptsie61m-bunyamins-projects-1705a228.vercel.app` kullanıcı tarafından paylaşılan dağıtıma özel adrestir. Sabit üretim origin'iyle aynı değildir; bu adresin reddedilmesi CSRF/Origin korumasının sonucudur. Form/video/jüri bağlantısı **https://buildingportfolio25.vercel.app/** olmalıdır. Rastgele `*.vercel.app` adreslerine izin verilmez.
+
+Yeni frontend diğer Vercel origin'lerinde kimlik bilgisi isteyen form açmak yerine sabit üretim bağlantısı gösterir. Backend'den bu hata gelirse de üretim bağlantısı sunulur. Çerez/parola yeni adrese taşınmaz. Eski, değişmez dağıtım URL'si güncel GitHub push'uyla geriye dönük değişmez; yeni kullanıcı akışı en son üretim derlemesi yayımlandığında görünür. Bir preview adresinde bilerek test yapılacaksa Render `FRONTEND_ORIGINS` listesine yalnız o tam HTTPS origin'i eklenip backend yeniden başlatılmalıdır; bu görev platform ayarını değiştirmedi. [Vercel URL yapısı](https://vercel.com/docs/deployments/generated-urls).
+
 ## Gerçek yayından sonra kontrol
 
 1. HTTPS kayıt → tanıtım → dört proje/sekiz bina; cookie HttpOnly/Secure/SameSite=Lax ve API no-store.
