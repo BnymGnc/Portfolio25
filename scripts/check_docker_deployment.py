@@ -39,6 +39,7 @@ def main():
         nonlocal base
         docker('run', '-d', '--name', name, '--memory', '768m', '--cpus', '2',
                '--mount', f'type=bind,source={data},target=/var/data',
+               '-e', 'STORAGE_BACKEND=sqlite', '-e', 'DATA_FILE=/var/data/portfolio25/campus.json',
                '-e', 'PORT=18463', '-e', f'FRONTEND_ORIGINS={ORIGIN}',
                '-p', '127.0.0.1::18463', IMAGE)
         port = docker('port', name, '18463/tcp').rsplit(':', 1)[1]

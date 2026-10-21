@@ -3,7 +3,7 @@ FROM python:3.13.7-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    DATA_FILE=/var/data/portfolio25/campus.json \
+    STORAGE_BACKEND=postgres \
     COOKIE_SECURE=true \
     PORT=10000
 

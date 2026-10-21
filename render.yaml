@@ -1,18 +1,17 @@
-# Creating the disk/service can incur charges. This file is preparation, not a purchase.
+# Render Free + externally provisioned Neon PostgreSQL. No paid disk/database.
 services:
   - type: web
     name: portfolio25-api
     runtime: docker
+    plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /api/health
-    disk:
-      name: portfolio25-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
-      - key: DATA_FILE
-        value: /var/data/portfolio25/campus.json
+      - key: STORAGE_BACKEND
+        value: postgres
+      - key: DATABASE_URL
+        sync: false
       - key: COOKIE_SECURE
         value: "true"
       - key: FRONTEND_ORIGINS

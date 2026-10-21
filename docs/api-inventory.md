@@ -19,6 +19,7 @@ Bütün proje endpoint’lerinde `project_id` OpenAPI’de vardır. Önce oturum
 | POST `/api/auth/login` | Oturumu döndürür, mevcut kullanıcı projelerini korur |
 | POST `/api/auth/logout` | Mevcut cookie oturumunu sunucuda iptal eder |
 | POST `/api/auth/onboarding` | Kullanıcının tanıtım sürümünü kalıcı işaretler |
+| GET `/api/health` | PostgreSQL seçiliyken bağlantı ve migration sürümü denetlenir; unavailable için 503/degraded. `storage.status=postgresql/local/unavailable`; fizik/çözücü durumu `not_checked`. |
 | GET `/api/ml/synthetic/status` | Model dosyası varlığı, kaynak/split/metrik metaverisi; eğitim başlatmaz |
 | POST `/api/ml/synthetic/predict` | `context`, `building_id`, `candidate_id`; uygun motor adayı için yıllık sentetik ML + fizik + fark |
 

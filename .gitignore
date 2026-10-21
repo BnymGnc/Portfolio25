@@ -28,4 +28,5 @@ secrets/
 *.p12
 .vscode/settings.json
 *.tsbuildinfo
+*.portfolio25-backup.zip
 

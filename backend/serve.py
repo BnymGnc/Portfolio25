@@ -15,6 +15,14 @@ def platform_port():
 
 
 def serve():
+    # Idempotent schema migration; a transient outage must never select SQLite.
+    from postgres_store import get_store, DatabaseUnavailable
+    try:
+        store = get_store()
+        if store is not None:
+            store.migrate()
+    except DatabaseUnavailable:
+        print('PostgreSQL hazır değil; sağlık ve hesap istekleri bağlantı düzelene kadar 503 dönecek.', flush=True)
     uvicorn.run('main:app', host='0.0.0.0', port=platform_port(), workers=1)
 
 

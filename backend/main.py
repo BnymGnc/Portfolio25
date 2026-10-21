@@ -29,6 +29,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import ResponseValidationError
+from storage import storage_status, check_storage
+from postgres_store import get_store, DatabaseUnavailable
+import psycopg
+from starlette.concurrency import run_in_threadpool
 
 BASE_DIR = Path(__file__).resolve().parent
 load_backend_env()
@@ -40,7 +44,9 @@ project_context = ContextVar('project_id', default='campus-demo-25')
 
 
 AUTH_REQUIRED = True
-accounts = Accounts(lambda: DATA_FILE.parent/'accounts.sqlite3', secure=os.getenv('COOKIE_SECURE','false').lower()=='true')
+accounts = Accounts(lambda: DATA_FILE.parent/'accounts.sqlite3', secure=os.getenv('COOKIE_SECURE','false').lower()=='true',
+                    storage_guard=lambda: check_storage(DATA_FILE),
+                    db_provider=lambda: get_store().auth_connection if get_store() is not None else None)
 ORIGINS = {s.strip() for s in os.getenv('FRONTEND_ORIGINS','http://127.0.0.1:5173,http://localhost:5173').split(',') if s.strip()}
 
 def data_root():
@@ -59,6 +65,11 @@ def data_file():
     project_id=project_context.get()
     return (data_root()/'campus.json' if user_context.get() else DATA_FILE) if project_id=='campus-demo-25' else data_root()/'projects'/f'{project_id}.json'
 
+
+def project_exists():
+    store=get_store()
+    return store.project(user_context.get(),project_context.get()) is not None if store else data_file().exists()
+
 app = FastAPI(title="Portfolio25-GRID API", version="0.2.0", description="Sentetik kampüs paket hesaplama ve MILP prototipi.")
 
 
@@ -70,7 +81,13 @@ def error_response(status,message,code=None,fields=None):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_error(request,error):
-    return error_response(error.status_code,str(error.detail))
+    return error_response(error.status_code,str(error.detail),getattr(error,'code',None))
+
+
+@app.exception_handler(psycopg.Error)
+async def database_error(request,error):
+    safe=DatabaseUnavailable()
+    return error_response(503,str(safe.detail),safe.code)
 
 
 @app.exception_handler(RequestValidationError)
@@ -100,7 +117,11 @@ app.add_middleware(
 async def select_project(request, call_next):
     public=request.url.path in ('/api/health','/openapi.json','/docs','/docs/oauth2-redirect','/redoc')
     auth_route=request.url.path.startswith('/api/auth/')
-    session=accounts.session(request) if AUTH_REQUIRED and not public and request.method!='OPTIONS' else None
+    try:
+        if AUTH_REQUIRED and not public and request.method!='OPTIONS':check_storage(DATA_FILE)
+        session=await run_in_threadpool(accounts.session,request) if AUTH_REQUIRED and not public and request.method!='OPTIONS' else None
+    except HTTPException as error:
+        return error_response(error.status_code,str(error.detail),getattr(error,'code',None))
     uid=session['user_id'] if session else None
     if AUTH_REQUIRED and not public and request.method!='OPTIONS':
         if not auth_route and not uid:return error_response(401,'Devam etmek için giriş yapın.','authentication_required')
@@ -115,8 +136,11 @@ async def select_project(request, call_next):
     token=project_context.set(project_id)
     try:
         global_route=public or auth_route or request.url.path in ('/api/projects','/api/examples/kayseri','/api/examples/kayseri/load')
-        if not global_route and request.method!='OPTIONS' and not data_file().exists() and (uid or project_id!='campus-demo-25'):
-            return error_response(404,'Proje bulunamadı veya bu hesaba ait değil.')
+        try:
+            if not global_route and request.method!='OPTIONS' and not await run_in_threadpool(project_exists) and (uid or project_id!='campus-demo-25'):
+                return error_response(404,'Proje bulunamadı veya bu hesaba ait değil.')
+        except DatabaseUnavailable as error:
+            return error_response(503,str(error.detail),error.code)
         result=await call_next(request)
         result.headers['Cache-Control']='no-store, private'
         result.headers['Vary']='Cookie, Origin'
@@ -126,36 +150,41 @@ async def select_project(request, call_next):
         user_context.reset(user_token)
 
 
-@app.get('/api/auth/session')
+def session_reply(value):
+    return {**value,'storage':storage_status(DATA_FILE)}
+
+
+@app.get('/api/auth/session',response_model=contracts.AuthSession)
 def auth_session(request:Request,response:Response):
     session=accounts.session(request)
-    if not session:return accounts.issue(response)
-    return {'user':accounts.public_user(session['user_id']),'csrf':session['csrf'],'onboarding_version':1}
+    if not session:return session_reply(accounts.issue(response))
+    return {'user':accounts.public_user(session['user_id']),'csrf':session['csrf'],'onboarding_version':1,
+            'storage':storage_status(DATA_FILE)}
 
 
 def authenticated_response(uid,request,response):
     token=user_context.set(uid)
     try:load_kayseri()  # Idempotent: only missing private templates are created.
     finally:user_context.reset(token)
-    return accounts.issue(response,uid,accounts.session(request))
+    return session_reply(accounts.issue(response,uid,accounts.session(request)))
 
 
-@app.post('/api/auth/register')
+@app.post('/api/auth/register',response_model=contracts.AuthSession)
 def register(request:Request,response:Response,credentials:Credentials):
     accounts.limit(request,credentials.email)
     return authenticated_response(accounts.register(credentials),request,response)
 
 
-@app.post('/api/auth/login')
+@app.post('/api/auth/login',response_model=contracts.AuthSession)
 def login(request:Request,response:Response,credentials:Credentials):
     accounts.limit(request,credentials.email)
     return authenticated_response(accounts.login(credentials),request,response)
 
 
-@app.post('/api/auth/logout')
+@app.post('/api/auth/logout',response_model=contracts.AuthSession)
 def logout(request:Request,response:Response):
     session=accounts.session(request)
-    return accounts.issue(response,None,session)
+    return session_reply(accounts.issue(response,None,session))
 
 
 @app.post('/api/auth/onboarding')
@@ -166,7 +195,11 @@ def onboarding():
     return {'completed':True,'version':1}
 
 
-def write_campus(campus: Campus) -> None:
+def write_campus(campus: Campus, expected_revision=None) -> None:
+    store=get_store()
+    if store:
+        store.save_project(user_context.get(),campus,expected_revision)
+        return
     path=data_file()
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
@@ -175,6 +208,11 @@ def write_campus(campus: Campus) -> None:
 
 
 def read_campus() -> Campus:
+    store=get_store()
+    if store:
+        raw=store.project(user_context.get(),project_context.get())
+        if raw is None:raise HTTPException(404,'Proje bulunamadı veya bu hesaba ait değil.')
+        return Campus.model_validate(raw)
     path=data_file()
     if not path.exists():
         write_campus(create_sample_campus())
@@ -206,11 +244,17 @@ def result_path() -> Path:
 
 
 def read_result(campus: Campus) -> CalculationResult | None:
+    result=read_historical_result()
+    return result if result and not stale_reason(campus,result) else None
+
+
+def read_historical_result() -> CalculationResult | None:
+    store=get_store()
+    if store:return store.last_result(user_context.get(),project_context.get())
     path = result_path()
     if not path.exists():
         return None
-    result = CalculationResult.model_validate_json(path.read_text(encoding="utf-8"))
-    return result if not stale_reason(campus,result) else None
+    return CalculationResult.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 def response(campus: Campus) -> CampusResponse:
@@ -220,7 +264,7 @@ def response(campus: Campus) -> CampusResponse:
     baseline = summarize(campus.buildings, [baseline_profile(b,p,campus.scenario)
                                            for b, p in zip(campus.buildings, profiles, strict=True)], campus.scenario, campus.connection_groups)
     result = read_result(campus)
-    old=CalculationResult.model_validate_json(result_path().read_text(encoding='utf-8')) if result_path().exists() else None
+    old=read_historical_result()
     return CampusResponse(campus=campus, baseline=baseline, profile_audit=audit, calculation=result,
                           baseline_packages=[baseline_profile(b,p,campus.scenario).report for b,p in zip(campus.buildings,profiles,strict=True)],
                           calculation_id=calculation_id(result),context=context(campus,result),result_stale_reason=stale_reason(campus,old),
@@ -228,9 +272,13 @@ def response(campus: Campus) -> CampusResponse:
                           investment_plan=result.selected_packages if result and result.after else None)
 
 
-@app.get("/api/health")
-def health():
-    return {"status": "ok", "version": "0.4.0", "optimization_status": "not_checked",'data_status':'not_checked'}
+@app.get("/api/health",response_model=contracts.Health)
+def health(response:Response):
+    storage=storage_status(DATA_FILE)
+    unavailable=storage['status']=='unavailable'
+    response.status_code=503 if unavailable else 200
+    return {"status": "degraded" if unavailable else "ok", "version": "0.4.0", "optimization_status": "not_checked",'data_status':'not_checked',
+            'storage':storage}
 
 
 @app.get('/api/calculations/current/evidence',response_model=contracts.Evidence)
@@ -248,7 +296,9 @@ def kayseri_status():
         projects=[]
         for sample in pilot_samples():
             path=data_root()/'projects'/f'{sample.id}.json'
-            current=Campus.model_validate_json(path.read_bytes()) if path.exists() else None
+            store=get_store()
+            raw=store.project(user_context.get(),sample.id) if store else None
+            current=Campus.model_validate(raw) if raw is not None else (Campus.model_validate_json(path.read_bytes()) if not store and path.exists() else None)
             p=current or sample
             projects.append({'id':p.id,'name':p.name,'building_count':len(p.buildings),'budget_try':p.scenario.budget_try,
                 'connection_group_count':len(p.connection_groups),'loaded':current is not None})
@@ -260,6 +310,10 @@ def load_kayseri():
     from pilot_kayseri import create_pilot,DATASET
     with lock:
         samples=pilot_samples();created=[];preserved=[]
+        store=get_store()
+        if store:
+            created,preserved=store.seed_pilot(user_context.get(),samples,DATASET)
+            return {**kayseri_status(),'created':created,'preserved':preserved}
         # Validate every occupied identity before writing any sample. Never overwrite.
         for p in samples:
             path=data_root()/'projects'/f'{p.id}.json'
@@ -279,6 +333,11 @@ def load_kayseri():
 @app.get('/api/projects')
 def list_projects():
     with lock:
+        store=get_store()
+        if store:
+            projects=[Campus.model_validate(p) for p in store.projects(user_context.get())]
+            return {'projects':[{'id':p.id,'name':p.name,'building_count':len(p.buildings),
+                'project_type':'single_building' if len(p.buildings)==1 else 'multi_building','revision':p.revision} for p in projects]}
         default_token=project_context.set('campus-demo-25')
         try:
             projects=[read_campus()] if not user_context.get() or data_file().exists() else []
@@ -370,7 +429,7 @@ def update_campus(update: CampusUpdate):
         from engine import prepare
         prepare(updated)
         candidate_response=contracts.Snapshot.model_validate(response(updated).model_dump(mode='json'))
-        write_campus(updated)
+        write_campus(updated,expected_revision=current.revision)
         return candidate_response
 
 
@@ -396,6 +455,10 @@ def calculate_plan(request: CalculationRequest):
         with lock:
             if stale_reason(read_campus(),result) is not None:
                 raise HTTPException(409, "Hesaplama sırasında girdiler değişti; sonucu yeniden hesaplayın.")
+            store=get_store()
+            if store:
+                store.save_result(user_context.get(),campus,result)
+                return result
             path = result_path()
             if path.exists():
                 import hashlib
@@ -493,8 +556,7 @@ def get_last_calculation():
     # Historical data is deliberately separate from the current-result contract/export.
     with lock:
         campus = read_campus()
-        path = result_path()
-        result = CalculationResult.model_validate_json(path.read_text(encoding="utf-8")) if path.exists() else None
+        result = read_historical_result()
         return {"current_revision": campus.revision, "is_current": bool(result and not stale_reason(campus,result)),
                 "calculation": result, "calculation_id": calculation_id(result),'context':context(campus,read_result(campus)),
                 'stale_reason':stale_reason(campus,result)}

@@ -1,4 +1,9 @@
 export const english:Record<string,string>={
+ 'Kalıcı saklama doğrulanmadı. Bu demo sunucusundaki hesaplar ve projeler yeniden başlatma veya yayın sırasında kaybolabilir.':'Persistent storage has not been verified. Accounts and projects on this demo server may be lost when it restarts or redeploys.',
+ 'Aynı e-posta adresini, klavye dilini ve Caps Lock durumunu kontrol edin. Parolayı göstererek yazımı inceleyebilirsiniz.':'Check the email address, keyboard language and Caps Lock. Use Show to check the password you typed.',
+ 'Bu hata, yanlış parola ile sunucuda artık bulunmayan hesabı ayırt etmez. Yeni hesap açmak eski projeleri geri getirmez; eski kayıtlar için yönetici yedeği gerekir.':'This error does not distinguish an incorrect password from an account that is no longer on the server. Creating a new account will not recover old projects; recovery requires an operator backup.',
+ 'Kalıcı veritabanına erişilemiyor. İşlem kaydedilmedi veya sonucu doğrulanamadı; bağlantı düzeldiğinde kaydı kontrol edin.':'The persistent database is unavailable. The write was not saved or its outcome could not be confirmed; check the record once the connection recovers.',
+ 'E-posta veya parola geçersiz.':'Invalid email or password.',
  'kWh/yıl':'kWh/year','MWh/yıl':'MWh/year','GWh/yıl':'GWh/year','milyon TL':'million TRY','TL/yıl':'TRY/year','kWh/m²-yıl':'kWh/m²/year','/ yıl':'/ year','yıl':'year',
  'Eğitim':'Education','Araştırma':'Research','İdari':'Administration','Sosyal':'Social','Konaklama':'Accommodation','Konut':'Residential','Ofis':'Office','Otel':'Hotel',
  'Toplam yatırım bütçesi':'Total investment budget','Tek bağlantı grubunun kapasitesi':'Single connection-group capacity','Elektrik birim bedeli':'Electricity unit price','Doğalgaz birim bedeli':'Natural-gas unit price','Elektrik emisyonu':'Electricity emissions','Doğalgaz emisyonu':'Natural-gas emissions','Bütçe ve enerji hedefi':'Budget and energy target',

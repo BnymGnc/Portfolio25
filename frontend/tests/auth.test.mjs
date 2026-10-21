@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {requestAuth} from '../src/authClient.ts';
+import {requestAuth,LoginRejectedError} from '../src/authClient.ts';
 import {readJsonObject,ServiceError} from '../src/http.ts';
 import {PRODUCTION_ORIGIN,requiresProductionOrigin,OriginRejectedError} from '../src/deployment.ts';
 
@@ -50,4 +50,15 @@ test('JSON validation errors stay useful; failed transport does not retry writes
  }
  for(const value of [null,[],{}])await assert.rejects(requestAuth('','session',undefined,'',async()=>json(value)),ServiceError);
  await assert.rejects(readJsonObject(new Response('upstream secret text',{status:200})),error=>!error.message.includes('secret'));
+});
+
+test('Login rejection is distinct from Origin, gateway and PostgreSQL availability failures',async()=>{
+ await assert.rejects(requestAuth('','login',{},'x',async()=>json({detail:'E-posta veya parola geçersiz.'},401)),LoginRejectedError);
+ await assert.rejects(requestAuth('','session',undefined,'',async()=>json({error:{code:'database_unavailable'}},503)),error=>{
+  assert.match(error.message,/veritabanına erişilemiyor/);assert.ok(!(error instanceof LoginRejectedError));assert.ok(error instanceof ServiceError);return true;
+ });
+ const storage={status:'postgresql',required:true,message:'Checked database'};
+ assert.deepEqual((await requestAuth('','session',undefined,'',async()=>json({user:null,csrf:'test-only',storage}))).storage,storage);
+ assert.equal((await requestAuth('','session',undefined,'',async()=>json({user:null,csrf:'test-only'}))).storage,undefined,'Older backend responses remain compatible');
+ assert.equal((await requestAuth('','session',undefined,'',async()=>json({user:null,csrf:'test-only',storage:{status:'persistent_disk'}}))).storage,undefined,'Malformed storage metadata is never shown as verified');
 });

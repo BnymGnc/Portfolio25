@@ -6,7 +6,8 @@
 | Isıtma elektrifikasyonu, karbon ve uygulanabilirlik gerekçesi | [Ürün konumlandırması](electrification-positioning.md) |
 | Teslim için gözden geçirilecek kısa içerik | [PDR taslağı](pdr-draft.md) |
 | Görev 3 formuna uygun anlatım ve kısa gösterim | [Teslim metni](task3-submission.md) |
-| Render/Vercel, Origin reddi, disk ve ortam | [Yayın rehberi](deploy-render-vercel.md) |
+| Render/Vercel, Origin reddi ve ortam | [Yayın rehberi](deploy-render-vercel.md) |
+| Render Free + Neon, migration ve eski hesapta 401 | [PostgreSQL geçişi](postgres-deployment.md) |
 | Gerçek HTTPS kabul kontrolü ve sınırlar | [Canlı rapor](live-deployment-report.md) |
 | API / veri / fizik varsayımları | [API](api-inventory.md), [veri sözleşmesi](data-contract.md), [varsayımlar](assumptions.md), [elle hesap](calculation-example.md) |
 | Proje/kayıt sahipliği ve eski dosyaların aktarımı | [Hesap ve saklama](auth-and-storage.md) |

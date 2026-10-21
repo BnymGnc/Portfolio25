@@ -1,5 +1,9 @@
 # Güncel betikler
 
+- `test_postgres.py`: Docker'da gerçek, ayrı PostgreSQL 16 QA veritabanında oturum/CSRF, sahiplik, revizyon yarışı, kalıcı hesap/dışa aktarım/ML, eski veri aktarımı, tekrarlı migration ve gerçek stop/start kesintisi. Üretim Neon testi yerine geçmez. `.\.venv\Scripts\python.exe -X utf8 scripts/test_postgres.py`.
+- `backend/storage_admin.py`: yalnız eski yerel SQLite için açık özel yedek ve yönetici işlemleri; gerçek `.env` okumaz. `backend/import_postgres.py` aynı özel yedeği kontrollü/idempotent PostgreSQL aktarımında kullanır. [Geçiş sırası](../docs/postgres-deployment.md).
+- `check_docker_deployment.py` eski SQLite geliştirme yolunu açık `STORAGE_BACKEND=sqlite` ile sınar; bu test PostgreSQL doğrulaması değildir. Üretim Docker varsayılanı PostgreSQL'dir.
+
 - `start-local.ps1`, `restart_backend.ps1`, `stop-local.ps1`: kayıtlı PID/başlangıç zamanını koruyan yerel süreç yönetimi; dolu portta ikinci sunucu başlatılmaz.
 - `browser_auth_recovery.py`: metin/HTML 502/503 giriş hatası, alanların korunması ve manuel yeniden bağlanma; geçici yerel QA hesabı temizlenir.
 - `browser_task3.py`: güncel oturumlu proje/bina, tema, TR/EN, Ayarlar, taslak, hesap/karbon kartı, karar özeti indirme/eski sonuç reddi ve ML kontrolü. 320–1536 px gerçek Chrome; yerel QA hesabı temizlenir. Selenium Manager ağda takılırsa mevcut uyumlu sürücüyü `SE_CHROMEDRIVER` ortamıyla gösterin; otomatik yeni sürüm kurmak zorunlu değildir.

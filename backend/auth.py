@@ -33,12 +33,21 @@ class Credentials(BaseModel):
 
 
 class Accounts:
-    def __init__(self, path_provider, secure=False):
+    def __init__(self, path_provider, secure=False, storage_guard=None, db_provider=None):
         self.path_provider = path_provider
         self.secure = secure
+        self.storage_guard = storage_guard
+        self.db_provider = db_provider
 
     @contextmanager
     def db(self):
+        if self.storage_guard:
+            self.storage_guard()
+        provider = self.db_provider() if self.db_provider else None
+        if provider is not None:
+            with provider() as db:
+                yield db
+            return
         path = self.path_provider()
         path.parent.mkdir(parents=True, exist_ok=True)
         db = sqlite3.connect(path, timeout=15)
@@ -98,6 +107,8 @@ class Accounts:
         buckets = ['ip:' + ip, 'email:' + hashlib.sha256(email.encode()).hexdigest()]
         now = time.time()
         with self.db() as db:
+            if hasattr(db, 'lock_auth'):
+                db.lock_auth(buckets)
             db.execute('DELETE FROM attempts WHERE moment<?', (now - 900,))
             for bucket in buckets:
                 if db.execute('SELECT count(*) FROM attempts WHERE bucket=?', (bucket,)).fetchone()[0] >= 12:

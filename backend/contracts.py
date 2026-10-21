@@ -5,6 +5,33 @@ from models import Model,Baseline,PackageResult,CalculationResult,CampusResponse
 from spatial_models import SpatialModel,SpatialSelection
 
 
+class StorageStatus(Model):
+    status:Literal['local','postgresql','unavailable','persistent_disk','ephemeral','unverified']
+    required:bool
+    message:str
+
+
+class SessionUser(Model):
+    id:str
+    email:str
+    onboarding_version:int
+
+
+class AuthSession(Model):
+    user:SessionUser|None
+    csrf:str
+    onboarding_version:int
+    storage:StorageStatus
+
+
+class Health(Model):
+    status:Literal['ok','degraded']
+    version:str
+    optimization_status:Literal['not_checked']
+    data_status:Literal['not_checked']
+    storage:StorageStatus
+
+
 class Context(Model):
     project_id:str
     input_revision:int

@@ -14,16 +14,20 @@ Depoyu **Docker Web Service** olarak bağlayın. `render.yaml` aynı ayarları t
 | Docker Build Context Directory | `.` — depo kökü |
 | Docker Command | **Boş bırakın** — Dockerfile CMD kullanılır |
 | Çalışma komutu | `python serve.py`; `0.0.0.0`, platform `PORT` değeri ve tek worker |
-| Health check | `/api/health` — yalnız yaşam kontrolü |
-| Persistent disk | Mount path `/var/data` |
-| DATA_FILE | `/var/data/portfolio25/campus.json` |
+| Instance | **Free** |
+| Health check | `/api/health` — PostgreSQL modunda bağlantı/şema hazır değilse 503 |
+| Persistent disk | **Yok; gerekli değil** |
+| STORAGE_BACKEND | `postgres` |
+| DATABASE_URL | Neon pooled bağlantısı; yalnız backend secret, TLS parametreleri korunur |
 | COOKIE_SECURE | `true` |
 | FRONTEND_ORIGINS | `https://buildingportfolio25.vercel.app` |
 | OPENAI_MODEL | `gpt-5.4-mini` veya sizin mevcut seçiminiz |
 | OPENAI_API_KEY | İsteğe bağlı, yalnız Render secret alanı |
 | PORT | Render sağlar; elle tanımlamak gerekmez. İmajın yerel varsayılanı `10000` |
 
-Kayıt kökü **`/var/data/portfolio25`**: `accounts.sqlite3` ve WAL dosyaları kullanıcı/oturumları; `users/<uid>/projects` proje JSON/sonuçlarını; kullanıcı altındaki `history` hesap geçmişini saklar. `/var/data` diski tümünü kapsar. `DATA_FILE`, eski yerel kampüs dosyasının yolunu da tanımlar; yeni hesaplara otomatik atanmaz. Render varsayılan dosya sistemi geçicidir; ücretsiz web servisi kalıcı disk sağlamaz. Disk olmadan bu uygulamayı kalıcı kullanıcı kayıt hizmeti olarak sunmayın. Disk/hizmet fiyatını Render ekranında inceleyin; burada satın alma yapılmadı. [Kalıcı diskler](https://render.com/docs/disks), [ücretsiz hizmet sınırları](https://render.com/docs/free).
+Güncel tercih **Render Free + Neon Free PostgreSQL**. `portfolio25` şemasında hesaplar/Argon2 özetleri, oturumlar, projeler ve hesap geçmişi saklanır. Proje belgeleri JSONB'dir; revizyon değişikliği transaction içinde koşullu güncellenir. Render'ın geçici dosya sistemi üretim kullanıcı verisinin kaynağı değildir. `DATA_FILE` yalnız yerel SQLite/JSON geliştirme yolu olarak kalır; PostgreSQL modunda okunmaz/yazılmaz. Disk zorunluluğu kaldırıldı. [Neon geçiş sırası](postgres-deployment.md), [Render Free sınırları](https://render.com/docs/free).
+
+Yeni kod Neon bağlantısı hazır olmadan push edilmez. Auto-Deploy geçici kapatılarak ortam hazırlanır; onaylanan geçişte `serve.py` sürümlü migration'ı tekrar güvenle çalıştırır. Başlangıç ve bağlantı kesintisinde sessiz yerel fallback yoktur. `/api/health` veritabanı/şema erişimini kontrol eder; fizik/çözücü ve kullanıcı hesabı varlığı ayrıca doğrulanmalıdır.
 
 ## Vercel
 

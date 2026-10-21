@@ -9,6 +9,8 @@ from profiles import generate_profiles
 from interventions import candidates
 
 if __name__=='__main__':
+    if main.get_store() is not None:
+        raise SystemExit('This legacy tool is SQLite-only. For PostgreSQL use backend/import_postgres.py with an explicit private backup.')
     p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--email',required=True);p.add_argument('--apply',action='store_true');args=p.parse_args()
     source=args.source.resolve()
     if source.suffix.lower()!='.json' or not source.is_file():raise SystemExit('Choose an existing project JSON, not a secret/environment file.')
