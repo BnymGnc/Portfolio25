@@ -35,6 +35,7 @@ import psycopg
 from starlette.concurrency import run_in_threadpool
 
 BASE_DIR = Path(__file__).resolve().parent
+BOOT_ID = uuid4().hex  # Public process nonce; contains no host/account/secret data.
 load_backend_env()
 configured_path = Path(os.getenv("DATA_FILE", "data/campus.json"))
 DATA_FILE = configured_path if configured_path.is_absolute() else BASE_DIR / configured_path
@@ -277,8 +278,9 @@ def health(response:Response):
     storage=storage_status(DATA_FILE)
     unavailable=storage['status']=='unavailable'
     response.status_code=503 if unavailable else 200
+    commit=os.getenv('RENDER_GIT_COMMIT','')
     return {"status": "degraded" if unavailable else "ok", "version": "0.4.0", "optimization_status": "not_checked",'data_status':'not_checked',
-            'storage':storage}
+            'storage':storage,'release_commit':commit if re.fullmatch(r'[a-fA-F0-9]{40}',commit) else None,'boot_id':BOOT_ID}
 
 
 @app.get('/api/calculations/current/evidence',response_model=contracts.Evidence)

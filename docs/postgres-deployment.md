@@ -10,6 +10,10 @@ Eski üretim SQLite ve JSON kullanıyordu. Render Free dosyaları yeniden yayın
 
 ## Render'a girilecek ayarlar
 
+Kullanıcının hazırladığı Neon bağlantısında şu seçimler kullanılacak: **Branch `production` → Compute `Primary` (yazılabilir) → Database `neondb` → Role `neondb_owner` → Connection pooling açık**. Bunlar kullanıcı tarafından bildirilen ayarlardır; Neon paneline veya gizli bağlantıya erişilerek doğrulanmış değildir. Yeni bir veritabanı/branch oluşturmanız gerekmez. Uygulama tabloları bu veritabanının `portfolio25` şemasında oluşturulur; Neon veritabanı rolü uygulama kullanıcı hesabı değildir.
+
+Connect ekranından yalnız `postgresql://` ile başlayan **bağlantı metnini** kopyalayın; `psql` komutunu, çevreleyen tırnakları veya `DATABASE_URL=` önekini Render Value alanına eklemeyin. Pooled adresin hostname kısmında `-pooler` bulunur. URL'yi elle yeniden kurmayın; TLS parametrelerini ve parola kodlamasını koruyun. `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` veya `NEON_API_KEY` ayrıca gerekli değildir.
+
 | Alan | Değer |
 | --- | --- |
 | Instance | **Free** |
@@ -33,13 +37,13 @@ Neon hesabını kullanıcı açar. Connect → Connection pooling → bağlantı
 ## Yayın ve migration sırası
 
 1. Render → Settings → **Auto-Deploy kapalı**. Mevcut üretimi yeniden başlatmadan bağlantı hazırlayın. Free dosyalar hâlâ erişilebiliyorsa özel hesap/proje yedeği alın; tek CSV hesap/oturum/geçmiş yedeği değildir. Free Shell erişimi kısıtlıdır; erişilmeyen verinin yedeğini aldığımız iddia edilmez.
-2. Neon Free projesi ve ayrı uygulama veritabanını oluşturun. Ücretli kaynak oluşturulmaz. Pooled bağlantıyı Render `DATABASE_URL` secret alanına **Save only** ile ekleyin; `STORAGE_BACKEND=postgres`, cookie ve origin ayarlarını doğrulayın. Bu ayarları değiştirmek yeni deploy tetikliyorsa henüz deploy etmeyin. Bağlantıyı sohbete göndermeyin.
-3. Ortam hazır olduğunu bildirdikten sonra normal main push / kontrollü deploy. `serve.py`, `db_migrations/001_initial.sql` dosyasını transaction ve advisory lock altında uygular. Sürüm/checksum `portfolio25.schema_migrations` içinde tutulur. Yeniden başlatma yalnız eksik migration'ları uygular; tablo/proje temizlemez. Eksik URL/bağlantıda sunucu 503 durumuyla yanıt verir; SQLite'ı seçmez.
+2. Hazır Neon projesinde yukarıdaki `production / Primary / neondb / neondb_owner` seçimlerinden pooled bağlantıyı alın. Pooled bağlantıyı Render `DATABASE_URL` secret alanına **Save only** ile ekleyin; `STORAGE_BACKEND=postgres`, cookie ve origin ayarlarını doğrulayın. **Save and deploy / Save, rebuild, and deploy seçmeyin**: eski kod henüz PostgreSQL sürümü değildir. Bağlantıyı sohbete göndermeyin. Save only seçeneği mevcut servisi değiştirmeden bir sonraki deploy için ortamı saklar. [Render ortam seçenekleri](https://render.com/docs/configure-environment-variables).
+3. Yalnız ortam hazır olduğunu bildirdikten sonra normal main push yapılır. Auto-Deploy kapalı tutuluyorsa Render'da **Manual Deploy → Deploy latest commit** seçilir; eski build'i yalnız restart etmek yeni kodu yüklemez. Alternatif olarak ortam hazır olduktan sonra Auto-Deploy **On Commit** seçilip normal push ile yayın tetiklenebilir. `serve.py`, `db_migrations/001_initial.sql` dosyasını transaction ve advisory lock altında uygular. Render Free için ayrı Build/Pre-deploy migration komutu gerekmez. Sürüm/checksum `portfolio25.schema_migrations` içinde tutulur. Yeniden başlatma yalnız eksik migration'ları uygular; tablo/proje temizlemez. Eksik URL/bağlantıda sunucu 503 durumuyla yanıt verir; SQLite'ı seçmez.
 4. İsteğe bağlı eski kayıt aktarımı için aşağıdaki açık yedek/aktarım araçlarını kullanın. İlk yeni hesaba eski ortak kampüsü atama yoktur. Eski hesapların devam etmesi için asıl SQLite kullanıcıları/hash'leri aktarılmalıdır; yalnız eski proje CSV'sinden hesap geri kazanılamaz.
 5. Hem Render hem Vercel `/api/health`: `status=ok`, `storage.status=postgresql` beklenir. Bu bağlantı/şema denetimidir; hesap varlığını ve çözücü hazır durumunu göstermez. Veritabanı kesintisinde health 503/degraded, hesap/proje API'si `503 database_unavailable` döner; yanlış parola 401 ayrı kalır.
 6. Geçici QA hesabıyla kayıt, düzenleme, revizyon, hesaplama, dışa aktarım yapın. Backend'i kontrollü yeniden deploy edin. Aynı hesaba giriş, aynı proje/revizyon/son hesap kimliğini doğrulayın. Özgün kullanıcı girdilerini değiştirmeyin. Bu üretim kontrolü bağlantı hazır olmadan tamamlandı sayılmaz.
 
-Startup yerine yönetici migration'ı gerektiğinde process ortamındaki bağlantıyla, backend klasöründen `python postgres_store.py` çalıştırılır. `.env` içeriği okunup yazdırılmaz; bu CLI otomatik `.env` yüklemez. Render Free'de ayrı pre-deploy/job/shell olmayabileceği için Docker başlangıcı migration'ı zaten güvenle uygular. Neon pooled bağlantısında session ayarı gerektirmeyen transaction-local kilit/timeout ve tamamen nitelikli tablo adları kullanılır; prepared statements kapalıdır.
+Startup yerine yönetici migration'ı gerektiğinde process ortamındaki bağlantıyla, backend klasöründen `python postgres_store.py` çalıştırılır. `.env` içeriği okunup yazdırılmaz; bu CLI otomatik `.env` yüklemez. Render Free'de ayrı pre-deploy/job/shell olmayabileceği için Docker başlangıcı migration'ı zaten güvenle uygular. İlk normal yayında Neon SQL Editor'e elle tablo oluşturma veya `DROP/TRUNCATE` komutu girmeyin. Neon pooled bağlantısında session ayarı gerektirmeyen transaction-local kilit/timeout ve tamamen nitelikli tablo adları kullanılır; prepared statements kapalıdır.
 
 ## Kalıcı kapsam ve bağlantı politikası
 
@@ -71,7 +75,11 @@ Araç SQLite backup API kullanır; JSON tutarlılığı için bakım aralığı 
 
 Kaybolmuş kaydı yedek olmadan geri getirdiğimizi iddia etmiyoruz. `scripts/import_legacy_project.py` eski yerel SQLite için korunmuştur; PostgreSQL üretim geçişinde bu tam yedek aracını kullanın.
 
-## Bu çalışma sırasında doğrulananlar
+## Yerel geçiş kontrollerinde doğrulananlar
+
+Ek Docker kabulü `scripts/test_postgres.py --docker-api portfolio25-api:postgres-check` ile gerçek `serve.py`/CMD ve özel PORT üzerinden çalışır. Boş PostgreSQL'de ilk migration, Secure cookie/CSRF akışı, dört proje/sekiz bina, düzenleme/hesap/dışa aktarım ve API konteynerini silip yeniden oluşturduktan sonra aynı hesap/revizyon/sonuç doğrulanır; kullanıcı veri volume'ü veya SQLite/JSON kaynağı yoktur. Bu kontrol canlı Neon TLS testi değildir.
+
+`/api/health` ayrıca yalnız geçerli Git SHA'sı olan `release_commit` ve her API sürecinde değişen rastgele `boot_id` döndürür. Böylece eski sürüm veya hiç yeniden başlamamış süreç başarılı redeploy sayılmaz. Host adı, bağlantı metni, kullanıcı veya ortam dökümü verilmez. `scripts/check_live_deployment.py --expected-backend-commit SHA --wait-for-redeploy` gerçek Chrome kabulünden sonra QA bilgilerini yalnız bellekte tutup farklı boot gözlenince aynı kullanıcı, düzenlenmiş proje/revizyon, son hesap/dışa aktarım ve yeni parola girişini tekrar sınar. Bu bekleme sırasında kontrollü Render deploy gerekir.
 
 - Gerçek PostgreSQL **16.15** (Docker, `postgres:16-alpine`): altı kabul testi geçti. Kayıt/doğru-yanlış parola, Secure cookie/CSRF/logout/revocation, iki hesap sahiplik reddi, gerçek düzenleme/revizyon yarışı, optimizasyon/JSON/CSV/ML çıkarımı, yeni uygulama havuzunda aynı hesap/sonuç, idempotent migration/pilot, eski hash ve oturum aktarımı, aktarım çakışmasında tüm rollback ve gerçek veritabanı stop/start sonrasında aynı havuzun toparlanması.
 - Mevcut backend keşfinde **88 test, 82 başarılı + PostgreSQL için açıkça atlanan 6**. Atlanan altı test yukarıdaki ayrı gerçek veritabanı komutunda geçti; SQLite başarısı PostgreSQL kanıtı olarak sayılmadı.

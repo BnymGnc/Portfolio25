@@ -7,6 +7,17 @@ from auth import Accounts
 from serve import platform_port,serve
 
 class DeploymentTests(unittest.TestCase):
+    def test_public_health_has_safe_release_and_process_identity(self):
+        with tempfile.TemporaryDirectory() as temp,patch.object(main,'DATA_FILE',Path(temp)/'campus.json'),patch.dict(os.environ,{
+                'STORAGE_BACKEND':'sqlite','RENDER':'false','DATABASE_URL':'','RENDER_GIT_COMMIT':'a'*40}),TestClient(main.app) as client:
+            first=client.get('/api/health').json()
+            self.assertEqual(first['release_commit'],'a'*40)
+            self.assertRegex(first['boot_id'],r'^[a-f0-9]{32}$')
+            self.assertEqual(client.get('/api/health').json()['boot_id'],first['boot_id'])
+            with patch.dict(os.environ,{'RENDER_GIT_COMMIT':'invalid-value-must-not-be-exposed'}):
+                self.assertIsNone(client.get('/api/health').json()['release_commit'])
+            self.assertEqual(list(Path(temp).iterdir()),[])
+
     def test_platform_port_and_all_interface_single_worker(self):
         with patch.dict(os.environ,{'PORT':'12345','BACKEND_PORT':'8000','BACKEND_HOST':'127.0.0.1'}):
             self.assertEqual(platform_port(),12345)

@@ -1,6 +1,6 @@
 # Güncel betikler
 
-- `test_postgres.py`: Docker'da gerçek, ayrı PostgreSQL 16 QA veritabanında oturum/CSRF, sahiplik, revizyon yarışı, kalıcı hesap/dışa aktarım/ML, eski veri aktarımı, tekrarlı migration ve gerçek stop/start kesintisi. Üretim Neon testi yerine geçmez. `.\.venv\Scripts\python.exe -X utf8 scripts/test_postgres.py`.
+- `test_postgres.py`: Docker'da gerçek, ayrı PostgreSQL 16 QA veritabanında oturum/CSRF, sahiplik, revizyon yarışı, kalıcı hesap/dışa aktarım/ML, eski veri aktarımı, tekrarlı migration ve gerçek stop/start kesintisi. Üretim Neon testi yerine geçmez. `.\.venv\Scripts\python.exe -X utf8 scripts/test_postgres.py`. `--docker-api portfolio25-api:postgres-check` eklenirse gerçek uygulama imajının CMD/PORT/migration/configuration yolu ve yeni konteyner sonrası hesap/proje/revizyon/hesap sonucu da doğrulanır; önce bu imajı güncel Dockerfile ile oluşturun. Geçici loopback HTTP kontrolü canlı HTTPS cookie/Neon TLS testi değildir.
 - `backend/storage_admin.py`: yalnız eski yerel SQLite için açık özel yedek ve yönetici işlemleri; gerçek `.env` okumaz. `backend/import_postgres.py` aynı özel yedeği kontrollü/idempotent PostgreSQL aktarımında kullanır. [Geçiş sırası](../docs/postgres-deployment.md).
 - `check_docker_deployment.py` eski SQLite geliştirme yolunu açık `STORAGE_BACKEND=sqlite` ile sınar; bu test PostgreSQL doğrulaması değildir. Üretim Docker varsayılanı PostgreSQL'dir.
 

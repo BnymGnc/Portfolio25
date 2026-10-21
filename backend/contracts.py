@@ -30,6 +30,8 @@ class Health(Model):
     optimization_status:Literal['not_checked']
     data_status:Literal['not_checked']
     storage:StorageStatus
+    release_commit:str|None=None
+    boot_id:str|None=None
 
 
 class Context(Model):

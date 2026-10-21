@@ -25,6 +25,8 @@ ORIGIN = 'https://buildingportfolio25.vercel.app'
 BACKEND = 'https://portfolio25-api.onrender.com'
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--expected-asset', help='Wait for this built JS asset path in live HTML before registering QA')
+parser.add_argument('--expected-backend-commit', help='Require this Render commit and PostgreSQL readiness before registering QA')
+parser.add_argument('--wait-for-redeploy', action='store_true', help='Keep QA credentials in RAM and verify after a changed backend boot identity')
 args = parser.parse_args()
 OUT = Path(__file__).resolve().parents[1] / 'artifacts/live-deployment'
 OUT.mkdir(parents=True, exist_ok=True)
@@ -56,10 +58,16 @@ def http(path, *, base=ORIGIN, method='GET', body=None, headers=None):
 
 driver = None
 try:
-    status, _, health = http('/api/health', base=BACKEND)
-    assert status == 200 and health['status'] == 'ok'
+    try:
+        status, _, health = http('/api/health', base=BACKEND)
+    except (URLError,TimeoutError):
+        if not args.expected_backend_commit:raise
+        status,health=0,{'status':'waiting_for_deploy'}
+    if not args.expected_backend_commit:
+        assert status == 200 and health['status'] == 'ok'
     report['backend_health'] = health
-    check('Render public /api/health is JSON 200; readiness remains explicitly not_checked')
+    if status==200 and health.get('status')=='ok':
+        check('Render public /api/health is JSON 200; physics/solver readiness remains explicitly not_checked')
 
     # A first push can still be building. Poll health without registering users.
     deadline = time.monotonic() + 600
@@ -69,7 +77,9 @@ try:
             status, headers, health = http('/api/health?qa=' + secrets.token_hex(4))
             last = status
             if status == 200 and isinstance(health, dict) and health.get('status') == 'ok':
-                if args.expected_asset:
+                if args.expected_backend_commit and (health.get('release_commit')!=args.expected_backend_commit or health.get('storage',{}).get('status')!='postgresql'):
+                    last='waiting-for-postgresql-backend-commit'
+                elif args.expected_asset:
                     with urlopen(ORIGIN + '/?qa=' + secrets.token_hex(4), timeout=30) as page:
                         asset_ready = args.expected_asset in page.read().decode('utf-8')
                     if asset_ready:
@@ -87,6 +97,12 @@ try:
     assert 'application/json' in headers.get('content-type', '')
     assert 'no-store' in headers.get('cache-control', '')
     check('Vercel same-origin /api/health reaches backend JSON with no-store')
+    if args.expected_backend_commit:
+        status,_,direct=http('/api/health',base=BACKEND)
+        assert status==200 and direct['release_commit']==args.expected_backend_commit
+        assert direct['storage']['status']=='postgresql'
+        report['backend_health']=direct
+        check('Both direct Render and Vercel health verify the expected commit and live PostgreSQL schema')
     status, headers, body = http('/api/not-a-real-route')
     assert status in (401, 404) and isinstance(body, dict)
     assert 'application/json' in headers.get('content-type', '')
@@ -115,10 +131,10 @@ try:
         driver.execute_script("arguments[0].scrollIntoView({block:'center'})", element)
         element.click()
 
-    def browser_request(path, body=None, token=None):
+    def browser_request(path, body=None, token=None, method=None):
         return driver.execute_async_script("""
-          const [path,body,token,done]=arguments;
-          fetch(path,{method:body===null?'GET':'POST',credentials:'include',
+          const [path,body,token,method,done]=arguments;
+          fetch(path,{method:method||(body===null?'GET':'POST'),credentials:'include',
             headers:{'Content-Type':'application/json','X-CSRF-Token':token},
             body:body===null?undefined:JSON.stringify(body),signal:AbortSignal.timeout(90000)})
           .then(async r=>{
@@ -126,10 +142,10 @@ try:
             done({status:r.status,type:r.headers.get('content-type'),cache:r.headers.get('cache-control'),body:value})
           })
           .catch(e=>done({error:e.name==='TimeoutError'?'request_timeout':'browser_request_failed'}));
-        """, path, body, csrf if token is None else token)
+        """, path, body, csrf if token is None else token, method)
 
-    def api(path, body=None, token=None):
-        response = browser_request(path, body, token)
+    def api(path, body=None, token=None, method=None):
+        response = browser_request(path, body, token, method)
         # Only read requests may retry once; never repeat registrations/calculations.
         if body is None and (response.get('error') or response.get('status') in (502, 503, 504)):
             failure = {'path': urlparse(path).path, 'status': response.get('status'), 'error': response.get('error')}
@@ -275,6 +291,55 @@ try:
     assert again['status'] == 200 and again['body']['calculation_id'] == result['calculation_id']
     assert session['body']['user']['onboarding_version'] == 1
     check('Real browser login restores the same private project/result and completed onboarding')
+    if args.wait_for_redeploy:
+        # Only this randomly generated QA owner's project is edited.
+        current=again['body']['campus']
+        saved=api('/api/campus'+query,{'revision':current['revision'],'buildings':current['buildings'],
+            'scenario':current['scenario'],'name':'Neon persistence QA office'},method='PUT')
+        assert saved['status']==200 and saved['body']['campus']['revision']==current['revision']+1
+        previous=api('/api/calculations/last'+query)
+        assert previous['status']==200 and not previous['body']['is_current']
+        latest=api('/api/calculate'+query,{'revision':saved['body']['campus']['revision'],'mode':'A','time_limit_s':5})
+        assert latest['status']==200 and latest['body']['after']
+        retained=api('/api/campus/snapshot'+query)['body']
+        retained_id=latest['body']['calculation_id']
+        assert retained['calculation_id']==retained_id and retained['calculation_id']!=result['calculation_id']
+        check('QA-only project edit increments revision, marks the previous result stale, and recalculates a current plan')
+        _,_,before_boot=http('/api/health')
+        assert before_boot.get('boot_id') and before_boot['storage']['status']=='postgresql'
+        report['awaiting_redeploy']=True
+        print('WAITING_FOR_CONTROLLED_REDEPLOY: QA credentials remain in memory; replace the Render process to continue.',flush=True)
+        deadline=time.monotonic()+1200
+        while True:
+            try:
+                status,_,after_boot=http('/api/health?qa='+secrets.token_hex(4))
+                if status==200 and after_boot.get('boot_id') and after_boot['boot_id']!=before_boot['boot_id'] and after_boot.get('storage',{}).get('status')=='postgresql':break
+            except (URLError,TimeoutError):pass
+            if time.monotonic()>deadline:raise AssertionError('No changed PostgreSQL backend process was observed within 20 minutes')
+            time.sleep(10)
+        preserved=api('/api/auth/session')
+        assert preserved['status']==200 and preserved['body']['user']['id']==user_id
+        csrf=preserved['body']['csrf']
+        restored=api('/api/campus/snapshot'+query)
+        assert restored['status']==200 and restored['body']['campus']==retained['campus']
+        assert restored['body']['calculation_id']==retained_id
+        export_query='?'+urlencode({'project_id':project_id,'scope':'result','revision':retained['campus']['revision'],'expected_calculation_id':retained_id})
+        assert api('/api/export/json'+export_query)['body']['calculation_id']==retained_id
+        # Also perform a fresh password login against the new process.
+        assert api('/api/auth/logout',{})['status']==200
+        anonymous=api('/api/auth/session');csrf=anonymous['body']['csrf']
+        logged=api('/api/auth/login',{'email':email,'password':password})
+        assert logged['status']==200 and logged['body']['user']['id']==user_id
+        csrf=logged['body']['csrf']
+        report['awaiting_redeploy']=False
+        report['redeploy_persistence']={'completed':True,'different_boot':True,'release_commit':after_boot.get('release_commit'),
+            'same_user':True,'same_project_and_revision':True,'same_calculation_and_export':True,'fresh_password_login':True}
+        check('Changed live Render process retains session, QA identity, edited revision, result/export and fresh password login')
+        driver.refresh()
+        wait.until(lambda _:driver.find_elements(By.ID,'project-select') and css('#project-select').is_enabled())
+        click('Optimizasyon sonucu')
+        wait.until(lambda _:driver.find_elements(By.CSS_SELECTOR,'.result-metrics'))
+        driver.save_screenshot(str(OUT/'postgres-after-redeploy.png'))
     assert api('/api/auth/logout', {})['status'] == 200
     errors = [entry for entry in driver.get_log('browser') if 'Uncaught' in entry['message']]
     report['uncaught_browser_error_count'] = len(errors)
