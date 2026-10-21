@@ -23,6 +23,15 @@ main.auth-shell {display:grid;place-items:center;min-height:100dvh;width:100%;ma
 .auth-help {margin-top:16px;border-top:1px solid var(--border);padding-top:14px;font-size:12px;color:var(--muted)}
 .auth-help>summary {padding:0;background:transparent;border:0;font-size:12px;cursor:pointer}
 .auth-help p {margin-top:10px;line-height:1.6}
+.demo-guide {font-size:14px;line-height:1.65;color:var(--text)}
+.demo-guide h3 {font-size:16px;margin:18px 0 10px}
+.demo-guide ol {padding-left:22px;display:grid;gap:10px}
+.demo-guide dl {display:grid;gap:8px}
+.demo-guide dt {font-weight:600;margin-top:8px}
+.demo-guide dd {margin:0;color:var(--muted)}
+.demo-guide details {margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
+.demo-guide summary {cursor:pointer;color:var(--text)}
+.demo-guide p {margin:10px 0}
 .auth-error {padding:12px;border:1px solid var(--danger);border-radius:7px;background:var(--danger-bg);color:var(--danger);font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 main.onboarding-stage {min-height:100dvh;width:100%;max-width:none;padding:24px;display:grid;place-items:center;background:var(--bg)}
 .onboarding-welcome {text-align:center;color:var(--muted)}

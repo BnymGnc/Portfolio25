@@ -37,7 +37,9 @@ Sunucular kapalıysa isteğe bağlı tek komut: `powershell -ExecutionPolicy Byp
 
 Teknik işler ve enerji yönetimi ekipleri için tek/çok bina enerji yatırım planlama prototipi.
 
-**Sentetik örnek proje — sonuçlar model varsayımlarına dayanır.** Kampüs ve Kayseri pilotu saha ölçümü değildir. Yatırım kararları fizik motoru ve MILP ile hesaplanır. Ayrı deneysel ML ekranı, ABD ComStock harici simülasyonlarında eğitilmiş yıllık tahmin modelini gösterir; Kayseri için kapsam dışıdır.
+**Sentetik örnek proje — sonuçlar model varsayımlarına dayanır.** Kampüs ve Kayseri pilotu saha ölçümü değildir. Yatırım kararları fizik motoru ve MILP ile hesaplanır. Ayrı deneysel ML ekranında sentetik simülasyon modeliyle bina/müdahale karşılaştırması ve ABD ComStock sağlayıcısı bulunur. ComStock Kayseri için kapsam dışıdır; sentetik model de saha doğruluğu kanıtı değildir.
+
+**Climathon Görev 3:** [Form için gözden geçirilmiş yanıtlar ve demo akışı](docs/task3-submission.md). Giriş ekranındaki **Demo rehberi, AI’ın rolü ve sınırlar**, oturum içinde **Hesap ve yardım → Uygulama hakkında** aynı kapsam açıklamasını sunar.
 
 ## Güncel teslim — 20 Ekim 2026
 
