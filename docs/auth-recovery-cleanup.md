@@ -17,6 +17,7 @@ Bu değişiklik sunucunun gerçek 502/503 veya DNS sorununun giderildiği anlam�
 - Güncel oturum sözleşmesiyle çalışmayan altı eski tarayıcı betiği: `browser_demo`, `browser_smoke`, `browser_delivery`, `browser_projects`, `browser_pilot`, `browser_ui_fix`. Bunların bir bölümü varsayılan kayıt üzerinde geçici değişiklik yapıyordu. Güncel oturumlu testler korundu; `browser_auth_recovery.py` eklendi.
 - Kullanılmayan 49 CSS seçicisi: eski adım şeridi/toast, eski üst çubuk ve kaldırılan sidebar tanıtım/footer parçaları. Aktif bileşen stilleri korunur.
 - Sidebar'daki tekrar eden tanıtım kartı/alt marka, yardım alanındaki geliştirme aracı metinleri ve üç kullanılmayan import.
+- Varsayımlar penceresindeki `/docs` kısayolu: aynı-origin Vercel dağıtımında API dokümanı yerine SPA'ya gidiyordu; teknik API envanteri belgelerde korunarak bozuk kısayol kaldırıldı.
 - README'deki tekrar eden aşama anlatıları ve eski çalıştırma komutları. Güncel kurulum/yayın/test rehberi ve geçmiş belgelerin bağlantıları kaldı; `scripts/README.md` güncel betikleri açıklar.
 
 Kullanılmayan import/parametreler artık TypeScript derlemesinde hata verir. Hesap motoru, modeller, kayıt şeması/dönüşümleri, backend regresyon testleri, kullanıcı kayıtları, `.env`, yayın rewrite/cookie ayarları değiştirilmedi. Geçmiş doğrulama belgeleri tarihsel kayıt olarak korunur; kaldırılan komutları güncel talimat saymayın.
