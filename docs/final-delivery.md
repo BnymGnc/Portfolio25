@@ -1,5 +1,7 @@
 # Portfolio25-GRID teslim — 21 Ekim 2026
 
+**Yayın düzeni güncellendi:** Render artık kök Dockerfile ile Docker runtime kullanır. Vercel Node proxy kaldırılmış, `/api` doğrudan Render'a rewrite olarak hazırlanmıştır. `.invalid` hedef gerçek Render URL'si gelene kadar yer tutucudur. Aşağıdaki ilk teslimdeki proxy ayrıntılarının yerine [güncel yayın rehberi](deploy-render-vercel.md) geçerlidir.
+
 Yerel uygulama: **http://127.0.0.1:5173/**. Backend yaşam kontrolü: **http://127.0.0.1:8000/api/health**. Mevcut frontend korundu; backend aynı portta kontrollü yeniden başlatıldı. Sunucular teslimde açık bırakılır. İnternet yayını henüz yapılmadı.
 
 GitHub aktarımı doğrulandı: [BnymGnc/Portfolio25](https://github.com/BnymGnc/Portfolio25), `main` dalı. İlk teslim commit'i `0c2b2cb`; gerçek ortam dosyaları ve kullanıcı kayıtları gönderilmedi.

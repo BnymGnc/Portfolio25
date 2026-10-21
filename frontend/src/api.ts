@@ -6,7 +6,8 @@ import type {AIStatus,Explanation,ScenarioDraft,ScenarioChange,ScenarioEvaluatio
 import type {ModelStatus,Prediction} from './ModelData';
 import type {SyntheticStatus,SyntheticResult} from './SyntheticPrediction';
 
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+// Production always uses the Vercel same-origin /api rewrite, including auth.
+export const API_BASE = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 let userScope='';let csrf='';let sessionGeneration=0;
 export function setCSRF(value:string){csrf=value}
 export function getCSRF(){return csrf}

@@ -20,4 +20,10 @@ backend/data/
 !**/.env.example
 !**/.env.production.example
 *.log
+backups/
+secrets/
+*.pem
+*.key
+*.pfx
+*.p12
 
