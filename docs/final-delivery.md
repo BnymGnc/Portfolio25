@@ -2,6 +2,8 @@
 
 Yerel uygulama: **http://127.0.0.1:5173/**. Backend yaşam kontrolü: **http://127.0.0.1:8000/api/health**. Mevcut frontend korundu; backend aynı portta kontrollü yeniden başlatıldı. Sunucular teslimde açık bırakılır. İnternet yayını henüz yapılmadı.
 
+GitHub aktarımı doğrulandı: [BnymGnc/Portfolio25](https://github.com/BnymGnc/Portfolio25), `main` dalı. İlk teslim commit'i `0c2b2cb`; gerçek ortam dosyaları ve kullanıcı kayıtları gönderilmedi.
+
 ## Uygulananlar ve doğrulama
 
 | Aşama | Gerçek değişiklik | Kontrol / sınır |
