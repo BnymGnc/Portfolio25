@@ -1,6 +1,6 @@
 # Portfolio25-GRID
 
-**Güncel yayın düzeni:** Render **Docker** runtime; depo kökünde `Dockerfile`, Root Directory boş, kalıcı disk `/var/data`. Vercel kökü `frontend`, Vite çıktısı `dist`, API `/api` dış-origin rewrite ile Render'a gider. `frontend/vercel.json` içindeki `.invalid` adresi açık yer tutucudur; gerçek Render URL'siyle değiştirilmeden giriş çalışmaz. Üretimde `BACKEND_ORIGIN` ortam değişkeni gerekmez. [Kesin ekran ayarları ve cookie/CSRF koşulları](docs/deploy-render-vercel.md).
+**Güncel yayın düzeni:** Render **Docker** runtime; depo kökünde `Dockerfile`, Root Directory boş, kalıcı disk `/var/data`. Vercel kökü `frontend`, Vite çıktısı `dist`, tarayıcı API çağrıları aynı origin `/api` üzerinden `https://portfolio25-api.onrender.com/api` hedefine rewrite edilir. Frontend: https://buildingportfolio25.vercel.app. Üretimde `BACKEND_ORIGIN` ortam değişkeni gerekmez. Render'da `COOKIE_SECURE=true`, `FRONTEND_ORIGINS=https://buildingportfolio25.vercel.app` gerekir. [Kesin ekran ayarları ve cookie/CSRF koşulları](docs/deploy-render-vercel.md).
 
 **21 Ekim teslim güncellemesi:** Gerçek kayıt/giriş/çıkış, kullanıcıya ait dört proje ve sekiz bina, kalıcı tanıtım, kat karar önizlemesi, sentetik ML sağlayıcısı ve Render/Vercel dağıtım dosyaları eklendi. Güncel sınırlar ve kontroller: [teslim raporu](docs/final-delivery.md). Eski bölümler önceki aşamaların kaydıdır; güncel hesap/veri erişimi için aşağıdaki kurallar geçerlidir.
 

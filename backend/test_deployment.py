@@ -16,7 +16,7 @@ class DeploymentTests(unittest.TestCase):
             with patch.dict(os.environ,{'PORT':value}),self.assertRaises(ValueError):platform_port()
 
     def test_https_session_cookie_csrf_persistence_and_public_health(self):
-        origin='https://portfolio25-frontend.example.test'
+        origin='https://buildingportfolio25.vercel.app'
         with tempfile.TemporaryDirectory() as temp,patch.object(main,'DATA_FILE',Path(temp)/'campus.json'),patch.object(main,'AUTH_REQUIRED',True),patch.object(main,'ORIGINS',{origin}),patch.object(main.accounts,'secure',True):
             with TestClient(main.app,base_url=origin) as client:
                 # Render probes require neither auth nor a working data/solver check.

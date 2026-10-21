@@ -60,6 +60,6 @@ Hedef masaüstünde 350 px, diğer iki genişlikte 450 px; üç genişlikte sayf
 
 ## Kalan sınırlar ve yayın
 
-Saha doğruluğu, konfor simülasyonu ve ML üstünlüğü kanıtlanmadı. Gerçek LLM bağlantısı bu görevde denenmedi. Render ve Vercel servis URL'leri verilmediği için HTTPS üzerindeki canlı kabul testi yapılmadı. `frontend/vercel.json` içindeki `.invalid` adres yer tutucudur; gerçek Render URL'si olmadan üretim API bağlantısı çalışmaz. [Yayın ayarları](deploy-render-vercel.md) geçerlidir.
+Saha doğruluğu, konfor simülasyonu ve ML üstünlüğü kanıtlanmadı. Gerçek LLM bağlantısı bu görevde denenmedi. Görev 3 sırasında Render ve Vercel servis URL'leri verilmediği için HTTPS üzerindeki canlı kabul testi yapılmamıştı. Sonraki yayın görevinde gerçek Render/Vercel adresleri geldi ve rewrite yer tutucusu kaldırıldı; [güncel yayın ayarları](deploy-render-vercel.md) geçerlidir.
 
 Yerel sunucular görev sonunda açık bırakılır. Kapalıysa `powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1` boş 8000/5173 portlarında başlatır; dolu portta ikinci sunucu açmaz. `scripts/stop-local.ps1` yalnız kayıtlı PID ve başlangıç zamanı eşleşen süreçleri durdurur. Elle başlatılan terminalde Ctrl+C kullanılabilir. Gerçek `.env` okunmadı, değiştirilmedi ve Git'e eklenmedi.

@@ -1,6 +1,6 @@
 # Render + Vercel yayın rehberi
 
-21 Ekim 2026. Depo: https://github.com/BnymGnc/Portfolio25. Bu oturumda Render/Vercel hesap erişimi veya oluşturulmuş servis adresi verilmedi. Ücretli hizmet satın alınmadı; yerel çalışma internet yayını değildir.
+21 Ekim 2026. Depo: https://github.com/BnymGnc/Portfolio25. Backend: https://portfolio25-api.onrender.com; frontend: https://buildingportfolio25.vercel.app. Gerçek servis adresleriyle rewrite yapılandırıldı. Sağlık yanıtı tek başına oturum, veri, çözücü veya ML hazır olduğunun kanıtı değildir. Ücretli hizmet satın alınmadı; platform yönetim paneline erişilmedi.
 
 ## Render
 
@@ -18,7 +18,7 @@ Depoyu **Docker Web Service** olarak bağlayın. `render.yaml` aynı ayarları t
 | Persistent disk | Mount path `/var/data` |
 | DATA_FILE | `/var/data/portfolio25/campus.json` |
 | COOKIE_SECURE | `true` |
-| FRONTEND_ORIGINS | Gerçek tam Vercel üretim adresi |
+| FRONTEND_ORIGINS | `https://buildingportfolio25.vercel.app` |
 | OPENAI_MODEL | `gpt-5.4-mini` veya sizin mevcut seçiminiz |
 | OPENAI_API_KEY | İsteğe bağlı, yalnız Render secret alanı |
 | PORT | Render sağlar; elle tanımlamak gerekmez. İmajın yerel varsayılanı `10000` |
@@ -29,7 +29,7 @@ Kayıt kökü **`/var/data/portfolio25`**: `accounts.sqlite3` ve WAL dosyaları 
 
 Aynı depoyu import edin: Root Directory `frontend`, Framework Preset **Vite**, Build Command `npm run build`, Output Directory `dist`, Install Command `npm ci`, Node 22. `frontend/vercel.json` doğrudan dış-origin rewrite kullanır. Önceki `frontend/api/[...path].js` Node fonksiyonu kaldırıldı; API yollarıyla yarışan ikinci handler yoktur.
 
-Gerçek Render adresi henüz verilmedi. `frontend/vercel.json` içindeki **`https://REPLACE-WITH-REAL-RENDER-URL.invalid` bir yer tutucudur; çalışan servis değildir.** Render servisiniz oluşunca yalnız bu origin kısmını gerçek `https://...onrender.com` ile değiştirin, `/api/:path*` ekini koruyun ve commit/push yapın. Örneğin `/api/auth/session`, Render'da yine `/api/auth/session` olur. Sorgu parametreleri ve istek yöntemi/gövdesi korunmalıdır. Yer tutucu dururken frontend açılabilir ama API/login çalışmaz.
+`frontend/vercel.json` ilk kuralı `/api/:path*` → `https://portfolio25-api.onrender.com/api/:path*` şeklindedir. Örneğin tarayıcıdaki `/api/auth/session`, Render'da yine `/api/auth/session` olur. `/api` öneki atılmaz; sorgu parametreleri ve istek yöntemi/gövdesi korunur. SPA fallback `/((?!api(?:/|$)).*)` API yollarını dışlar; bilinmeyen API yolu HTML uygulamasına dönüşmemelidir. Eski yer tutucu kaldırıldı.
 
 **Vercel üretiminde gerekli ortam değişkeni yoktur.** `BACKEND_ORIGIN` eski Node geçidine aitti ve artık üretimde kullanılmaz; `VITE_API_BASE_URL` boş/silinmiş kalabilir. Üretim kodu yanlışlıkla localhost tanımlanmış olsa bile `/api` kullanır. `BACKEND_ORIGIN` yalnız yerel Vite proxy ayarı olarak korunur. OpenAI anahtarı frontend'e konulmaz.
 
@@ -37,7 +37,7 @@ Tarayıcı Vercel origin'inde `/api` çağırır; rewrite HTTP redirect yapmaz. 
 
 Dış-origin rewrite süre sınırı Vercel platformuna bağlıdır; eski Node fonksiyonunun `maxDuration` ayarı artık uygulanmaz. Gerçek yayında uzun MILP çağrılarını ayrıca kontrol edin; UI'daki çözücü süre sınırı kullanılabilir.
 
-Vercel adresi kesinleşince Render FRONTEND_ORIGINS değerini tam HTTPS adresiyle güncelleyip redeploy edin. Preview adresleri otomatik izinli değildir. Cookie akışını farklı siteler arası bağımlı hale getirmemek için tarayıcıyı doğrudan Render API adresine yönlendirmeyin.
+Render'daki mevcut FRONTEND_ORIGINS değeri tam `https://buildingportfolio25.vercel.app` origin'ini içermelidir; örnek dosya bu değeri gösterir, gerçek ortam dosyası değiştirilmez. Preview adresleri otomatik izinli değildir. Cookie akışını farklı siteler arası bağımlı hale getirmemek için tarayıcıyı doğrudan Render API adresine yönlendirmeyin.
 
 ## Gerçek yayından sonra kontrol
 
@@ -47,9 +47,9 @@ Vercel adresi kesinleşince Render FRONTEND_ORIGINS değerini tam HTTPS adresiyl
 4. Render yeniden başlatıldıktan sonra kullanıcı, onboarding ve revizyon korunmalı.
 5. Logout eski cookie'yi iptal etmeli; yanlış Origin/CSRF 403 dönmeli.
 
-Bu HTTPS kontrolleri gerçek Render/Vercel URL'leri ve servis erişimi sağlanmadığı için burada yapılmış sayılmaz. Yerelde HTTPS origin kullanan oturum/CSRF testleri ve rewrite/cache sözleşmesi doğrulanır; bunlar Vercel'in canlı uçtan uca davranışının yerine geçmez.
+Canlı kontrolleri yayın sonrasında ayrı çalıştırın; aşağıdaki geçmiş yerel/Docker testleri Vercel'in canlı uçtan uca davranışının yerine geçmez. Kontrol başlangıcında Render health 200, eski Vercel rewrite health 502 `DNS_HOSTNAME_NOT_FOUND` döndü. Canlı doğrulama betiği ve sonuçları teslim raporunda ayrıca belirtilir.
 
-## Bu değişiklikte çalıştırılan doğrulama
+## Önceki Docker hazırlığında çalıştırılan doğrulama
 
 - Backend: **69 test geçti**, üretim PORT/bind/single-worker ve HTTPS cookie/CSRF testleri dahil. Kalıcı kayıt deposu yeniden açıldığında kullanıcı/tanıtım/proje verisi korunur.
 - Frontend: **13 test geçti**; API rewrite yolunu, API'nin SPA fallback'e düşmemesini ve cache başlıklarını sınayan kontroller dahil. TypeScript/Vite üretim derlemesi geçti.

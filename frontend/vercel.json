@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    {"source": "/api/:path*", "destination": "https://REPLACE-WITH-REAL-RENDER-URL.invalid/api/:path*"},
+    {"source": "/api/:path*", "destination": "https://portfolio25-api.onrender.com/api/:path*"},
     {"source": "/((?!api(?:/|$)).*)", "destination": "/index.html"}
   ],
   "headers": [{"source": "/api/:path*", "headers": [
