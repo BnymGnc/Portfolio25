@@ -37,6 +37,8 @@ class PredictRequest(Model):
     candidate_id:str=Field(max_length=150)
 
 class Prediction(Model):
+    year:int
+    input_features:dict[str,float]|None=None
     base_context:Context
     building_id:str
     candidate_id:str
@@ -62,7 +64,7 @@ def status():
 def predict(b,profile,current,year):
     global _loaded
     m=metadata();cid=profile.report.candidate_id or profile.report.package
-    base=dict(base_context=current,building_id=b.id,candidate_id=cid,physics_result=profile.report,model_version=m['model_version'] if m else None,
+    base=dict(year=year,base_context=current,building_id=b.id,candidate_id=cid,physics_result=profile.report,model_version=m['model_version'] if m else None,
               model_context={**current,'model_version':m['model_version']} if m else None)
     if not m or not (ASSET_DIR/'model.joblib').exists():return Prediction(**base,status='missing_model',messages=['Sentetik model dosyası bulunamadı; fizik sonucu korunur.'])
     actions={d.kind for d in profile.report.interventions}
@@ -73,6 +75,7 @@ def predict(b,profile,current,year):
     if not b.spatial or b.use_type not in USES or b.spatial_selection.zone_ids or year!=2025 or b.heating_system!='gas_boiler' or b.heat_distribution!='low_temperature_water' or abs(b.retrofit.heat_pump_coverage_fraction-.9)>1e-9:
         return Prediction(**base,status='out_of_domain',messages=['Eğitim kapsamı: 2025 sentetik hava, gaz kazanı ve düşük sıcaklıklı sulu dağıtım, bütün bina zon şablonu. Bu girdi kapsam dışında.'])
     x=features(b,actions,year)
+    base['input_features']=dict(zip(NAMES,x))
     violations=[NAMES[i] for i,v in enumerate(x) if v<m['feature_bounds'][i][0]-1e-6 or v>m['feature_bounds'][i][1]+1e-6]
     if violations:return Prediction(**base,status='out_of_domain',messages=['Eğitim aralığı dışındaki girdiler: '+', '.join(violations)+'. Tahmin zorlanmadı.'])
     path=ASSET_DIR/'model.joblib';digest=hashlib.sha256(path.read_bytes()).hexdigest()

@@ -1,5 +1,7 @@
 # Portfolio25-GRID teslim — 21 Ekim 2026
 
+**Görev 3 arayüz düzeltmeleri tamamlandı:** kompakt kimlik doğrulama/üst çubuk, karar odaklı bina/senaryo/sonuç yerleşimi, bağlamlı bildirimler ve gerçek ML farkının kapsam kontrolü. Güncel 390/768/1440 px tarayıcı kontrolü, ilgili testler ve sınırlar için [Görev 3 raporu](task3-ui-report.md). Aşağıdaki sayılar önceki teslim çalışmasına aittir.
+
 **Yayın düzeni güncellendi:** Render artık kök Dockerfile ile Docker runtime kullanır. Vercel Node proxy kaldırılmış, `/api` doğrudan Render'a rewrite olarak hazırlanmıştır. `.invalid` hedef gerçek Render URL'si gelene kadar yer tutucudur. Aşağıdaki ilk teslimdeki proxy ayrıntılarının yerine [güncel yayın rehberi](deploy-render-vercel.md) geçerlidir.
 
 Yerel uygulama: **http://127.0.0.1:5173/**. Backend yaşam kontrolü: **http://127.0.0.1:8000/api/health**. Mevcut frontend korundu; backend aynı portta kontrollü yeniden başlatıldı. Sunucular teslimde açık bırakılır. İnternet yayını henüz yapılmadı.

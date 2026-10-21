@@ -1,5 +1,7 @@
 # Model kartı — ComStock yıllık enerji tahmini
 
+21 Ekim Görev 3 notu: mevcut ComStock ve sentetik model artefaktları yeniden eğitilmedi. Sentetik ofis karşılaştırmasındaki toplam gaz farkı (fizik 47.888,4; ML 118.155,1 kWh/yıl, +%146,7) aynı yıl/hedef/özellik kapsamıyla doğrulandı; hata gizlenmedi. [İnceleme ve sınırlar](task3-ui-report.md#ml-kapsamı-kontrolü). Aşağıdaki ComStock metrikleri değişmedi.
+
 20 Ekim 2026. Bu dosya gerçekten eğitilmiş modelin metadata ve metriklerinden üretilmiştir. Model sekiz demo binasını öğrenmedi. **Deneysel harici simülasyon tahmini; saha doğruluğu veya Türkiye uygunluğu kanıtı değildir.**
 
 ## Kimlik ve görev

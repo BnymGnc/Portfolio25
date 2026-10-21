@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import AuthGate from './AuthGate';
-import './account.css';
 import './styles.css';
 import './themes.css';
 import './layout.css';
+import './account.css';
 import {applyTheme, readTheme} from './theme';
 
 applyTheme(readTheme());

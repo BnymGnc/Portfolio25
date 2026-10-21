@@ -75,8 +75,7 @@ export function ScenarioForm({ campus, disabled, onSave, onDirtyChange, onDraftC
   function field(key: Exclude<keyof Scenario, 'price_basis' | 'emission_basis'>, label: string, unit: string, min: number, max: number, step = 'any') {
     return <label>{label}<div className="input-unit"><input type="number" required min={min} max={max} step={step} value={Number.isNaN(draft[key]) ? '' : draft[key]} onChange={e => setDraft({ ...draft, [key]: e.target.value === '' ? NaN : Number(e.target.value) })} name={key} /><span>{unit}</span></div></label>;
   }
-  return <section className="panel scenario-panel" id="scenario"><div className="panel-heading"><div><span className="eyebrow">SENARYO GİRDİLERİ</span><h2>Planlama çerçevesi</h2></div><span className="square-icon"><Icon name="sliders" /></span></div>
-    <p className="section-note">Yatırım sınırlarını belirleyin ve hesaplamadan önce girdileri kaydedin.</p>
+  return <section className="panel scenario-panel" id="scenario" aria-label="Bütçe ve enerji hedefi">
     <form onSubmit={submit}>
       {field('budget_try', 'Toplam yatırım bütçesi', '₺', 0, 1000000000000)}
       <div className="form-grid">{field('savings_target_pct', 'Tasarruf hedefi', '%', 0, 100)}{campus.connection_groups.length===1&&field('electric_capacity_kw', 'Tek bağlantı grubunun kapasitesi', 'kW', 0.01, 10000000)}</div>
@@ -85,7 +84,7 @@ export function ScenarioForm({ campus, disabled, onSave, onDirtyChange, onDraftC
         {(['price_basis', 'emission_basis'] as const).map(key => <div key={key} className="reference-fields"><label>{key === 'price_basis' ? 'Fiyat' : 'Emisyon'} varsayım tarihi<input type="date" required value={draft[key].reference_date} onChange={e => setDraft({ ...draft, [key]: { ...draft[key], reference_date: e.target.value } })} /></label><label>Kaynak<input required maxLength={500} value={draft[key].source} onChange={e => setDraft({ ...draft, [key]: { ...draft[key], source: e.target.value } })} /></label></div>)}
         <p className="small-note">Örnek sabit değerler; resmî güncel tarife veya emisyon faktörü değildir. Birim: kg CO₂e/kWh.</p></details>
       {error && <p className="error-box" role="alert">{error}</p>}
-      <button className="button primary full" disabled={disabled || !dirty}>{disabled ? 'Kaydediliyor…' : dirty ? 'Girdileri kaydet' : 'Girdiler kayıtlı'}<Icon name={dirty ? 'arrow' : 'check'} size={17} /></button>
+      <button className="button secondary full" disabled={disabled || !dirty}>{disabled ? 'Kaydediliyor…' : dirty ? 'Girdileri kaydet' : 'Girdiler kayıtlı'}<Icon name={dirty ? 'arrow' : 'check'} size={17} /></button>
       <p className="form-footnote">{dirty ? 'Kaydedilmemiş değişiklikler var.' : 'Backend’de kayıtlı senaryo · TRY / kW'}</p>
     </form>
   </section>;

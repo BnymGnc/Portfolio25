@@ -20,6 +20,8 @@ Bütün proje endpoint’lerinde `project_id` OpenAPI’de vardır. Önce oturum
 
 Sentetik tahmin yanıtı güçlü `Prediction` modelidir: kullanıcıya ait `base_context`, bina/adayı, model sürümü, `synthetic_simulation` kaynağı, `available/missing_model/out_of_domain/unavailable`, tahmin, fizik ve fark. Kapasite/optimizasyonda kullanılmaz. ComStock endpoint'leri korunmuştur. Spatial preview isteğine `interventions` eklendi; eksik/null alan eski sabit kayıt davranışını korur, açık karar listesi taslak evaluator'a geçirilir.
 
+Görev 3 güncellemesi: sentetik `Prediction` ayrıca `year` ve `input_features` döndürür. İkincisi inference'a gönderilen sayısal başlangıç özellikleri/müdahale bayraklarıdır; özellik oluşturulamayan durumda null'dır. Fizik gaz referansı `heating_gas_kwh_year + non_heating_gas_kwh_year`, ML gaz hedefi toplam gazdır. Mutlak fark API'de korunur; arayüz göreli farkı aynı referanstan üretir, 1 kWh/yıl altındaki referansta yüzde göstermez. Eğitim/artefakt değişmedi. [Kapsam kontrolü ve büyük fark](task3-ui-report.md).
+
 AI status artık configured'dan ayrı `service_reachable`, `last_call_status`, `last_success_at` döndürür. Son çağrı durumu kullanıcı bağlamında process belleğindedir; yeniden başlatınca not_tested olur. 429 quota/kredi ve rate limit ayrılır; kota otomatik tekrar edilmez. Tüm API/hata yanıtları no-store'dur. Detaylı saklama ve aktarım: [hesap rehberi](auth-and-storage.md).
 
 Hata gövdesi `{detail, error:{code,message,fields:[{field,message}]}}`; girdi/anahtar değerleri yansıtılmaz.422 alan/fizik,409 revizyon/bağlam/hesap yarışması,404 kimlik,503 sağlayıcı,429 AI kota; beklenmeyen yanıt sözleşmesi500. Çözümsüz MILP HTTP200 içinde durumdur. Health veri/solver kontrol etmeden ready demez.

@@ -27,9 +27,11 @@ Elle başlatılan sunucuları terminalde Ctrl+C durdurur. Bu oturumun arka plan 
 
 **Render + Vercel:** Projeye özel servis komutları, ortam değişkenleri, kalıcı disk, kayıt taşıma ve yayın sınırları [yayın rehberinde](docs/deploy-render-vercel.md). 21 Ekim 2026 gerçek LLM kontrolü sağlayıcı HTTP 429 ile başarısız oldu; anahtarın yapılandırılmış olması başarılı bağlantı anlamına gelmez.
 
-**Güncel arayüz:** http://127.0.0.1:5173/ — üst çubukta ayrı **Proje**, **Bina** ve **Tema (Doğa / Gece / Toprak)** alanları vardır. Tek binalı projede bina adı sabit gösterilir. Tema tercihi tarayıcıda korunur. Önceki örnek kampüs ve Kayseri pilotu farklı seçeneklerdir; pilot henüz yüklenmemişse açık yükleme açıklaması görünür. Dışa aktarma kontrolleri **Dışa aktar** açılır alanında, teknik kayıt/motor bilgileri **Uygulama hakkında** bölümündedir.
+**Güncel arayüz — Görev 3:** http://127.0.0.1:5173/ — üst çubukta ayrı **Proje** ve **Bina** alanları vardır. **Tema (Doğa / Gece / Toprak)**, hesap, çıkış, tanıtım ve yardım sağdaki **Hesap ve yardım** menüsündedir. Tek binalı projede bina adı sabit gösterilir. Tema tercihi tarayıcıda korunur. Önceki örnek kampüs ve Kayseri pilotu ayrı kayıtlardır; yeni hesap özel dört projeli pilotla başlar, eski kayıtlar açık aktarım gerektirir. Proje/örnek yönetimi açılır alandadır. Dışa aktarma **Dışa aktar**, teknik bağlam **Uygulama hakkında** bölümündedir. Bina adı ve enerji verileri, senaryoda bütçe/hedef, sonuçta yatırım ve net ekonomik tasarruf öne alınmıştır. [Güncel testler, ekran kanıtları ve ML sınırları](docs/task3-ui-report.md).
 
-Bu adres yerel Vite sunucusudur; internet yayını değildir. Backend aynı 8000 portunda kontrollü yeniden başlatıldı, frontend 5173 korundu. Güncel oturumlu tarayıcı kabul komutu: `python -X utf8 scripts/browser_final_delivery.py`. Önceki hesapsız UI testleri tarihsel aşamaya aittir. [Önceki UI denetimi](docs/ui-fix-report.md).
+Bu adres yerel Vite sunucusudur; internet yayını değildir. Backend aynı 8000 portunda kontrollü yeniden başlatıldı, frontend 5173 korundu. Güncel oturumlu tarayıcı kabul komutu (Selenium kurulu Python): `python -X utf8 scripts/browser_task3.py`; geçici QA hesabı kullanır ve ücretli AI çağrısı yapmaz. Görüntüler/rapor yerelde `artifacts/task3-ui/` altında, Git dışındadır. Önceki hesapsız UI testleri tarihsel aşamaya aittir. [Önceki UI denetimi](docs/ui-fix-report.md).
+
+Sunucular kapalıysa isteğe bağlı tek komut: `powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1`. Dolu 8000/5173 portlarında ikinci sunucu açmaz. Durdurmak için yukarıdaki `scripts/stop-local.ps1` komutunu kullanın.
 
 Teknik işler ve enerji yönetimi ekipleri için tek/çok bina enerji yatırım planlama prototipi.
 
