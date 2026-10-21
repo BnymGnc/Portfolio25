@@ -1,7 +1,7 @@
 import PanelBoundary from './PanelBoundary';
 import {planName} from './format';
 import LoadChart from './LoadChart';
-import { money, n, packageNames, solverLabel } from './format';
+import { money, n, solverLabel } from './format';
 import type { CampusResponse, CalculationResult } from './types';
 import { Icon } from './visuals';
 import DecisionEvidence from './DecisionEvidence';

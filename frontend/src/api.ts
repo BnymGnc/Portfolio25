@@ -5,6 +5,7 @@ import type {CalculationContext} from './types';
 import type {AIStatus,Explanation,ScenarioDraft,ScenarioChange,ScenarioEvaluation} from './aiTypes';
 import type {ModelStatus,Prediction} from './ModelData';
 import type {SyntheticStatus,SyntheticResult} from './SyntheticPrediction';
+import {hasJsonContent,readJsonObject,unavailable} from './http';
 
 // Production always uses the Vercel same-origin /api rewrite, including auth.
 export const API_BASE = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -46,11 +47,13 @@ async function request(path: string, options: RequestInit = {}, timeout = 30000,
   if(requestedGeneration!==sessionGeneration)throw new Error('Oturum değişti; önceki oturuma ait yanıt uygulanmadı.');
   if (!response.ok) {
     if(response.status===401)window.dispatchEvent(new Event('portfolio25-session-expired'));
-    const body = await response.json().catch(() => null);
+    if(!hasJsonContent(response)||response.status>=500)throw unavailable(response.status);
+    const body = await readJsonObject(response) as {detail?:string|{loc?:(string|number)[]}[]};
     const labels: Record<string, string> = { area_m2: 'Bina alanı', year_built: 'Yapım yılı', electricity_kwh_year: 'Elektrik tüketimi', heating_kwh_year: 'Isıtma gazı', non_heating_gas_kwh_year: 'Diğer gaz', connection_limit_kw: 'Bina bağlantı sınırı', budget_try: 'Bütçe', savings_target_pct: 'Tasarruf hedefi', electric_capacity_kw: 'Ortak kapasite', source: 'Kaynak', reference_date: 'Varsayım tarihi', boiler_efficiency: 'Kazan verimi', heat_pump_scop: 'SCOP', time_limit_s: 'Süre sınırı' };
     const detail = typeof body?.detail === 'string' ? body.detail : Array.isArray(body?.detail) ? body.detail.map((e: {loc?: (string | number)[]}) => `${labels[String(e.loc?.at(-1))] ?? 'Girdi'}: değer veya biçim geçerli değil; formdaki sınırları kontrol edin.`).join(' · ') : 'Girilen değerleri kontrol edin.';
     throw new Error(`İşlem tamamlanamadı (${response.status}). ${detail}`);
   }
+  if(!path.startsWith('/api/export/'))await readJsonObject(response.clone());
   if((path!=='/api/projects'||options.method==='POST')&&projectId!==activeProject)throw new Error('Proje değişti; geç gelen yanıt uygulanmadı.');
   return response;
 }

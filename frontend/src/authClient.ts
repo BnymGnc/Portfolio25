@@ -1,0 +1,40 @@
+import {readJsonObject, ServiceError, unavailable} from './http.ts';
+
+export interface User {id: string; email: string; onboarding_version: number}
+export interface AuthReply {user?: User | null; csrf?: string; completed?: boolean; version?: number}
+export type AuthPath = 'session' | 'login' | 'register' | 'logout' | 'onboarding';
+
+export async function requestAuth(base: string, path: AuthPath, body: unknown, csrf: string,
+                                  fetcher: typeof fetch = fetch): Promise<AuthReply> {
+  let response: Response;
+  const read = body === undefined;
+  try {
+    response = await fetcher(base + '/api/auth/' + path, {
+      credentials: 'include', method: read ? 'GET' : 'POST',
+      headers: {'Content-Type': 'application/json', ...(read ? {} : {'X-CSRF-Token': csrf})},
+      body: read ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(read ? 65000 : 45000),
+    });
+  } catch {
+    throw read ? unavailable() : new ServiceError('İsteğin sonucu doğrulanamadı. Biraz bekleyip bağlantıyı yeniden deneyin. Kayıt oluşturduysanız giriş yapmayı deneyin.');
+  }
+  const value = await readJsonObject(response);
+  if (!response.ok) {
+    if (response.status >= 500) throw unavailable(response.status);
+    const detail = typeof value.detail === 'string' ? value.detail.slice(0, 400) : null;
+    const fallback = response.status === 429 ? 'Çok sayıda deneme yapıldı. Biraz bekleyip tekrar deneyin.'
+      : response.status === 422 ? 'E-posta ve parola biçimini kontrol edin. Kayıt parolası en az 12 karakter olmalı.'
+      : 'Oturum işlemi tamamlanamadı. Girdileri kontrol edin.';
+    throw new Error(detail || fallback);
+  }
+  if (path === 'onboarding') {
+    if (value.completed !== true) throw unavailable(response.status);
+    return {completed: true};
+  }
+  const user = value.user;
+  if (typeof value.csrf !== 'string' || !value.csrf || !(user === null ||
+      (typeof user === 'object' && user !== null && 'id' in user && typeof user.id === 'string' &&
+       'email' in user && typeof user.email === 'string' && 'onboarding_version' in user &&
+       typeof user.onboarding_version === 'number'))) throw unavailable(response.status);
+  if ((path === 'login' || path === 'register') && user === null) throw unavailable(response.status);
+  return {csrf: value.csrf, user: user as User | null};
+}

@@ -1,5 +1,5 @@
 import type {CalculationResult,PlanEvaluation} from './types';
-import {money,n,solverLabel,packageNames, planName} from './format';
+import {money,n,solverLabel,planName} from './format';
 
 function Capacity({value}:{value:PlanEvaluation}) {
   return value.capacity_met?<span className="pill green">İhlal yok</span>:<details className="capacity-violations"><summary className="negative-value">{value.capacity_violations.length} sınır aşılıyor</summary>{value.capacity_violations.map(c=><p key={c.kind+c.id}>{c.name} · {c.kind==='building'?'Bina':'Bağlantı grubu'}: {n(c.peak_kw)} / {n(c.limit_kw)} kW; en fazla +{n(c.max_excess_kw)} kW, {c.violation_hours} saat.</p>)}</details>;

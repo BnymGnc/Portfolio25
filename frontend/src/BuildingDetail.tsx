@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { loadPackages } from './api';
 import { errorMessage, money, n, packageNames } from './format';
 import type { Building, BuildingPackages, CalculationResult } from './types';
-import { Icon } from './visuals';
 import SpatialDetail from './SpatialDetail';
 import AIAssistant from './AIAssistant';
 import SyntheticPrediction from './SyntheticPrediction';
