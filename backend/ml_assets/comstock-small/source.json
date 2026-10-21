@@ -1,0 +1,160 @@
+{
+  "release": "2025/comstock_amy2018_release_3",
+  "source_kind": "external_simulation",
+  "weather": "AMY2018, United States",
+  "states": [
+    "CO",
+    "NY",
+    "TX"
+  ],
+  "max_compressed_bytes": 8000000,
+  "downloaded_compressed_bytes": 6862854,
+  "files": [
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=CO/county=G0800030/CO_G0800030_upgrade0_basic.csv.gz",
+      "bytes": 163057,
+      "sha256": "e23f0dcb9c1bbdfc9b6626077210f45225b6a2818e9eb89108ff91aad41dbc8e"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=CO/county=G0800030/CO_G0800030_upgrade16_basic.csv.gz",
+      "bytes": 163996,
+      "sha256": "5726cb83c566a3794add31aafc3063598590db33e4bf1ef782b2ee87141bac24"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=CO/county=G0800030/CO_G0800030_upgrade43_basic.csv.gz",
+      "bytes": 189444,
+      "sha256": "8e105c89371f157b1154a9bcba5dd4d09405443319b92903bfa17d0e3936618b"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=CO/county=G0800030/CO_G0800030_upgrade49_basic.csv.gz",
+      "bytes": 200057,
+      "sha256": "c0b7e182bed816c5b2ab9c692758080a1a9d44f64ddb5870414a9876acbb6118"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=NY/county=G3600030/NY_G3600030_upgrade0_basic.csv.gz",
+      "bytes": 399006,
+      "sha256": "95e2e4c98a685e4c086cbc7689c6bb6a39d7fcbaf7b6d72936a8c80d3c230621"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=NY/county=G3600030/NY_G3600030_upgrade16_basic.csv.gz",
+      "bytes": 403302,
+      "sha256": "b5a5c7501e00ceb9faa14cd0cfdfdc5b39181638a0e6609233b5bdfc91211f29"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=NY/county=G3600030/NY_G3600030_upgrade43_basic.csv.gz",
+      "bytes": 473917,
+      "sha256": "bb4be0506693f22217d1975cbaffa67b080fc642562f854ce4ddf86617713c6e"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=NY/county=G3600030/NY_G3600030_upgrade49_basic.csv.gz",
+      "bytes": 491632,
+      "sha256": "95f5fde66eb2d5833b95d48a106ac60c4062d2320ab936f14662b17b1649bac0"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800010/TX_G4800010_upgrade0_basic.csv.gz",
+      "bytes": 304882,
+      "sha256": "7bc0f4958ee8d17cf71f44171c0efc02e621700e3ad678cc96f8a36a392c7b25"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800010/TX_G4800010_upgrade16_basic.csv.gz",
+      "bytes": 307480,
+      "sha256": "9f58c9ad2dfccdbd458597eb36bfd18336beee381ee42e01c217c23080cccfec"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800010/TX_G4800010_upgrade43_basic.csv.gz",
+      "bytes": 358062,
+      "sha256": "454dac820502755dbf37b9affd7f32e2fb048d6ff92dcceaa152ea1fd93d828c"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800010/TX_G4800010_upgrade49_basic.csv.gz",
+      "bytes": 379411,
+      "sha256": "a464b29540d8f418836d91f6e281750183100d96b699156f83ba8c129c9f103e"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800030/TX_G4800030_upgrade0_basic.csv.gz",
+      "bytes": 87890,
+      "sha256": "7d252932305d6dcfc71d18b6eab8ff52dda25d89e5c92c36fe32786552441e25"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800030/TX_G4800030_upgrade16_basic.csv.gz",
+      "bytes": 89250,
+      "sha256": "d1ca1e528e9c0ea084e017898f0347037df92b339aa93f39974e07a7704ea2a0"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800030/TX_G4800030_upgrade43_basic.csv.gz",
+      "bytes": 104563,
+      "sha256": "6ef5eb1d3404b78f2d748bc76ef56f69368c3667cabbf76b690a7d4e05fd8597"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800030/TX_G4800030_upgrade49_basic.csv.gz",
+      "bytes": 109577,
+      "sha256": "d6b9525363c6e21cc764847fc2927ea7a1bf024bebbad003c8799ca83a6bfeba"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800050/TX_G4800050_upgrade0_basic.csv.gz",
+      "bytes": 594128,
+      "sha256": "f17d59f034d39558dd37d92f62eccc46de15ff3dcf6a1a4a4e0932e6aa387b91"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800050/TX_G4800050_upgrade16_basic.csv.gz",
+      "bytes": 600163,
+      "sha256": "25ee72fc2840584bb1810dd90e0e90d3c65d6f85c79a687e0a230fcb42473f9a"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800050/TX_G4800050_upgrade43_basic.csv.gz",
+      "bytes": 702191,
+      "sha256": "4c672bfdadacbfc226ae46d1c03c818cdb66ea0c1d07343e40c1190161be5a34"
+    },
+    {
+      "key": "nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/comstock_amy2018_release_3/metadata_and_annual_results/by_state_and_county/basic/csv/state=TX/county=G4800050/TX_G4800050_upgrade49_basic.csv.gz",
+      "bytes": 740846,
+      "sha256": "e58093a7f359b43d21e9ea985ab474bd1d472e10a048d1d47f897e34ae1834d4"
+    }
+  ],
+  "upgrades": {
+    "0": "Baseline",
+    "16": "HP Boiler, Gas Backup",
+    "43": "LED Lighting",
+    "49": "Roof Insulation"
+  },
+  "targets": [
+    "electricity_kwh_year",
+    "gas_kwh_year"
+  ],
+  "gas_conversion": "calc.weighted.natural_gas.total.energy_consumption..tbtu × 293071070.1722222 / weight",
+  "electricity": "out.electricity.purchased.energy_consumption..kwh; selected upgrades have no PV",
+  "license_source": "https://natlabrockies.github.io/ComStock.github.io/docs/citation.html",
+  "documentation": "https://natlabrockies.github.io/ComStock.github.io/docs/data.html",
+  "skipped": [
+    {
+      "county": "G0800010",
+      "reason": "ValueError"
+    },
+    {
+      "county": "G0800050",
+      "reason": "ValueError"
+    },
+    {
+      "county": "G3600010",
+      "reason": "ValueError"
+    },
+    {
+      "county": "G3600050",
+      "reason": "ValueError"
+    }
+  ],
+  "rows": 3910,
+  "building_groups": 739,
+  "building_types": [
+    "LargeHotel",
+    "LargeOffice",
+    "MediumOffice",
+    "PrimarySchool",
+    "SecondarySchool",
+    "SmallHotel",
+    "SmallOffice"
+  ],
+  "dataset_sha256": "b007f0f1634f6054c1f76ca058a42f5710da874bb7dfe234e2d6920a07883549",
+  "attribution": "ComStock dataset developed by NLR with funding from U.S. DOE. Research simulation data; no field accuracy guarantee.",
+  "license_note": "Dataset attribution/disclaimer source recorded; S3 viewer software Apache license is not asserted as the dataset license. Verify redistribution terms before external publication."
+}

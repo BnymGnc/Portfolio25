@@ -1,0 +1,417 @@
+{
+  "campus": {
+    "revision": 1,
+    "buildings": [
+      {
+        "id": "B01",
+        "name": "Mühendislik Fakültesi",
+        "use_type": "Eğitim",
+        "area_m2": 8200.0,
+        "year_built": 1998,
+        "electricity_kwh_year": 762600.0,
+        "heating_kwh_year": 1459600.0,
+        "non_heating_gas_kwh_year": 116768.0,
+        "peak_electric_kw": 355.2,
+        "connection_limit_kw": 532.8,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 369.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B02",
+        "name": "Merkez Kütüphane",
+        "use_type": "Eğitim",
+        "area_m2": 5400.0,
+        "year_built": 2008,
+        "electricity_kwh_year": 248400.0,
+        "heating_kwh_year": 577800.0,
+        "non_heating_gas_kwh_year": 46224.0,
+        "peak_electric_kw": 234.4,
+        "connection_limit_kw": 351.6,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 243.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B03",
+        "name": "Araştırma Laboratuvarı",
+        "use_type": "Araştırma",
+        "area_m2": 4600.0,
+        "year_built": 2012,
+        "electricity_kwh_year": 386400.0,
+        "heating_kwh_year": 740600.0,
+        "non_heating_gas_kwh_year": 59248.0,
+        "peak_electric_kw": 151.3,
+        "connection_limit_kw": 226.95,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 207.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B04",
+        "name": "Rektörlük",
+        "use_type": "İdari",
+        "area_m2": 3200.0,
+        "year_built": 1995,
+        "electricity_kwh_year": 246400.0,
+        "heating_kwh_year": 268800.0,
+        "non_heating_gas_kwh_year": 21504.0,
+        "peak_electric_kw": 92.9,
+        "connection_limit_kw": 139.35,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 144.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B05",
+        "name": "Öğrenci Yaşam Merkezi",
+        "use_type": "Sosyal",
+        "area_m2": 6100.0,
+        "year_built": 2015,
+        "electricity_kwh_year": 603900.0,
+        "heating_kwh_year": 561200.0,
+        "non_heating_gas_kwh_year": 44896.0,
+        "peak_electric_kw": 216.8,
+        "connection_limit_kw": 325.2,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 274.5,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B06",
+        "name": "Fen Fakültesi",
+        "use_type": "Eğitim",
+        "area_m2": 7200.0,
+        "year_built": 2002,
+        "electricity_kwh_year": 432000.0,
+        "heating_kwh_year": 1101600.0,
+        "non_heating_gas_kwh_year": 88128.0,
+        "peak_electric_kw": 272.1,
+        "connection_limit_kw": 408.15,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 324.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B07",
+        "name": "Spor Merkezi",
+        "use_type": "Sosyal",
+        "area_m2": 4800.0,
+        "year_built": 2010,
+        "electricity_kwh_year": 336000.0,
+        "heating_kwh_year": 696000.0,
+        "non_heating_gas_kwh_year": 55680.0,
+        "peak_electric_kw": 212.0,
+        "connection_limit_kw": 318.0,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 216.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      },
+      {
+        "id": "B08",
+        "name": "Öğrenci Yurdu",
+        "use_type": "Konaklama",
+        "area_m2": 9400.0,
+        "year_built": 2005,
+        "electricity_kwh_year": 799000.0,
+        "heating_kwh_year": 968200.0,
+        "non_heating_gas_kwh_year": 77456.0,
+        "peak_electric_kw": 325.4,
+        "connection_limit_kw": 488.1,
+        "retrofit": {
+          "reference_date": "2026-10-19",
+          "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.",
+          "boiler_efficiency": 0.9,
+          "insulation_relevant_heat_fraction": 0.9,
+          "insulation_reduction_fraction": 0.3,
+          "heat_pump_scop": 3.2,
+          "heat_pump_coverage_fraction": 0.9,
+          "heat_pump_capacity_kw_thermal": 423.0,
+          "insulation_cost_try_m2": 350.0,
+          "heat_pump_cost_try_kw": 5000.0,
+          "heat_pump_fixed_cost_try": 100000.0,
+          "annual_maintenance_fraction": 0.015
+        },
+        "provenance": {
+          "kind": "synthetic",
+          "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+          "seed": 25
+        }
+      }
+    ],
+    "scenario": {
+      "budget_try": 25000000.0,
+      "savings_target_pct": 25.0,
+      "electric_capacity_kw": 2200.0,
+      "electricity_price_try_kwh": 4.5,
+      "heating_price_try_kwh": 1.5,
+      "price_basis": {
+        "reference_date": "2026-10-19",
+        "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir."
+      },
+      "electricity_emission_kg_kwh": 0.4,
+      "gas_emission_kg_kwh": 0.2,
+      "emission_basis": {
+        "reference_date": "2026-10-19",
+        "source": "Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir."
+      }
+    },
+    "profile_settings": {
+      "year": 2025,
+      "timezone": "Europe/Istanbul",
+      "seed": 25,
+      "kind": "synthetic",
+      "source": "Yıllık enerjiye normalize edilen sentetik profil v1; ölçülmüş yük veya hava verisi değildir."
+    },
+    "schema_version": "2.0",
+    "id": "campus-demo-25",
+    "name": "Örnek Kampüs",
+    "provenance": {
+      "kind": "synthetic",
+      "source": "Sabit seed=25 ile üretilmiş örnek; gerçek bir üniversiteyi temsil etmez.",
+      "seed": 25
+    },
+    "optimization_status": "ready",
+    "migration_notes": []
+  },
+  "baseline": {
+    "area_m2": 48900.0,
+    "electricity_kwh_year": 3814700.0,
+    "heating_kwh_year": 6373800.0,
+    "non_heating_gas_kwh_year": 509904.0,
+    "total_gas_kwh_year": 6883704.0,
+    "total_energy_kwh_year": 10698404.0,
+    "intensity_kwh_m2_year": 218.78126789366053,
+    "operating_cost_try_year": 27491706.0,
+    "energy_cost_try_year": 27491706.0,
+    "maintenance_cost_try_year": 0.0,
+    "emissions_kg_year": 2902620.8,
+    "electric_peak_kw": 757.5995450583686,
+    "electric_peak_timestamp": "2025-08-22T12:00:00+03:00",
+    "electric_peak_sum_kw": 841.3412532469499,
+    "capacity_utilization_pct": 34.43634295719857
+  },
+  "profile_audit": {
+    "kind": "synthetic",
+    "source": "Yıllık enerjiye normalize edilen sentetik profil v1; ölçülmüş yük veya hava verisi değildir.",
+    "timezone": "Europe/Istanbul",
+    "start": "2025-01-01T00:00:00+03:00",
+    "end_exclusive": "2026-01-01T00:00:00+03:00",
+    "interval_hours": 1.0,
+    "hour_count": 8760,
+    "all_consistent": true,
+    "buildings": [
+      {
+        "building_id": "B01",
+        "annual_electricity_kwh": 762600.0,
+        "integrated_electricity_kwh": 762600.0,
+        "electricity_error_kwh": 0.0,
+        "annual_useful_heat_kwh": 1313640.0,
+        "integrated_useful_heat_kwh": 1313640.0,
+        "heat_error_kwh": 0.0,
+        "electric_peak_kw": 180.79169910605592,
+        "connection_limit_kw": 532.8,
+        "consistent": true
+      },
+      {
+        "building_id": "B02",
+        "annual_electricity_kwh": 248400.0,
+        "integrated_electricity_kwh": 248400.00000000003,
+        "electricity_error_kwh": 2.9103830456733704e-11,
+        "annual_useful_heat_kwh": 520020.0,
+        "integrated_useful_heat_kwh": 520020.00000000006,
+        "heat_error_kwh": 5.820766091346741e-11,
+        "electric_peak_kw": 59.219193428280896,
+        "connection_limit_kw": 351.6,
+        "consistent": true
+      },
+      {
+        "building_id": "B03",
+        "annual_electricity_kwh": 386400.0,
+        "integrated_electricity_kwh": 386400.0,
+        "electricity_error_kwh": 0.0,
+        "annual_useful_heat_kwh": 666540.0,
+        "integrated_useful_heat_kwh": 666540.0,
+        "heat_error_kwh": 0.0,
+        "electric_peak_kw": 63.04792604224298,
+        "connection_limit_kw": 226.95,
+        "consistent": true
+      },
+      {
+        "building_id": "B04",
+        "annual_electricity_kwh": 246400.0,
+        "integrated_electricity_kwh": 246399.99999999997,
+        "electricity_error_kwh": -2.9103830456733704e-11,
+        "annual_useful_heat_kwh": 241920.0,
+        "integrated_useful_heat_kwh": 241920.0,
+        "heat_error_kwh": 0.0,
+        "electric_peak_kw": 58.61049897012875,
+        "connection_limit_kw": 139.35,
+        "consistent": true
+      },
+      {
+        "building_id": "B05",
+        "annual_electricity_kwh": 603900.0,
+        "integrated_electricity_kwh": 603900.0,
+        "electricity_error_kwh": 0.0,
+        "annual_useful_heat_kwh": 505080.0,
+        "integrated_useful_heat_kwh": 505079.9999999999,
+        "heat_error_kwh": -1.1641532182693481e-10,
+        "electric_peak_kw": 143.60101339411287,
+        "connection_limit_kw": 325.2,
+        "consistent": true
+      },
+      {
+        "building_id": "B06",
+        "annual_electricity_kwh": 432000.0,
+        "integrated_electricity_kwh": 431999.99999999994,
+        "electricity_error_kwh": -5.820766091346741e-11,
+        "annual_useful_heat_kwh": 991440.0,
+        "integrated_useful_heat_kwh": 991440.0,
+        "heat_error_kwh": 0.0,
+        "electric_peak_kw": 102.82089848618462,
+        "connection_limit_kw": 408.15,
+        "consistent": true
+      },
+      {
+        "building_id": "B07",
+        "annual_electricity_kwh": 336000.0,
+        "integrated_electricity_kwh": 336000.0,
+        "electricity_error_kwh": 0.0,
+        "annual_useful_heat_kwh": 626400.0,
+        "integrated_useful_heat_kwh": 626400.0,
+        "heat_error_kwh": 0.0,
+        "electric_peak_kw": 80.26639465318894,
+        "connection_limit_kw": 318.0,
+        "consistent": true
+      },
+      {
+        "building_id": "B08",
+        "annual_electricity_kwh": 799000.0,
+        "integrated_electricity_kwh": 799000.0,
+        "electricity_error_kwh": 0.0,
+        "annual_useful_heat_kwh": 871380.0,
+        "integrated_useful_heat_kwh": 871380.0,
+        "heat_error_kwh": 0.0,
+        "electric_peak_kw": 152.9836291667549,
+        "connection_limit_kw": 488.1,
+        "consistent": true
+      }
+    ]
+  },
+  "calculation": null,
+  "after": null,
+  "investment_plan": null
+}

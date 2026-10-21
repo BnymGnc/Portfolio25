@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "GRID: backend",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": ["backend/run.py"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "panel": "dedicated", "group": "grid" },
+      "problemMatcher": []
+    },
+    {
+      "label": "GRID: frontend",
+      "type": "shell",
+      "command": "npm.cmd run dev",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "presentation": { "panel": "dedicated", "group": "grid" },
+      "problemMatcher": []
+    },
+    {
+      "label": "GRID: frontend + backend",
+      "dependsOn": ["GRID: backend", "GRID: frontend"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}
