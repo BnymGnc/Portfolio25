@@ -27,3 +27,9 @@ Giriş adresi https://buildingportfolio25.vercel.app. Eski `frontend-...vercel.a
 ## Kontroller
 
 Gerçek PostgreSQL 16.15 üzerinde 7 test geçti: auth, sahiplik, revizyon, export/ML, migration, kesinti ve yeni senaryonun başka kullanıcıya kapalı/değişmez olması ile yeni bağlantı havuzunda korunması. Yerel JSON ve karşı-olgusal testler, kaynak şeması testleri ve mevcut yöntemlerin kombinasyon doğrulamaları geçti. Canlı yeniden deploy kalıcılığı ayrı kabul kontrolüdür; yerel PostgreSQL testi bunun yerine sunulmaz.
+
+
+### Canlı kabul durumu
+9b7f6b0 Render sürümünde doğrudan HTTPS backend kontrolü: PostgreSQL health, geçici QA kayıt/giriş, dört proje/sekiz bina, optimizasyon, değişmez senaryo kaydı ve ana kaydı değiştirmeyen zorunlu alternatif geçti. Gerçek kullanıcı kayıtları düzenlenmedi. Tarayıcı, curl ve Python ile Vercel sabit adresine bu ağdan TLS/SSL hatası alındı; Vercel üzerinden uçtan uca giriş başarılı sayılmadı. Eski dağıtım Origin'i backend tarafından reddediliyor; sabit üretim Origin'i kaynak kontrolünü geçiyor. Yeni backend hata metni doğru üretim adresini açıkça gösteriyor.
+
+Yerel Chrome kabul akışı yeni senaryo kaydı/incelemesi, karşı-olgusal hesap, daha sonraki ana proje düzenlemelerinden sonra senaryo değişmezliği, eski sonuç/export koruması, ML çıkarımı ve giriş/çıkışı doğruladı. 390/1440 px yeni kontrollerin görüntüleri görsel olarak incelendi; 320–1536 px ana akış taşma kontrolleri geçti. 22 frontend testi ve üretim derlemesi geçti. Yeniden deploy sonrası canlı kalıcılık kontrolü ayrıca yürütülmektedir; sonucunu canlı kabul raporundan kontrol edin.
