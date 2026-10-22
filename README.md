@@ -85,7 +85,7 @@ Tarayıcı kontrolleri Selenium/Chrome gerektirir. `scripts/check_live_deploymen
 
 [Belge dizini](docs/README.md) · [Climathon değerlendirmesi ve öneriler](docs/product-review.md)
 
-Proje ve bina seçimi sayfa başlığının altındadır. Tema, TR/EN ve hareket tercihleri tek **Ayarlar** penceresindedir: giriş kartının alt sağında, oturum açıkken üst sağda. Tercihler tarayıcıda saklanır ve taslakları/proje verisini değiştirmez. Mobil ana menü altta sabittir. Kullanıcı adları ve özgün API kaynak/teknik açıklamaları çevrilmeden korunur; karar özeti bu sürümde Türkçedir.
+Proje ve bina seçimi sayfa başlığının altındadır. Tema, TR/EN ve hareket tercihleri tek **Ayarlar** penceresindedir: giriş kartının alt sağında, oturum açıkken sol menünün altında; mobilde üstteki Menü düğmesinde. Tercihler tarayıcıda saklanır ve taslakları/proje verisini değiştirmez. Mobil ana menü altta sabittir. Kullanıcı adları ve özgün API kaynak/teknik açıklamaları çevrilmeden korunur; karar özeti bu sürümde Türkçedir.
 
 Bina sayfasında kat/kullanım, yatırım seçenekleri ve ML/fizik karşılaştırması ayrı sekmelerdir; sekme değişimi taslağı silmez. Özet ekranında bina tablosu öndedir; koordinatsız şema isteğe bağlı açılır. Senaryoda hesapla eylemi başlıktadır; mobilde alt menünün hemen üstünde sabit kalır. Sonuçta yatırım kararı ve seçilen paketler öndedir; karşılaştırma/duyarlılık ve çözücü kanıtı açılır bölümlerdedir. [Ürün gerekçesi](docs/electrification-positioning.md) · [PDR taslağı](docs/pdr-draft.md); özgün Task 1 veya ölçülmüş baseline yerine geçmez.
 

@@ -44,10 +44,19 @@ def geometry(label,selector):
     report['first_data_positions'].append({'page':label,'width':width,'top':round(y,1),'limit':limit})
     assert y<=limit,(label,width,y,limit)
 def account_menu(open=True):
-    element=css('.account-menu')
-    if bool(element.get_attribute('open'))!=open:element.find_element(By.TAG_NAME,'summary').click()
+    if not open:
+        dialogs=d.find_elements(By.CSS_SELECTOR,'dialog[open] .dialog-top .icon-button')
+        if dialogs:dialogs[0].click()
+        return
+    if css('.mobile-tools').is_displayed():click('Menü')
+    click('Hesap')
+
+def open_settings():
+    if css('.mobile-tools').is_displayed():click('Menü')
+    button('Settings' if d.execute_script('return document.documentElement.lang')=='en' else 'Ayarlar').click()
+
 def change_language(value):
-    css('.settings-button').click();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
+    open_settings();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
     Select(css('.settings-dialog select[aria-label="TR / EN"]')).select_by_value(value)
     css('.settings-dialog .icon-button').click()
 
@@ -91,7 +100,7 @@ try:
     d.find_element(By.XPATH,'//nav/button[@aria-label="Proje özeti"]').click();click('Vazgeç ve devam et');ready();page('Bina detayları');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.distribution-table tbody tr'))
     check('Building tabs show one view, preserve spatial drafts, and retain save/discard/stay protection')
     for theme in ('nature','night','earth'):
-        css('.settings-button').click();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
+        open_settings();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
         Select(css('.settings-dialog select[aria-label="Ayarlar teması"]')).select_by_value(theme)
         css('.settings-dialog .icon-button').click();shot('theme-'+theme)
     d.refresh();ready();assert d.execute_script('return document.documentElement.dataset.theme')=='earth'
@@ -102,7 +111,7 @@ try:
     context_before=api('/api/campus/snapshot')['body']['context']
     page('Senaryo girdileri');draft_budget=css('input[name=budget_try]');saved_budget=draft_budget.get_attribute('value')
     draft_budget.send_keys(Keys.CONTROL,'a');draft_budget.send_keys(str(int(saved_budget)+1))
-    click('Ayarlar');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
+    open_settings();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
     css('.settings-dialog input[type=checkbox]').click();assert d.execute_script('return document.documentElement.dataset.reduceMotion')=='true'
     Select(css('.settings-dialog select[aria-label="TR / EN"]')).select_by_value('en')
     wait.until(lambda _:css('#settings-title').text=='Settings');assert css('input[name=budget_try]').get_attribute('value')==str(int(saved_budget)+1)
@@ -125,7 +134,7 @@ try:
     assert css('.project-settings').is_displayed()
     change_language('tr')
     context_after=api('/api/campus/snapshot')['body']['context'];assert context_before==context_after
-    click('Ayarlar');shot('settings-tr');css('.settings-dialog .icon-button').click()
+    open_settings();shot('settings-tr');css('.settings-dialog .icon-button').click()
     check('Project selectors moved into workspace; Settings and TR/EN work, preferences persist, drafts and API context remain unchanged')
     project(housing);page('Bina detayları')
     for index in (0,1):
@@ -141,7 +150,9 @@ try:
     # Unsaved draft must survive attempted navigation and refresh.
     budget=css('input[name=budget_try]');initial=budget.get_attribute('value');budget.send_keys(Keys.CONTROL,'a');budget.send_keys('2900000')
     d.find_element(By.XPATH,'//nav/button[contains(.,"Proje özeti")]').click();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog[open]'));click('Kal');assert budget.get_attribute('value')=='2900000'
-    account_menu();click('Veriyi yenile');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog[open]'));click('Kal');account_menu(False);assert budget.get_attribute('value')=='2900000'
+
+    if css('.mobile-tools').is_displayed():click('Menü')
+    click('Yardım');css('.utility-content>details').click();click('Veriyi yenile');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog[open]'));click('Kal');account_menu(False);assert budget.get_attribute('value')=='2900000'
     click('Girdileri kaydet');wait.until(lambda _:not css('.scenario-panel form button').is_enabled());click('Yatırım planını hesapla')
     wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.result-metrics'));assert not d.find_elements(By.CSS_SELECTOR,'.inline-notice');assert not d.find_elements(By.CSS_SELECTOR,'.toast')
     assert not d.find_elements(By.CSS_SELECTOR,'.stale-panel');check('Draft retained by navigation/refresh guard; successful solve clears saved-input notice and stale state')

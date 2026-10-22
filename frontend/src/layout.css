@@ -255,3 +255,24 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]),select{min-height
  .topbar{padding:10px 12px;gap:6px}.sidebar .nav-item{font-size:11px}
  .main-shell main{padding:18px 12px 0}.settings-button{font-size:11px;padding:8px}
 }
+
+/* Persistent workspace utilities, separated from the decision workflow. */
+.sidebar{overflow-y:auto}
+.sidebar-utilities{margin-top:auto;padding-top:20px;border-top:1px solid var(--nav-selected);display:grid;gap:4px}
+.sidebar-utilities>button{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;min-height:44px;background:transparent;color:var(--nav-muted);font-size:14px;text-align:left}
+.sidebar-utilities>button:hover,.sidebar-utilities>button:focus-visible{background:var(--nav-selected);color:var(--nav-text)}
+.utility-avatar{display:grid;place-items:center;width:20px;height:20px;border:1px solid currentColor;border-radius:50%;font-size:11px}
+.mobile-tools{display:none}
+.utility-content{display:grid;gap:20px;margin-top:20px}
+.utility-content p{line-height:1.7;font-size:14px}
+.utility-description{color:var(--muted)}
+.utility-content>.account-email{font-size:15px;padding:16px;background:var(--surface-soft);border-radius:8px;margin:0}
+.utility-content>.button,.utility-content>.text-button{justify-self:start}
+.utility-content>.button{margin-top:8px}
+.utility-links{display:flex;gap:16px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--border);padding-top:20px}
+.utility-content details>summary{cursor:pointer;font-size:14px;font-weight:600}
+.utility-content details p{margin:12px 0;color:var(--muted)}
+.utility-menu{display:grid;gap:10px;margin-top:24px}
+.utility-menu>button{padding:16px;text-align:left;background:var(--surface-soft);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:15px}
+@media(min-width:901px){.topbar{display:none}.main-shell main{padding-top:32px}.sidebar>nav{margin-bottom:28px}}
+@media(max-width:900px){.sidebar .sidebar-utilities{display:none}.mobile-tools{display:inline-flex}.sidebar{overflow:visible}}
