@@ -81,7 +81,7 @@ try:
     def project(p):
         Select(css('#project-select')).select_by_value(p['id']);ready();wait.until(lambda _:css('#project-select').get_attribute('value')==p['id']);time.sleep(.15)
     project(campus)
-    for width in WIDTHS:viewport(width);geometry('overview','.metric-value');shot('overview-'+str(width))
+    for width in WIDTHS:viewport(width);geometry('overview','.action-workspace h2');shot('overview-'+str(width))
     page('Bina detayları')
     for index in (0,1):
         select=Select(css('#building-select'));name=select.options[index].text;select.select_by_index(index);wait.until(lambda _:css('.page-heading h1').text==name);wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.distribution-table tbody tr'));shot('building-'+str(index+1)+'-1440')

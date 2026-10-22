@@ -7,7 +7,6 @@ import { money, n, solverLabel } from './format';
 import type { CampusResponse, CalculationResult } from './types';
 import { Icon } from './visuals';
 import DecisionEvidence from './DecisionEvidence';
-import AIAssistant from './AIAssistant';
 import ElectrificationImpact from './ElectrificationImpact';
 
 export default function Results({ data, result, stale, busy, onBrief, onScenario, onBuilding, onAssumptions, onExport }: {
@@ -33,7 +32,7 @@ export default function Results({ data, result, stale, busy, onBrief, onScenario
         [t("Elektrik"), r.baseline.electricity_kwh_year, after.electricity_kwh_year, t("kWh/yıl")], [t("Isıtma doğalgazı"), r.baseline.heating_kwh_year, after.heating_kwh_year, t("kWh/yıl")], [t("Diğer doğalgaz"), r.baseline.non_heating_gas_kwh_year, after.non_heating_gas_kwh_year, t("kWh/yıl")], [t("Toplam nihai enerji"), r.baseline.total_energy_kwh_year, after.total_energy_kwh_year, t("kWh/yıl")], [t("Enerji maliyeti"), r.baseline.energy_cost_try_year, after.energy_cost_try_year, t("TL/yıl")], [t("Ek bakım maliyeti"), r.baseline.maintenance_cost_try_year, after.maintenance_cost_try_year, t("TL/yıl")], [t("İşletme maliyeti"), r.baseline.operating_cost_try_year, after.operating_cost_try_year, t("TL/yıl")], [t("Varsayımsal emisyon"), r.baseline.emissions_kg_year, after.emissions_kg_year, 'kg CO₂e/yıl'],
       ] as [string, number, number, string][]).map(([title, before, value, unit]) => <tr key={title}><td>{title}</td><td>{n(before)}</td><td>{n(value)}</td><td>{unit}</td></tr>)}</tbody></table></div><p className="small-note">{t("Basit geri ödeme:")+" "}{r.simple_payback_years === null ? 'pozitif net ekonomik tasarruf olmadığı için hesaplanmaz.' : `${n(r.simple_payback_years)} yıl.`}{" "+t("Yatırım / (enerji bedeli farkı − ek bakım). İskonto, ekipman ömrü, finansman, vergi ve fiyat değişimi içermez.")}</p></section>
     </>}
-    <details className="panel optional-ai"><summary>{t("Planı açıkla")}</summary><PanelBoundary><AIAssistant context={data.context} scope="plan"/></PanelBoundary></details><details className="panel result-evidence"><summary>{t("Karşılaştırma ve duyarlılık")}</summary><PanelBoundary><DecisionEvidence result={r}/></PanelBoundary></details>
+    <details className="panel result-evidence"><summary>{t("Karşılaştırma ve duyarlılık")}</summary><PanelBoundary><DecisionEvidence result={r}/></PanelBoundary></details>
     <details className="panel solver-details"><summary>{t("Çözücü ayrıntıları, varsayımlar ve sınırlar")}</summary><p>{r.message}</p><p>Çözüm süresi {n(r.solver.solve_seconds,3)} sn · optimalite açığı {r.solver.mip_gap===null?'raporlanmadı':n(r.solver.mip_gap*100,6)+'%'}</p><p>{r.solver.name} · ham durum {r.solver.status_code} · süre sınırı {r.solver.time_limit_s} sn · amaç sınırı {n(r.solver.objective_bound)} {r.solver.objective_unit}</p><p className="small-note">{r.solver.message}</p><ul>{r.warnings.map(w => <li key={w}>{w}</li>)}</ul><button className="button secondary" onClick={onAssumptions}>{t("Veri kaynağı ve varsayımlar")}</button></details>
   </div>;
 }

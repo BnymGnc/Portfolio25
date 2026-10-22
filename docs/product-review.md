@@ -170,3 +170,9 @@ Hesap, Ayarlar ve Yardım masaüstünde sol menünün altında ayrı girişlerdi
 Önerilen ürün sırası: (1) gerçek kampüs girdilerinin tamamlanma durumunu görünür tutmak; (2) yatırım kararında enerji, net maliyet ve bağlantı uygunluğunu ayrı değerlendirmek; (3) saha pilotunda fatura ve eşzamanlı yük ölçümüyle varsayımları doğrulamak. Karbon azaltımı için tarihli elektrik/yakıt faktörleri ve aynı kapsam şarttır; elektrikleşme tek başına emisyon azalması garantisi değildir. Fazlara bölünmüş yatırım ve fiyat belirsizliği sonraki karar ihtiyaçlarıdır; henüz hesaplanmış özellik gibi sunulmaz.
 
 Doğrulama: 22 frontend testi ve üretim derlemesi geçti. Geçici yerel QA hesabıyla Chrome kabul akışı tamamlandı: 320/390/500/768/1280/1536 px, tema/dil, bina/proje geçişi, taslak koruması, optimizasyon, gerçek ML karşılaştırması, eski sonuç/dışa aktarım, çıkış ve tekrar giriş. Ekran görüntüleri görsel olarak incelendi; özgün yerel kayıt özetleri değişmedi. Ücretli AI çağrısı yapılmadı.
+
+
+### Eylem ve AI odaklı çalışma alanı
+Proje özeti önce plan oluştur/aç eylemini gösterir. Binalar seçilebilir yatırım kartlarıdır; geniş veri tablosu ve başlangıç metrikleri isteğe bağlı açılır. Sayfa eylemlerindeki AI asistanı, bina seçenekleri veya güncel plan açıklamasını açar. Hesap sonrası “AI ile alternatif dene” mevcut yapılandırılmış senaryo taslağı endpoint'ini kullanır: öneriyi incele → kaydetmeden hesapla → açıkça uygula. Yeni hesap motoru veya model eklenmedi. Soru değişince önceki AI senaryo taslağı kullanılamaz.
+
+390/1440 px gerçek Chrome kontrolünde karttan bina yatırımlarına geçiş, AI görev pencereleri ve taslak → gerçek geçici hesap akışı doğrulandı. Ücretli LLM çağrısı yapılmadı; yalnız taslak sağlayıcı yanıtı testte taklit edildi, alternatif fizik hesabı gerçek backend üzerinde çalıştı ve ana snapshot aynı kaldı. AI bağlantısı erişilemezse sahte yanıt üretilmez.
