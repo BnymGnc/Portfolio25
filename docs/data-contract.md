@@ -251,3 +251,5 @@ Yazma/hesap istekleri ve v2.0 kalıcı veri şeması korunur; eski kayıt dönü
 
 Sunucu dışa aktarım için değişmez anlık görüntüyü kilit altında doğrular; kontrol/indirme arasında yeni kayda geçmez. İstemcide kaydedilmemiş değişiklik her iki kapsamı engeller; yalnız eski hesap bulunması kaydedilmiş yeni başlangıç verisinin açıkça dışa aktarılmasını engellemez. Sonuç kapsamı yeniden hesaplama ister.
 
+
+Final ekleri: Building.field_sources isteğe bağlı alan grubu → kaynak etiketi sözlüğüdür. Reference.kind varsayılan unspecified; measured/user_estimate/default/synthetic/unspecified değerleri kabul edilir. Eski kayıtlara ölçülmüş varsayımı yapılmaz. Adlandırılmış senaryo name/id/created_at/context/inputs/calculation içerir ve proje belgesinden bağımsız değişmez kopyadır.

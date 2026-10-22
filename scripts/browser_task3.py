@@ -161,6 +161,26 @@ try:
     viewport(1440)
     snapshot_reply=api('/api/campus/snapshot');assert snapshot_reply['status']==200,snapshot_reply.get('body',{}).get('detail')
     current=snapshot_reply['body'];existing_downloads=set(DOWNLOADS.glob('*.html'))
+    # Named scenarios are immutable views, not project replacement actions.
+    named=css('.named-scenarios>summary');d.execute_script("arguments[0].scrollIntoView({block:'center'})",named);named.click()
+    css('.named-scenarios input').send_keys('Temel plan QA');click('Senaryoyu kaydet')
+    wait.until(lambda _:len(Select(css('.named-scenarios select')).options)==2)
+    saved_named=api('/api/scenarios/saved')['body'][0]
+    original_named=api('/api/scenarios/saved/'+saved_named['id'])['body']
+    assert original_named['inputs']==current['campus']
+    assert original_named['calculation']['calculation_id']==current['calculation_id']
+    for width in (390,1440):
+        viewport(width);assert d.execute_script('return document.documentElement.scrollWidth<=innerWidth+1')
+        css('.named-scenarios').screenshot(str(OUT/('named-'+str(width)+'.png')))
+    viewport(1440);css('.named-scenarios>summary').click()
+    cf=css('.counterfactual-panel>summary');d.execute_script("arguments[0].scrollIntoView({block:'center'})",cf);cf.click()
+    click('Alternatifi hesapla');wait.until(lambda _:'Ana plana göre' in css('.counterfactual-panel').text or 'Uygun alternatif' in css('.counterfactual-panel').text)
+    assert api('/api/campus/snapshot')['body']==current
+    for width in (390,1440):
+        viewport(width);assert d.execute_script('return document.documentElement.scrollWidth<=innerWidth+1')
+        css('.counterfactual-panel').screenshot(str(OUT/('counterfactual-'+str(width)+'.png')))
+    viewport(1440);css('.counterfactual-panel>summary').click()
+    check('Named scenario UI saves exact input/result snapshot; forced alternative leaves main snapshot unchanged; 390/1440 layout')
     baseline=current['calculation']['baseline'];after=current['calculation']['after']
     expected={'electricity':after['electricity_kwh_year']-baseline['electricity_kwh_year'],
               'gas':after['heating_kwh_year']+after['non_heating_gas_kwh_year']-baseline['heating_kwh_year']-baseline['non_heating_gas_kwh_year'],
@@ -213,6 +233,8 @@ try:
     check('Actual ML changes with intervention; total-gas scope, large absolute/relative difference and limitation are visible')
     page('Senaryo girdileri');budget=css('input[name=budget_try]');budget.send_keys(Keys.CONTROL,'a');budget.send_keys('0');target=css('input[name=savings_target_pct]');target.send_keys(Keys.CONTROL,'a');target.send_keys('100');css('input[name=mode][value=B]').click();click('Yatırım planını hesapla');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.no-solution'));shot('no-solution-1440');assert 'Çözüm bulunamadı' in css('.result-statusline').text
     check('Infeasible budget/target is displayed without a fabricated plan')
+    assert api('/api/scenarios/saved/'+saved_named['id'])['body']==original_named
+    check('Named scenario stays immutable after later main-project edits and calculations')
     account_menu();click('Kısa tanıtım');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog.onboarding[open]'));css('dialog.onboarding').send_keys(Keys.ESCAPE);ready()
     account_menu();click('Çıkış yap');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.auth-card'));assert 'En az 12' not in css('.auth-card').text
     css('#auth-email').send_keys(Keys.CONTROL,'a');css('#auth-email').send_keys(email);css('#auth-password').send_keys('wrong-password-123');css('#auth-password').send_keys(Keys.ENTER);wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.auth-error'));shot('login-error')

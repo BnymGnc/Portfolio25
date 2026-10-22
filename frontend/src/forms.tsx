@@ -1,3 +1,4 @@
+import {sourceLabels,sourceFields,sourceKind} from './sources';
 import {t} from './i18n';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { Building, Campus, Scenario } from './types';
@@ -19,7 +20,7 @@ export function BuildingEditor({ building, onClose, onSave, onDirtyChange }: { o
     const values = new FormData(event.currentTarget);
     setSaving(true); setError('');
     try {
-      await onSave({ ...building, name: String(values.get('name')).trim(), use_type: values.get('use_type') as Building['use_type'],
+      await onSave({ ...building, field_sources:Object.fromEntries(sourceFields.map(([key])=>[key,String(values.get('source.'+key))])) as Building['field_sources'], name: String(values.get('name')).trim(), use_type: values.get('use_type') as Building['use_type'],
         ...Object.fromEntries(['area_m2', 'year_built', 'electricity_kwh_year', 'heating_kwh_year', 'non_heating_gas_kwh_year', 'peak_electric_kw', 'connection_limit_kw'].map(key => [key, Number(values.get(key))])),
         heating_system:values.get('heating_system') as Building['heating_system'],heat_distribution:values.get('heat_distribution') as Building['heat_distribution'],
         insulation_allowed:values.get('insulation_allowed')==='on',system_source:String(values.get('system_source')),
@@ -42,6 +43,7 @@ export function BuildingEditor({ building, onClose, onSave, onDirtyChange }: { o
     <form onSubmit={submit} onChange={e => {onDirtyChange(true);const f=e.currentTarget;const values=Object.fromEntries(new FormData(f).entries()) as Record<string,string>;values.insulation_allowed=(f.elements.namedItem('insulation_allowed') as HTMLInputElement).checked?'on':'off';storeDraft('editor:'+building.id,values)}}>
       <div className="dialog-top"><div><span className="eyebrow">BİNA ENVANTERİ / {building.id}</span><h2 id="editor-title">{t("Bina bilgilerini düzenle")}</h2></div><button type="button" className="icon-button" aria-label={t("Pencereyi kapat")} onClick={onClose} disabled={saving}><Icon name="close" /></button></div>
       <p className="small-note">{t("Bu kayıtta yapılan değişiklikler sentetik örnek veri olarak saklanır.")}</p>
+      <details><summary>Girdi kaynakları · ölçüm ve varsayım ayrımı</summary><p>Kaynak etiketi doğrulama değildir. Alanlar hesap için gereklidir; kaynak belgesi ve ölçüm ayrıntıları doğruluğu artırır.</p><div className="form-grid">{sourceFields.map(([key,label])=><label key={key}>{label}<select name={'source.'+key} defaultValue={sourceKind(building,key)}>{Object.entries(sourceLabels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>)}</div></details>
       <label>{t("Bina adı")}<input name="name" required maxLength={100} pattern=".*\S.*" defaultValue={building.name} autoFocus /></label>
       <div className="form-grid"><label>{t("Kullanım türü")}<select name="use_type" defaultValue={building.use_type}>{['Eğitim','Araştırma','İdari','Sosyal','Konaklama','Konut','Ofis','Otel'].map(use => <option key={use} value={use}>{t(use)}</option>)}</select></label>
         {fields.map(field => <label key={field.key}>{t(field.label)}<input type="number" name={field.key} required min={field.min} max={field.max} step={field.step || '1'} defaultValue={building[field.key] as number} /></label>)}
@@ -82,7 +84,7 @@ export function ScenarioForm({ campus, disabled, onSave, onDirtyChange, onDraftC
       <div className="form-grid">{field('savings_target_pct', t("Tasarruf hedefi"), '%', 0, 100)}{campus.connection_groups.length===1&&field('electric_capacity_kw', t("Tek bağlantı grubunun kapasitesi"), 'kW', 0.01, 10000000)}</div>
       {campus.connection_groups.length>1&&<p className="small-note">{campus.connection_groups.length} bağımsız bağlantı grubu var. Kapasiteleri üstteki proje bölümünden düzenleyin; proje geneline ortak trafo sınırı uygulanmaz.</p>}
       <details><summary>{t("Fiyat ve emisyon varsayımları")}</summary><div className="form-grid">{field('electricity_price_try_kwh', t("Elektrik birim bedeli"), '₺/kWh', 0, 1000)}{field('heating_price_try_kwh', t("Doğalgaz birim bedeli"), '₺/kWh', 0, 1000)}{field('electricity_emission_kg_kwh', t("Elektrik emisyonu"), 'kg/kWh', 0, 10)}{field('gas_emission_kg_kwh', t("Doğalgaz emisyonu"), 'kg/kWh', 0, 10)}</div>
-        {(['price_basis', 'emission_basis'] as const).map(key => <div key={key} className="reference-fields"><label>{key === 'price_basis' ? t("Fiyat") : t("Emisyon")} varsayım tarihi<input type="date" required value={draft[key].reference_date} onChange={e => setDraft({ ...draft, [key]: { ...draft[key], reference_date: e.target.value } })} /></label><label>{t("Kaynak")}<input required maxLength={500} value={draft[key].source} onChange={e => setDraft({ ...draft, [key]: { ...draft[key], source: e.target.value } })} /></label></div>)}
+        {(['price_basis', 'emission_basis'] as const).map(key => <div key={key} className="reference-fields"><label>{key === 'price_basis' ? t("Fiyat") : t("Emisyon")} varsayım tarihi<input type="date" required value={draft[key].reference_date} onChange={e => setDraft({ ...draft, [key]: { ...draft[key], reference_date: e.target.value } })} /></label><label>Kaynak türü<select value={draft[key].kind??"unspecified"} onChange={e=>setDraft({...draft,[key]:{...draft[key],kind:e.target.value}})}>{Object.entries(sourceLabels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label><label>{t("Kaynak")}<input required maxLength={500} value={draft[key].source} onChange={e => setDraft({ ...draft, [key]: { ...draft[key], source: e.target.value } })} /></label></div>)}
         <p className="small-note">Örnek sabit değerler; resmî güncel tarife veya emisyon faktörü değildir. Birim: kg CO₂e/kWh.</p></details>
       {error && <p className="error-box" role="alert">{error}</p>}
       <button className="button secondary full" disabled={disabled || !dirty}>{disabled ? t("Kaydediliyor…") : dirty ? t("Girdileri kaydet") : t("Girdiler kayıtlı")}<Icon name={dirty ? 'arrow' : 'check'} size={17} /></button>

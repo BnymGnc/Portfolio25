@@ -97,7 +97,7 @@ class Accounts:
 
     def check_csrf(self, request, session, origins):
         if request.headers.get('origin') not in origins:
-            raise HTTPException(403, 'İstek kaynağı izinli değil.')
+            raise HTTPException(403, 'İstek kaynağı izinli değil. Giriş ve kayıt için https://buildingportfolio25.vercel.app adresini açın; eski dağıtım bağlantısını kullanmayın.')
         if not session or not secrets.compare_digest(session['csrf'], request.headers.get('x-csrf-token', '')):
             raise HTTPException(403, 'Oturum doğrulaması yenilenmeli; sayfayı yeniden açın.')
 

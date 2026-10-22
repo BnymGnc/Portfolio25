@@ -46,3 +46,5 @@ Nihai modelin kapsam denetimi korunur: idari pilot binasının cihaz yıllık en
 ```
 
 Sunucu başlangıcında eğitim yoktur. Model, özellik listesi, sınırlar, gruplar, hedef/tür/müdahale başına metrikler ve özetler backend/ml_assets/synthetic-annual altındadır. Güvenilen yerel joblib dosyası hash kontrolünden sonra yüklenir; dosya yolu istemciden alınmaz. ComStock modeli ayrı tutulur.
+
+Yeni eğitim yapılmadan hedef/birim, müdahale eşleşmesi, toplam gaz ve bina grupları [final incelemesinde](final-decision-review.md) doğrulandı. Modelin elektrik MAE değeri lineer referanstan daha yüksek; genel doğruluk üstünlüğü iddia edilmez.

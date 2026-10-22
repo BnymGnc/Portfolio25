@@ -33,7 +33,7 @@ def from_result(campus, options, result):
             'evaluation':evaluate(campus,chosen,result.baseline)}
 
 
-def ratio_plan(campus, options, baseline):
+def ratio_plan(campus, options, baseline, mode="A"):
     # Global descending annual-final-kWh saved / initial TL. No upgrades after selection.
     chosen = {b.id:group[0] for b,group in zip(campus.buildings,options)}
     def incremental(p,field):return getattr(p.report,field)-getattr(chosen[p.report.building_id].report,field)
@@ -43,6 +43,8 @@ def ratio_plan(campus, options, baseline):
     remaining=campus.scenario.budget_try-sum(p.report.investment_try for p in chosen.values())
     assigned=set()
     for p in candidates:
+        if mode=="B" and sum(v.report.energy_savings_kwh_year for v in chosen.values()) >= baseline.total_energy_kwh_year*campus.scenario.savings_target_pct/100-.001:
+            break
         if p.report.building_id not in assigned and incremental(p,'investment_try')<=remaining+.001:
             cost=incremental(p,'investment_try')
             chosen[p.report.building_id]=p
@@ -56,9 +58,9 @@ def decision_evidence(campus, options, request, grid_result):
     relaxed=solve_packages(campus.buildings,options,campus.scenario,request,campus.connection_groups,enforce_grid=False)
     return {'input_revision':campus.revision,'project_id':campus.id,'mode':request.mode,
         'package_universe':{b.id:[p.report.candidate_id or p.report.package for p in group] for b,group in zip(campus.buildings,options)},
-        'ratio_definition':'Kaydedilmiş kat müdahaleleri sabit taban olarak bir kez bütçeden düşülür. Ek pozitif yıllık nihai enerji tasarrufu (kWh/yıl) / ek yatırım (TL), azalan sıra. Ücretsiz pozitif tasarruf önce; eşitlikte bina kimliği/paket adı. Bina başına ilk bütçeye sığan paket; yükseltme yok. Kapasite kullanılmaz. B hedefi sonradan denetlenir.',
+        'ratio_definition':'Kaydedilmiş kat müdahaleleri sabit taban olarak bir kez bütçeden düşülür. Ek pozitif yıllık nihai enerji tasarrufu (kWh/yıl) / ek yatırım (TL), azalan sıra. Ücretsiz pozitif tasarruf önce; eşitlikte bina kimliği/paket adı. Bina başına ilk bütçeye sığan paket; yükseltme yok. Kapasite kullanılmaz. B modunda hedefe erişince durur; en düşük yatırım garantisi yoktur.',
         'scope':'Aynı girdiler, aynı uygun paket evreni, aynı fizik motoru ve bütçe. Kısıtsız optimizasyonda hem bina hem grup elektrik sınırları kaldırılır; uygunluk kuralları ve B hedefi korunur.',
-        'methods':{'ratio':ratio_plan(campus,options,grid_result.baseline),
+        'methods':{'ratio':ratio_plan(campus,options,grid_result.baseline,request.mode),
                    'without_grid':from_result(campus,options,relaxed),'grid':from_result(campus,options,grid_result)}}
 
 

@@ -79,6 +79,33 @@ class PostgresTests(unittest.TestCase):
     def assert_no_files(self):
         self.assertFalse(main.DATA_FILE.parent.exists(),'PostgreSQL production must not write local accounts/projects/results')
 
+    def test_named_scenario_immutable_owner_isolation_restart(self):
+        a,_,uid=self.account();b,_,_=self.account()
+        params,snapshot=self.office(a)
+        result=a.post('/api/calculate',params=params,json={'revision':1,'mode':'A','time_limit_s':3})
+        self.assertEqual(result.status_code,200)
+        snapshot=a.get('/api/campus/snapshot',params=params).json()
+        saved=a.post('/api/scenarios/saved',params=params,json={'name':'Baseline QA','context':snapshot['context']})
+        self.assertEqual(saved.status_code,200,saved.text);saved=saved.json()
+        path='/api/scenarios/saved/'+saved['id']
+        self.assertEqual(b.get(path,params=params).status_code,404)
+        other,_=self.office(b)
+        self.assertEqual(b.get(path,params=other).status_code,404)
+        original=snapshot['campus']
+        edit={'revision':1,'buildings':original['buildings'],'scenario':{**original['scenario'],'budget_try':1}}
+        self.assertEqual(a.put('/api/campus',params=params,json=edit).status_code,200)
+        self.assertEqual(a.post('/api/scenarios/saved',params=params,json={'name':'Stale','context':snapshot['context']}).status_code,409)
+        self.store.close();self.store=PostgresStore(os.environ['TEST_DATABASE_URL']);self.addCleanup(self.store.close)
+        self.store.migrate();self.store.migrate()
+        self.assertEqual(a.get(path,params=params).json(),saved)
+        self.assertEqual(saved['inputs'],original)
+        self.assertEqual(saved['calculation']['calculation_id'],result.json()['calculation_id'])
+        self.assertEqual(len(a.get('/api/scenarios/saved',params=params).json()),1)
+        current=a.get('/api/campus/snapshot',params=params).json()
+        self.assertEqual(current['campus']['scenario']['budget_try'],1)
+        self.assertIsNone(current['calculation'])
+        self.assert_no_files()
+
     def test_auth_argon2_csrf_logout_revocation_and_owner_isolation(self):
         a,credentials,uid=self.account();b,_,_=self.account()
         params,snapshot=self.office(a)

@@ -662,7 +662,7 @@ def export_campus(file_format: str, scope: Literal['auto','inputs','result'] = '
                          plan.model_dump_json() if plan else '', b.provenance.model_dump_json(),
                          __import__('json').dumps({'id':campus.id,'name':campus.name,'pilot':campus.pilot,'connection_groups':[g.model_dump() for g in campus.connection_groups],
                             'sensitivity_settings':campus.sensitivity_settings.model_dump(mode='json')},ensure_ascii=False),
-                         __import__('json').dumps({key:getattr(b,key) for key in ('heating_system','heat_distribution','insulation_allowed','system_source')},ensure_ascii=False),
+                         __import__('json').dumps({key:getattr(b,key) for key in ('heating_system','heat_distribution','insulation_allowed','system_source','field_sources')},ensure_ascii=False),
                          __import__('json').dumps(calc.decision_evidence,ensure_ascii=False) if calc else '',
                          __import__('json').dumps(calc.sensitivity,ensure_ascii=False) if calc else '',
                          b.spatial.model_dump_json() if b.spatial else '',b.spatial_selection.model_dump_json(),
@@ -797,3 +797,7 @@ def synthetic_predict(request:synthetic_ml.PredictRequest):
     return result
 
 install_openapi(app)
+
+import named_scenarios
+import sys
+named_scenarios.install(app, sys.modules[__name__])

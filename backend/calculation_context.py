@@ -3,7 +3,7 @@ import hashlib
 import json
 from uuid import uuid4
 
-ENGINE_VERSION = '4.0.0'
+ENGINE_VERSION = '4.1.0'
 
 
 def input_hash(campus):

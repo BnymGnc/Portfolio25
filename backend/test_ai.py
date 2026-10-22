@@ -43,6 +43,16 @@ class AITests(unittest.TestCase):
         self.assertEqual(main.DATA_FILE.read_bytes(),data);self.assertEqual(main.result_path().read_bytes(),saved)
         self.assertEqual(self.client.post('/api/scenarios/evaluate',json={**body,'changes':[{'field':'path','value':1}]}).status_code,422)
         self.assertEqual(self.client.post('/api/scenarios/apply',json=body).json()['campus']['revision'],2)
+    def test_named_local_snapshot_remains_immutable(self):
+        body={'name':'Baseline','context':self.ctx}
+        saved=self.client.post('/api/scenarios/saved',json=body)
+        self.assertEqual(saved.status_code,200,saved.text)
+        value=saved.json();before=main.DATA_FILE.read_bytes()
+        self.assertEqual(self.client.get('/api/scenarios/saved/'+value['id']).json(),value)
+        self.assertEqual(main.DATA_FILE.read_bytes(),before)
+        self.assertEqual(value['calculation']['calculation_id'],self.ctx['calculation_id'])
+        self.assertEqual(len(self.client.get('/api/scenarios/saved').json()),1)
+
     def test_missing_key_status_and_openapi(self):
         with patch.dict('os.environ',{'OPENAI_API_KEY':''}):
             self.assertFalse(self.client.get('/api/ai/status').json()['configured'])

@@ -84,3 +84,6 @@ JSON export güçlü bağlam, müdahale durum/maliyetleri, karşılaştırma/duy
 Otomatik FastAPI GET yolları: `/openapi.json`, `/docs`, `/docs/oauth2-redirect`, `/redoc`. OAuth redirect sayfası login uygulandığını göstermez. Swagger/ReDoc CDN varlığına bağlı olabilir; CORS OPTIONS preflight ayrı iş endpoint’i değildir.
 
 LLM mimarisi/gerçek429 testi [ai-architecture.md](ai-architecture.md); model kaynak/metrikleri [model-card.md](model-card.md); aşamalı kontroller [improvement-report.md](https://github.com/BnymGnc/Portfolio25/blob/c41071b/docs/improvement-report.md).
+
+## Adlandırılmış senaryolar
+GET /api/scenarios/saved: sahip/proje bazlı özet liste. POST aynı yol: {name, context}, güncel girdiler ve varsa hesap snapshot; eski bağlam 409. GET /api/scenarios/saved/{id}: tarihsel snapshot, ana kayıt değişmez. Oturum/CSRF ve project_id sözleşmesi korunur; başkasının kaydı 404. Proje başına 50 kayıt; PostgreSQL migration 002.

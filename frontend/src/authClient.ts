@@ -27,7 +27,7 @@ export async function requestAuth(base: string, path: AuthPath, body: unknown, c
       throw new ServiceError('Kalıcı veritabanına erişilemiyor. İşlem kaydedilmedi veya sonucu doğrulanamadı; bağlantı düzeldiğinde kaydı kontrol edin.',503);
     if (response.status >= 500) throw unavailable(response.status);
     const detail = typeof value.detail === 'string' ? value.detail.slice(0, 400) : null;
-    if (response.status === 403 && detail === 'İstek kaynağı izinli değil.') throw new OriginRejectedError();
+    if (response.status === 403 && detail?.startsWith('İstek kaynağı izinli değil.')) throw new OriginRejectedError();
     if (response.status === 401 && path === 'login') throw new LoginRejectedError('E-posta veya parola geçersiz.');
     const fallback = response.status === 429 ? 'Çok sayıda deneme yapıldı. Biraz bekleyip tekrar deneyin.'
       : response.status === 422 ? 'E-posta ve parola biçimini kontrol edin. Kayıt parolası en az 12 karakter olmalı.'

@@ -1,3 +1,4 @@
+export type SourceKind='measured'|'user_estimate'|'default'|'synthetic'|'unspecified';
 import type {SpatialModel,SpatialSelection} from './spatialTypes';
 export interface Provenance {
   kind: 'measured' | 'external_simulation' | 'synthetic';
@@ -6,6 +7,7 @@ export interface Provenance {
 }
 
 export interface Building {
+  field_sources?:Record<string,SourceKind>;
   interventions?:InterventionDecision[]|null;
   id: string;
   name: string;
@@ -28,6 +30,7 @@ export interface Building {
 }
 
 export interface Reference {
+  kind?:SourceKind;
   reference_date: string;
   source: string;
 }

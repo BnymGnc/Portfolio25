@@ -15,7 +15,11 @@ class Provenance(Model):
     seed: int | None = None
 
 
+SourceKind = Literal["measured", "user_estimate", "default", "synthetic", "unspecified"]
+
+
 class Reference(Model):
+    kind: SourceKind = "unspecified"
     reference_date: date = date(2026, 10, 19)
     source: str = Field(default="Düzenlenebilir sentetik örnek varsayımı; resmî güncel değer değildir.", min_length=1, max_length=500)
 
@@ -42,6 +46,7 @@ class ProfileSettings(Model):
 
 
 class Building(Model):
+    field_sources: dict[str, SourceKind] = Field(default_factory=dict, max_length=30)
     interventions:list[InterventionDecision]|None=None
     id: str = Field(pattern=r"^B[0-9]{2}$")
     name: str = Field(min_length=1, max_length=100, pattern=r"\S")

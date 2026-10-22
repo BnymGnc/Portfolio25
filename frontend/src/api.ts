@@ -24,6 +24,11 @@ export async function predictModel(context:CalculationContext,features:Record<st
 export async function predictProject(context:CalculationContext,building_id:string):Promise<Prediction>{return (await request('/api/ml/project-predict',jsonBody({context,building_id}),30000)).json()}
 export async function counterfactualScenario(context:CalculationContext,building_id:string,intervention:string):Promise<ScenarioEvaluation>{return (await request('/api/scenarios/counterfactual',jsonBody({context,building_id,intervention}),60000)).json()}
 const jsonBody=(body:unknown)=>({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+export interface NamedSummary {id:string;name:string;created_at:string;context:CalculationContext}
+export interface NamedScenario extends NamedSummary {inputs:Campus;calculation:CalculationResult|null}
+export async function listNamedScenarios():Promise<NamedSummary[]>{return (await request('/api/scenarios/saved')).json()}
+export async function readNamedScenario(id:string):Promise<NamedScenario>{return (await request('/api/scenarios/saved/'+encodeURIComponent(id))).json()}
+export async function saveNamedScenario(name:string,context:CalculationContext):Promise<NamedScenario>{return (await request('/api/scenarios/saved',jsonBody({name,context}))).json()}
 export async function loadAIStatus():Promise<AIStatus>{return (await request('/api/ai/status')).json()}
 export async function explainCalculation(context:CalculationContext,scope:'plan'|'building',building_id:string|undefined,question:string):Promise<Explanation>{return (await request('/api/ai/explain',jsonBody({context,scope,building_id,question}),35000)).json()}
 export async function proposeScenario(context:CalculationContext,question:string):Promise<ScenarioDraft>{return (await request('/api/ai/scenario-draft',jsonBody({context,question}),35000)).json()}

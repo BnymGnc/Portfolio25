@@ -13,6 +13,7 @@ test('Only other Vercel deployment origins require the fixed production URL; Ori
  assert.equal(requiresProductionOrigin('https://frontend-8ptsie61m-bunyamins-projects-1705a228.vercel.app'),true);
  assert.equal(requiresProductionOrigin('https://buildingportfolio25.vercel.app.evil.test'),false);
  await assert.rejects(requestAuth('','login',{},'x',async()=>json({detail:'İstek kaynağı izinli değil.'},403)),OriginRejectedError);
+ await assert.rejects(requestAuth('','login',{},'x',async()=>json({detail:'İstek kaynağı izinli değil. Giriş için https://buildingportfolio25.vercel.app adresini açın.'},403)),OriginRejectedError);
  await assert.rejects(requestAuth('','login',{},'x',async()=>json({detail:'Oturum doğrulaması yenilenmeli'},403)),error=>!(error instanceof OriginRejectedError));
 });
 

@@ -274,5 +274,9 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]),select{min-height
 .utility-content details p{margin:12px 0;color:var(--muted)}
 .utility-menu{display:grid;gap:10px;margin-top:24px}
 .utility-menu>button{padding:16px;text-align:left;background:var(--surface-soft);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:15px}
+.named-scenarios[open]>p,.counterfactual-panel[open]>p{margin:12px 0;font-size:14px;line-height:1.7}
+.named-scenarios>.settings-fields,.counterfactual-panel>.settings-fields{margin:16px 0}
+.named-scenarios>label{margin:16px 0}
+.named-scenarios table{min-width:620px}
 @media(min-width:901px){.topbar{display:none}.main-shell main{padding-top:32px}.sidebar>nav{margin-bottom:28px}}
 @media(max-width:900px){.sidebar .sidebar-utilities{display:none}.mobile-tools{display:inline-flex}.sidebar{overflow:visible}}
