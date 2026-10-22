@@ -117,7 +117,7 @@ Fizik denklemleri, aday evreni ve optimizasyon hedefi değiştirilmedi. %25 hede
 | 2 · Fizik / mantık | Gerçek tarifeler, tasarım sıcaklığında COP/pompa kapasitesi, kazan kapasitesi ve hizmet koşulları | Aynı dönem/alan için ölçümle enerji dengesi ve pik saat denetimi. Mevsimsel SCOP saatlik saha performansı değildir |
 | 2 · AI | Bağımsız veride referansa göre hata/süre ve kullanıcı faydası | Ayrılmış bina grupları, bilinen kapsam ve görünür hata. Fayda kanıtı olmadan ML plan seçimine bağlanmaz |
 | 2 · Arayüz | Bir teknik işler kullanıcısıyla görev testi: bütçeyi değiştir, limiti bul, yatırımları karşılaştır, belge indir | Tamamlama süresi ve takıldığı yerler; Chrome otomasyonu kullanıcı araştırması değildir |
-| 3 · Backend ölçeği | Eşzamanlı kullanıcı arttığında işlem kuyruğu ve ilişkisel depolama. Şimdi global hesap kilidi ikinci hesabı 409 ile reddeder | İzolasyon, iptal/süre sınırı ve kayıt dönüşümü; talep yokken büyük yeniden yazım yapılmaz |
+| 3 · Backend ölçeği | PostgreSQL kalıcı saklama uygulanmıştır. Artan talepte hesap kuyruğu ve iptal yönetimi; mevcut global kilidin meşgulken 409 davranışının ölçülmesi | İzolasyon, iptal/süre sınırı ve kayıt dönüşümü; talep yokken büyük yeniden yazım yapılmaz |
 | 3 · Hesap desteği | Gerçek müşteriden önce e-posta doğrulama, parola sıfırlama ve veri saklama/silme politikası | Yetkisiz erişim ve kurtarma testleri; bugünkü demo desteklediğini iddia etmez |
 
 Görsel kontrollerde [W3C reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) ve [etkileşim hedefi](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum) rehberleri referans alındı. Tam WCAG uygunluğu iddia edilmez.
@@ -126,7 +126,7 @@ Görsel kontrollerde [W3C reflow](https://www.w3.org/WAI/WCAG22/Understanding/re
 
 Kullanıcının son yönlendirmesiyle ana fikir “bina ısıtmasının elektrifikasyon etkisini yatırım öncesinde öngörmek” olarak netleştirildi; kampüs ilk uygulama alanı kalır. Bu bir canlı kontrol modülü değildir. Binaların/inşaatın toplam karbonu ile yalnız ısıtma emisyonu birbirine eşitlenmez. Isı pompası her koşulda karbon azaltıyor denmez. [Fiziksel gerekçe, kaynaklar ve yarışma anlatımı](electrification-positioning.md).
 
-Proje/bina seçimi üst çubuktan içerikteki çalışma alanına taşındı. Proje/pilot yönetimi sayfanın altına alındı; olağan karar akışının önüne geçmez. Ayarlar, görünüm/dil, hareket tercihi, senaryo ayarlarına geçiş ve kaynak erişimi sağlar. Tema mobilde Ayarlar'dan, masaüstünde ayrıca üst çubuktan seçilir.
+Proje/bina seçimi içerikteki çalışma alanındadır. Proje/pilot yönetimi sayfanın altındadır. Ayarlar, görünüm/dil, hareket tercihi, senaryo ayarlarına geçiş ve kaynak erişimi sağlar. Tema ve dil girişte de oturum içinde de yalnız Ayarlar penceresinden seçilir; formun/karar alanının önüne geçmez.
 
 TR/EN ana arayüz sözlüğü yerel kod içindedir. Dil değişimi sayı/tarih gösterimini değiştirir, para birimini veya hesap girdisini dönüştürmez. Kullanıcı proje/bina adları, kaynak metinleri, backend'in özgün anlatımları ve bazı ileri teknik ayrıntılar Türkçe kalabilir; tam belge/API çevirisi iddia edilmez. HTML karar özeti Türkçedir. Bu sınır Ayarlar'da açıkça yazılıdır. Çeviri DOM metni değiştirmez, ağ/LLM çağrısı yapmaz; kanonik API enum değerleri ve taslak anahtarları çevrilmez.
 
@@ -144,3 +144,21 @@ Sonuçtaki elektrifikasyon kartı yalnız API sonucu kullanır: yıllık elektri
 - PDR taslağı tek sayfalık PDF'ye çevrildi ve sayfa sayısı kontrol edildi; içerik `docs/pdr-draft.md`, yerel paylaşılabilir PDF `artifacts/presentation/portfolio25-pdr-taslak.pdf`. Özgün Task 1 belgesinin veya bir saha ölçümünün yerine geçmez.
 
 Yerel geliştirme sunucusu eski CSS sunarken kimliği/portu doğrulanarak yeniden başlatıldı. Uzun QA turunda yerel backend sağlık isteği zaman aşımına uğradı; kayıt silinmeden aynı portta kontrollü yeniden başlatıldı ve son tur tamamlandı. Kalıcı altyapı/üretim yük testi yapıldığı iddia edilmez. TestClient için Starlette/httpx deprecation uyarısı var; test hatası değildir, bağımlılık yükseltme bu kapsama alınmadı. Canlı yayın kontrolü yerel kabulden ayrı raporlanır.
+
+### Arayüz incelemesi ve sonraki adımlar — 22 Ekim 2026
+
+Girişteki ayrı tema/dil kontrolleri Ayarlar'a toplandı. Proje adı ve marka tekrarları azaltıldı; başlık, bağlam seçimi, veri ve eylem sırası netleştirildi. Mobil menü altta durur. Bina kat/kullanım, yatırım ve ML görünümleri gerçek sekmelerdir; açık taslaklar sekme değişiminde korunur. Envanter haritadan önce, seçilen yatırımlar ayrıntılı teknik kanıttan önce gelir. Kritik hata, eskimiş sonuç ve kapasite uyarıları gizlenmez.
+
+Bu düzenleme yeni bir fizik/AI yeteneği değildir. Motor, veri modeli, oturum güvenliği ve PostgreSQL saklama yolu değiştirilmedi. Eski tek teslim raporları ve bunları yazan betikler Git dışı yerel arşive taşındı; temel belgeler, testler ve çalışan model artefaktları korundu.
+
+Önerilen öncelikler:
+
+1. **Bir kampüste problemi doğrulayın.** Teknik işler ekibiyle son yatırım kararının nasıl alındığını inceleyin. Aynı yılın faturaları, alanı, ısıtma/sıcak su ayrımı ve fiziksel bağlantı grupları olmadan sentetik azaltımı kurum başarısı diye sunmayın. %25 hedef olarak kalır.
+2. **Elektrifikasyonu üç ayrı göstergeyle değerlendirin.** Nihai enerji, işletme maliyeti ve kaynak/tarihli emisyon farklı sonuçlardır. Enerji optimumu karbon/maliyet optimumu sayılmaz. Sonraki hedef seçimi genişlemesi bu ayrımı korumalı, bütçe/kapasiteyle küçük örnekte doğrulanmalıdır.
+3. **Teklif ve saha performansını duyarlılığa bağlayın.** SCOP, soğuk saatlerde kapasite ve kazan sınırları için uzman verisi, yatırım için teklif aralığı gerekir. Bugünkü mevsimsel yaklaşım saatlik COP veya konfor güvencesi değildir. Ekipman ömrü ve iskonto sonraki ekonomik değerlendirmede ele alınabilir; basit geri ödeme bunları içermez.
+4. **AI'ın ek faydasını ölçün.** Mevcut ML yıllık tüketim kıyasıdır. Bağımsız veride hata, kapsam dışı oranı, süre ve kullanıcıya katkı ölçülmeden plan seçimine bağlanmamalı. LLM hesaplanmış sayıları açıklayabilir; motorun yerine geçmez. Bu çalışmada eğitim veya ücretli LLM çağrısı yoktur.
+5. **Jüri demosunu tek kararda tutun.** Kampüs → bir binanın seçenekleri → bütçe/bağlantı sınırı → yatırım planı → önce/sonra ve karar özeti. Diğer proje türleri destek kanıtıdır. İki dakikalık gerçek ekran kaydı hazırlayın; ana akışı yeni modüllerle büyütmeyin.
+
+Bunlar uygulanmış özellik veya saha başarısı değildir. Sonraki kabul ölçütü daha fazla ekran değil, teknik işler kullanıcısının yardımsız doğru yatırım çıktısını alabilmesi ve verinin sınırını anlayabilmesidir.
+
+Son düzenlemede gerçekten çalıştırılan yerel kontroller: frontend 22 test ve TypeScript/Vite üretim derlemesi; backend oturum/CSRF/sahiplik için 3 regresyon; gerçek Chrome'da 320/390/500/768/1280/1536 px ana ekranlar, üç tema, TR/EN, kat taslağında sekme ve navigasyon koruması, iki kampüs binası/iki konut bloğu/tek ofis, gerçek optimizasyon, eski hesap reddi ve yeniden hesaplama, HTML indirme, gerçek ML/fizik kıyası, imkânsız hedef, çıkış/giriş. Metin/HTML 502/503 ve Origin 403 kurtarma denemesi ayrıca geçti. Yatay sayfa taşması ve yakalanmamış JavaScript hatası görülmedi; seçili görüntüler ayrıca görsel olarak incelendi. Backend'in özgün kullanıcı verisi yerine `artifacts/ui-review/qa-data` içinde ayrı yerel test deposu kullanıldı. Kanıtlar Git dışındaki `artifacts/ui-review/acceptance/` altındadır. Bu kontroller tam WCAG veya saha doğruluğu belgesi değildir; önceki PostgreSQL yeniden deploy kontrolü ayrı canlı raporda korunur.

@@ -25,7 +25,6 @@ function ComstockComparison({data,disabled}:{data:CampusResponse;disabled:boolea
 export default function ModelData({data,disabled,buildingId}:{data:CampusResponse;disabled:boolean;buildingId:string}){
  const [externalOpen,setExternalOpen]=useState(false);
  return <div className="model-page">
-  <section className="panel model-purpose"><span className="eyebrow">{t("AI’IN KULLANICI İÇİN ROLÜ")}</span><h2>{t("Yıllık tüketim tahminini fizik hesabıyla sınayın")}</h2><p>{t("Seçili bina ve uygun müdahale için kaydedilmiş model gerçek inference yapar. Farklar görünür; yatırım ve kapasite kararı fizik/MILP motorunda kalır. Bu bir saha doğruluğu veya karar kalitesinde artış kanıtı değildir.")}</p></section>
   <PanelBoundary><SyntheticPrediction key={buildingId} context={data.context} buildingId={buildingId} disabled={disabled}/></PanelBoundary>
   <details className="panel external-model" onToggle={e=>setExternalOpen(e.currentTarget.open)}><summary>{t("Harici karşılaştırma modeli: ComStock · ABD simülasyonları")}</summary><p>{t("Kayseri pilotunun modeli değildir. ABD test örneği ve kapsam dışı girdi davranışını incelemek için açın.")}</p>{externalOpen&&<PanelBoundary><ComstockComparison data={data} disabled={disabled}/></PanelBoundary>}</details>
  </div>;

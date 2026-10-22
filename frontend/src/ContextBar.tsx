@@ -8,11 +8,12 @@ export default function ContextBar({campus, building, projects, pilot, disabled,
   onProject: (id:string)=>void; onBuilding: (id:string)=>void;
 }) {
   const pilotIds = new Set(pilot?.projects.map(p=>p.id));
-  const label = (p:ProjectSummary) => `${p.id==='campus-demo-25'?tr('Previous sample campus','Önceki örnek kampüs'):pilotIds.has(p.id)?`${tr('Kayseri pilot','Kayseri pilotu')} · ${p.name}`:p.name} · ${p.building_count} ${tr('buildings','bina')}`;
+  const label = (p:ProjectSummary) => `${p.id==='campus-demo-25'?tr('Previous sample campus','Önceki örnek kampüs'):p.name} · ${p.building_count} ${tr('buildings','bina')}`;
   return <div className="context-bar" aria-label={t("Proje ve bina")}>
     <label className="project-context" htmlFor="project-select">{t("Proje")+" "}<select id="project-select" aria-label={t("Proje seçimi")} value={campus?.id??''} disabled={disabled} onChange={e=>onProject(e.target.value)}>
         {!campus&&<option value="">{t("Proje yükleniyor…")}</option>}
-        {projects.map(p=><option key={p.id} value={p.id}>{label(p)}</option>)}
+        {projects.some(p=>pilotIds.has(p.id))&&<optgroup label={tr('Kayseri synthetic pilot','Kayseri sentetik pilotu')}>{projects.filter(p=>pilotIds.has(p.id)).map(p=><option key={p.id} value={p.id}>{label(p)}</option>)}</optgroup>}
+        {projects.some(p=>!pilotIds.has(p.id))&&<optgroup label={tr('Other projects','Diğer projeler')}>{projects.filter(p=>!pilotIds.has(p.id)).map(p=><option key={p.id} value={p.id}>{label(p)}</option>)}</optgroup>}
       </select>
     </label>
     <div className="building-context">

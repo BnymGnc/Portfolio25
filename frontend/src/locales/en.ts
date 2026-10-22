@@ -97,4 +97,11 @@ export const english:Record<string,string>={
  'Demoyu deneyin':'Try the demo','AI ve hesaplama sınırları':'AI and calculation limitations','Veri ve kayıt sınırları':'Data and storage limitations','E-posta doğrulama ve parola sıfırlama bu sürümde bulunmaz.':'Email verification and password reset are not available in this version.',
  'Yeni proje oluştur':'Create project','Çalışma projesi':'Working project','Proje seçin':'Select project','Bu projenin sentetik bina kopyalarını seçin':'Select synthetic copies of buildings','Elektrik bağlantıları':'Electrical connections','Her bina bağımsız bağlantı (varsayılan)':'Independent connection per building (default)','Aynı fiziksel beslemeyi paylaşan binalar':'Buildings sharing a physical supply','Seçilen binalarla proje oluştur':'Create project with selected buildings',
  'Isıtmanın elektrikleşmesi':'Heating electrification','ELEKTRİFİKASYON ETKİSİ':'ELECTRIFICATION EFFECT','Gazdan elektriğe geçişin dengesi':'The balance of switching from gas to electricity','Yıllık elektrik değişimi':'Annual electricity change','Yıllık gaz değişimi':'Annual gas change','Modellenen karbon farkı':'Modelled carbon difference','Isı pompasının karşıladığı faydalı ısı':'Useful heat supplied by heat pumps','Kalan kazan ısısı':'Remaining boiler heat','Emisyon faktörlerini incele':'Review emission factors','Yatırım öncesi senaryo analizi; canlı kontrol değildir.':'Pre-investment scenario analysis; not live control.',
+ 'Giriş yapamıyor musunuz?':'Having trouble signing in?',
+ 'Bütçe, enerji ve kapasiteyi birlikte değerlendirin.':'Evaluate budget, energy and electrical capacity together.',
+ 'Binalar ve başlangıç tüketimleri':'Buildings and baseline consumption',
+ 'Şematik proje görünümü':'Schematic project view','Önce / sonra bina etkileri':'Building effects before / after',
+ 'Bu bina için seçenekleri açıkla':'Explain options for this building','Planı açıkla':'Explain the plan',
+ 'Karşılaştırma ve duyarlılık':'Comparison and sensitivity',
+ 'Bu bina için yatırım planı':'Investment plan for this building',
 };

@@ -27,8 +27,9 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--expected-asset', help='Wait for this built JS asset path in live HTML before registering QA')
 parser.add_argument('--expected-backend-commit', help='Require this Render commit and PostgreSQL readiness before registering QA')
 parser.add_argument('--wait-for-redeploy', action='store_true', help='Keep QA credentials in RAM and verify after a changed backend boot identity')
+parser.add_argument('--output',type=Path,help='Optional evidence directory, preserving previous live acceptance reports')
 args = parser.parse_args()
-OUT = Path(__file__).resolve().parents[1] / 'artifacts/live-deployment'
+OUT = args.output or Path(__file__).resolve().parents[1] / 'artifacts/live-deployment'
 OUT.mkdir(parents=True, exist_ok=True)
 report = {'started_at': datetime.now(timezone.utc).isoformat(), 'origin': ORIGIN,
           'backend': BACKEND, 'checks': [], 'completed': False,

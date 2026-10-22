@@ -3,7 +3,7 @@
 No paid API calls. An isolated temporary account is removed after the test;
 existing JSON records are compared by SHA-256. Never prints credential/token values.
 """
-import hashlib,json,secrets,shutil,sqlite3
+import argparse,hashlib,json,secrets,shutil,sqlite3
 from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -11,7 +11,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'artifacts/auth-recovery';OUT.mkdir(parents=True,exist_ok=True)
-original={p:hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'backend/data').rglob('*.json')}
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--data-dir',type=Path,default=ROOT/'backend/data')
+DATA=parser.parse_args().data_dir.resolve();assert DATA.is_relative_to(ROOT.resolve())
+original={p:hashlib.sha256(p.read_bytes()).hexdigest() for p in DATA.rglob('*.json')}
 email='qa-recovery-'+secrets.token_hex(6)+'@example.test';password=secrets.token_urlsafe(24);uid=None
 options=webdriver.ChromeOptions();options.add_argument('--headless=new');options.add_argument('--disable-gpu');options.add_argument('--window-size=1440,1000');options.set_capability('goog:loggingPrefs',{'browser':'ALL'})
 d=webdriver.Chrome(options=options);wait=WebDriverWait(d,60);report={'checks':[],'completed':False}
@@ -56,9 +59,9 @@ try:
  report['checks'].append('Origin 403 has a real canonical production link, retains inputs, and does not retry or redirect credentials')
  click('Hesap oluştur');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog.onboarding[open]'));click('Tanıtımı atla')
  wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.inventory-panel tbody tr'))
- with sqlite3.connect(ROOT/'backend/data/accounts.sqlite3') as db:uid=db.execute('SELECT id FROM users WHERE email=?',(email,)).fetchone()[0]
+ with sqlite3.connect(DATA/'accounts.sqlite3') as db:uid=db.execute('SELECT id FROM users WHERE email=?',(email,)).fetchone()[0]
  assert d.execute_script('return window.authQa.registerCalls')==3
- assert not d.find_elements(By.CSS_SELECTOR,'.pilot-card,.sidebar-footer,.flow-steps')
+ assert not d.find_elements(By.CSS_SELECTOR,'.pilot-card,.campus-switch,.flow-steps')
  d.save_screenshot(str(OUT/'compact-overview.png'))
  report['checks'].append('A third explicit submit registers successfully and loads real private pilot; duplicate sidebar content is absent')
  report['uncaught_errors']=sum('Uncaught' in e['message'] for e in d.get_log('browser'));assert report['uncaught_errors']==0
@@ -66,12 +69,12 @@ try:
 finally:
  d.quit()
  if uid:
-  with sqlite3.connect(ROOT/'backend/data/accounts.sqlite3') as db:
+  with sqlite3.connect(DATA/'accounts.sqlite3') as db:
    assert db.execute('SELECT email FROM users WHERE id=?',(uid,)).fetchone()[0]==email
    bucket='email:'+hashlib.sha256(email.encode()).hexdigest();moments=[r[0] for r in db.execute('SELECT moment FROM attempts WHERE bucket=?',(bucket,))]
    db.executemany('DELETE FROM attempts WHERE moment=? AND (bucket=? OR bucket=?)',[(m,bucket,'ip:127.0.0.1') for m in moments])
    db.execute('DELETE FROM sessions WHERE user_id=?',(uid,));db.execute('DELETE FROM users WHERE id=?',(uid,))
-  parent=(ROOT/'backend/data/users').resolve();target=(parent/uid).resolve();assert target.parent==parent and len(uid)==32
-  if target.exists():shutil.copytree(target,OUT/'qa-records',dirs_exist_ok=True);shutil.rmtree(target)
+  parent=(DATA/'users').resolve();target=(parent/uid).resolve();assert target.parent==parent and len(uid)==32
+  if target.exists():shutil.rmtree(target)
  report['original_json_unchanged']=all(p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==h for p,h in original.items());assert report['original_json_unchanged']
  (OUT/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(report),flush=True)

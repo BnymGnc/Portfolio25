@@ -86,7 +86,7 @@ export function ScenarioForm({ campus, disabled, onSave, onDirtyChange, onDraftC
         <p className="small-note">Örnek sabit değerler; resmî güncel tarife veya emisyon faktörü değildir. Birim: kg CO₂e/kWh.</p></details>
       {error && <p className="error-box" role="alert">{error}</p>}
       <button className="button secondary full" disabled={disabled || !dirty}>{disabled ? t("Kaydediliyor…") : dirty ? t("Girdileri kaydet") : t("Girdiler kayıtlı")}<Icon name={dirty ? 'arrow' : 'check'} size={17} /></button>
-      <p className="form-footnote">{dirty ? t("Kaydedilmemiş değişiklikler var.") : t("Backend’de kayıtlı senaryo · TRY / kW")}</p>
+      {dirty&&<p className="form-footnote">{t("Kaydedilmemiş değişiklikler var.")}</p>}
     </form>
   </section>;
 }

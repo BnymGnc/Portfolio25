@@ -4,11 +4,13 @@ import App from './App';
 import PanelBoundary from './PanelBoundary';
 import DemoGuide from './DemoGuide';
 import {API_BASE,setUserScope,loadProjects,setActiveProject,getActiveProject,setCSRF,getCSRF} from './api';
-import {applyTheme,readTheme,themes,type Theme} from './theme';
+import {applyTheme,readTheme} from './theme';
 import {requestAuth,LoginRejectedError,type AuthPath,type AuthReply,type User,type StorageStatus} from './authClient';
 import {safeError,ServiceError} from './http';
 import {PRODUCTION_ORIGIN,requiresProductionOrigin,OriginRejectedError} from './deployment';
-import {LanguageSelect,useLocale} from './Locale';
+import {useLocale} from './Locale';
+import Settings from './Settings';
+import {Icon} from './visuals';
 
 export async function authRequest(path:AuthPath,body?:unknown){
  const value=await requestAuth(API_BASE,path,body,getCSRF());
@@ -33,7 +35,8 @@ function ColdStartNote(){
 }
 
 export default function AuthGate(){
- useLocale();
+ const {preferences,setPreferences}=useLocale();
+ const [settings,setSettings]=useState(false);
  const useProduction=requiresProductionOrigin(window.location.origin);
  const [user,setUser]=useState<User|null>(null),[loading,setLoading]=useState(true);
  const [error,setError]=useState(''),[connectionError,setConnectionError]=useState(false);
@@ -41,6 +44,7 @@ export default function AuthGate(){
  const [originRejected,setOriginRejected]=useState(false);
  const [mode,setMode]=useState<'login'|'register'>('login'),[email,setEmail]=useState(''),[password,setPassword]=useState('');
  const [visible,setVisible]=useState(false),[busy,setBusy]=useState(false),[tour,setTour]=useState(false),[theme,setTheme]=useState(readTheme());
+ useEffect(()=>{applyTheme(theme)},[theme]);
 
  function reportError(cause:unknown){setError(safeError(cause));setConnectionError(cause instanceof ServiceError);setOriginRejected(cause instanceof OriginRejectedError);setLoginRejected(cause instanceof LoginRejectedError)}
  async function enter(value:AuthReply){
@@ -91,24 +95,24 @@ export default function AuthGate(){
  if(useProduction)return <main className="auth-shell"><section className="auth-card auth-loading"><span className="auth-brand">Portfolio25<span>GRID</span></span><h1>{t("Demoyu üretim adresinde açın")}</h1><p className="auth-value">Bu dağıtıma özel bağlantı üzerinden giriş yapılmaz. Kayıt ve projeler için sabit adresi kullanın.</p><a className="button primary full production-link" href={PRODUCTION_ORIGIN}>{t("Üretim demosunu aç")}</a><p className="auth-demo">{PRODUCTION_ORIGIN}</p></section></main>;
  if(loading)return <main className="auth-shell"><section className="auth-card auth-loading"><span className="auth-brand">Portfolio25<span>GRID</span></span><h1>{t("Sunucuya bağlanılıyor")}</h1><p role="status">{t("Oturum kontrol ediliyor…")}</p><ColdStartNote/></section></main>;
  if(!user)return <main className="auth-shell"><section className="auth-card" aria-labelledby="auth-title">
-  <div className="auth-card-top"><span className="auth-brand">Portfolio25<span>GRID</span></span><label className="auth-theme">{t("Tema")}<select aria-label="Giriş teması" value={theme} onChange={e=>{const value=e.target.value as Theme;setTheme(value);applyTheme(value)}}>{themes.map(choice=><option key={choice.id} value={choice.id}>{t(choice.label)}</option>)}</select></label></div>
-  <div className="auth-language"><LanguageSelect/></div><h1 id="auth-title">{mode==='login'?t("Projenize giriş yapın"):t("Hesabınızı oluşturun")}</h1>
+  <div className="auth-card-top"><span className="auth-brand">Portfolio25<span>GRID</span></span><span className="auth-product-label">{t('Elektrifikasyon planlama')}</span></div>
+  <h1 id="auth-title">{mode==='login'?t("Projenize giriş yapın"):t("Hesabınızı oluşturun")}</h1>
   <p className="auth-value">{t("Enerji yatırımını bütçe ve elektrik kapasitesiyle birlikte planlayın.")}</p>
-  {storage?.status!=='persistent_disk'&&<ColdStartNote/>}
   {storage?.status==='ephemeral'&&<p className="auth-storage-note" role="status">{t("Kalıcı saklama doğrulanmadı. Bu demo sunucusundaki hesaplar ve projeler yeniden başlatma veya yayın sırasında kaybolabilir.")}</p>}
   <form onSubmit={e=>{e.preventDefault();void submit()}}><fieldset disabled={busy}>
    <label htmlFor="auth-email">{t("E-posta")}<input id="auth-email" type="email" required maxLength={254} autoComplete="email" autoCapitalize="none" value={email} onChange={e=>setEmail(e.target.value)}/></label>
    <label htmlFor="auth-password">{t("Parola")}<div className="password-field"><input id="auth-password" type={visible?'text':'password'} required minLength={mode==='register'?12:undefined} maxLength={128} autoComplete={mode==='login'?'current-password':'new-password'} aria-describedby={mode==='register'?'password-rule':undefined} value={password} onChange={e=>setPassword(e.target.value)}/><button className="password-toggle" type="button" aria-label={visible?t("Parolayı gizle"):t("Parolayı göster")} aria-pressed={visible} onClick={()=>setVisible(!visible)}>{visible?t("Gizle"):t("Göster")}</button></div>{mode==='register'&&<small id="password-rule">{t("En az 12 karakter kullanın.")}</small>}</label>
    {error&&<p role="alert" className="auth-error">{t(error)}</p>}
-   {loginRejected&&<div className="auth-login-help"><p>{t("Aynı e-posta adresini, klavye dilini ve Caps Lock durumunu kontrol edin. Parolayı göstererek yazımı inceleyebilirsiniz.")}</p><p>{t("Bu hata, yanlış parola ile sunucuda artık bulunmayan hesabı ayırt etmez. Yeni hesap açmak eski projeleri geri getirmez; eski kayıtlar için yönetici yedeği gerekir.")}</p></div>}
+   {loginRejected&&<details className="auth-login-help"><summary>{t('Giriş yapamıyor musunuz?')}</summary><p>{t("Aynı e-posta adresini, klavye dilini ve Caps Lock durumunu kontrol edin. Parolayı göstererek yazımı inceleyebilirsiniz.")}</p><p>{t("Bu hata, yanlış parola ile sunucuda artık bulunmayan hesabı ayırt etmez. Yeni hesap açmak eski projeleri geri getirmez; eski kayıtlar için yönetici yedeği gerekir.")}</p></details>}
    <button className="button primary full" type="submit" aria-busy={busy}>{busy?t("İşlem sürüyor…"):mode==='login'?t("Giriş yap"):t("Hesap oluştur")}</button>
   </fieldset></form>
   {originRejected&&<a className="button secondary full production-link" href={PRODUCTION_ORIGIN}>{t("Üretim adresinde giriş yap")}</a>}
   {connectionError&&<button className="button secondary full auth-reconnect" disabled={busy} onClick={()=>void reconnect()}>{t("Bağlantıyı yeniden dene")}</button>}
   <button className="text-button auth-switch" disabled={busy} onClick={()=>{setMode(mode==='login'?'register':'login');setError('');setConnectionError(false);setLoginRejected(false);setPassword('');setVisible(false)}}>{mode==='login'?t("Hesabınız yok mu? Kayıt olun"):t("Hesabınız var mı? Giriş yapın")}</button>
   <p className="auth-demo">{t("Size ait sentetik pilotla deneyin; saha verisi gerekmez.")}</p>
-  <details className="auth-help"><summary>{t("Demo rehberi ve sınırlar")}</summary><DemoGuide/><p>{t("E-posta doğrulama ve parola sıfırlama bu sürümde bulunmaz.")}</p></details>
- </section></main>;
+  <ColdStartNote/>
+  <div className="auth-footer"><details className="auth-help"><summary>{t("Demo rehberi ve sınırlar")}</summary><DemoGuide/><p>{t("E-posta doğrulama ve parola sıfırlama bu sürümde bulunmaz.")}</p></details><button className="text-button" onClick={()=>setSettings(true)}><Icon name="sliders" size={15}/>{t('Ayarlar')}</button></div>
+ </section>{settings&&<Settings theme={theme} onTheme={setTheme} preferences={preferences} onPreferences={setPreferences} onClose={()=>setSettings(false)}/>}</main>;
  if(tour)return <Onboarding busy={busy} error={error} onFinish={()=>void finish()}/>;
  const account=<>
   <p className="account-email">{user.email}</p>

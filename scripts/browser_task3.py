@@ -1,5 +1,5 @@
 """Task 3 UI acceptance using a temporary private QA account. No paid AI calls."""
-import hashlib,json,secrets,shutil,sqlite3,time
+import argparse,hashlib,json,secrets,shutil,sqlite3,time
 from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -7,12 +7,17 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select,WebDriverWait
 from selenium.common.exceptions import StaleElementReferenceException
 
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'artifacts/task3-ui';OUT.mkdir(parents=True,exist_ok=True)
+ROOT=Path(__file__).resolve().parents[1]
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--data-dir',type=Path,default=ROOT/'backend/data',help='Must match the local test server DATA_FILE parent; never a production store.')
+args=parser.parse_args();DATA=args.data_dir.resolve()
+assert DATA.is_relative_to(ROOT.resolve()),'QA cleanup must stay inside this workspace'
+OUT=ROOT/'artifacts/ui-review/acceptance';OUT.mkdir(parents=True,exist_ok=True)
 DOWNLOADS=OUT/'downloads';DOWNLOADS.mkdir(exist_ok=True)
 WIDTHS=(320,390,500,768,1280,1536)
 report={'checks':[],'screenshots':[],'first_data_positions':[]};uid=None
 email='qa-task3-'+secrets.token_hex(4)+'@example.test';password=secrets.token_urlsafe(18)
-original={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'backend/data').rglob('*.json')}
+original={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in DATA.rglob('*.json')}
 options=webdriver.ChromeOptions();options.add_argument('--headless=new');options.add_argument('--disable-gpu');options.add_argument('--window-size=1440,1000');options.page_load_strategy='eager';options.set_capability('goog:loggingPrefs',{'browser':'ALL'})
 options.add_experimental_option('prefs',{'download.default_directory':str(DOWNLOADS),'download.prompt_for_download':False})
 d=webdriver.Chrome(options=options);d.set_page_load_timeout(45);d.set_script_timeout(60)
@@ -26,6 +31,7 @@ def page(label):
 def ready():wait.until(lambda _:d.find_elements(By.ID,'project-select') and css('#project-select').is_enabled() and d.find_elements(By.CSS_SELECTOR,'.inventory-panel tbody tr'))
 def viewport(width):d.execute_cdp_cmd('Emulation.setDeviceMetricsOverride',{'width':width,'height':1000,'deviceScaleFactor':1,'mobile':False})
 def shot(name,at=None):
+    if name not in {'login-390','login-1536','overview-390','overview-1536','building-1-1440','building-2-1440','floors-390','end-use-390','theme-nature','theme-night','theme-earth','scenario-390','scenario-1536','results-390','results-1536','load-chart-390','investment-plan-1536','settings-tr','ml-1440','no-solution-1440','last-state'}:return
     d.execute_script("window.scrollTo(0,0)") if at is None else d.execute_script("arguments[0].scrollIntoView({block:'start'})",css(at))
     time.sleep(.15);d.save_screenshot(str(OUT/(name+'.png')));report['screenshots'].append(name+'.png')
 def check(text):report['checks'].append(text);print('PASS:',text,flush=True)
@@ -40,10 +46,16 @@ def geometry(label,selector):
 def account_menu(open=True):
     element=css('.account-menu')
     if bool(element.get_attribute('open'))!=open:element.find_element(By.TAG_NAME,'summary').click()
+def change_language(value):
+    css('.settings-button').click();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
+    Select(css('.settings-dialog select[aria-label="TR / EN"]')).select_by_value(value)
+    css('.settings-dialog .icon-button').click()
+
 def api(path,body=None):
     return d.execute_async_script("""const [path,body,done]=arguments;import('/src/api.ts').then(async a=>{const project=document.querySelector('#project-select')?.value||'campus-demo-25';const scoped=path+(path.includes('?')?'&':'?')+'project_id='+encodeURIComponent(project);const session=body===null?null:await(await fetch(a.API_BASE+'/api/auth/session',{credentials:'include'})).json();const r=await fetch(a.API_BASE+scoped,{credentials:'include',method:body===null?'GET':'POST',headers:{'Content-Type':'application/json',...(session?{'X-CSRF-Token':session.csrf}:{})},body:body===null?undefined:JSON.stringify(body)});done({status:r.status,body:await r.json()})}).catch(e=>done({error:String(e)}))""",path,body)
 try:
     d.get('http://127.0.0.1:5173');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.auth-card'))
+    assert not d.find_elements(By.CSS_SELECTOR,'.auth-card select')
     assert 'En az 12' not in css('.auth-card').text
     for width in WIDTHS:
         viewport(width);shot('login-'+str(width));card=css('.auth-card').rect;assert card['width']<=440
@@ -66,11 +78,22 @@ try:
         select=Select(css('#building-select'));name=select.options[index].text;select.select_by_index(index);wait.until(lambda _:css('.page-heading h1').text==name);wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.distribution-table tbody tr'));shot('building-'+str(index+1)+'-1440')
     for width in WIDTHS:
         viewport(width);geometry('building','.mini-metrics strong');shot('building-'+str(width));shot('floors-'+str(width),'.spatial-detail')
-        click('Enerji Dağılımı');shot('end-use-'+str(width),'.spatial-detail');click('Katlar')
+        click('Enerji Dağılımı');shot('end-use-'+str(width),'.spatial-detail');d.find_element(By.XPATH,'//div[@aria-label="Kat analizi görünümü"]/button[normalize-space(.)="Katlar"]').click()
     viewport(1440)
+    # Hiding a panel must preserve its live draft and the navigation guard.
+    click('Müdahaleler');css('.spatial-assumptions>summary').click()
+    roof=css('.spatial-assumptions input');original_roof=roof.get_attribute('value')
+    roof.send_keys(Keys.CONTROL,'a');roof.send_keys(str(float(original_roof)+.01))
+    click('Yatırım seçenekleri');assert css('#detail-view-packages').is_displayed() and not css('#detail-view-floors').is_displayed()
+    click('Katlar ve kullanım');assert css('.spatial-assumptions input').get_attribute('value')==str(float(original_roof)+.01)
+    d.find_element(By.XPATH,'//nav/button[@aria-label="Proje özeti"]').click();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'dialog[open]'));click('Kal')
+    assert css('.spatial-assumptions input').get_attribute('value')==str(float(original_roof)+.01)
+    d.find_element(By.XPATH,'//nav/button[@aria-label="Proje özeti"]').click();click('Vazgeç ve devam et');ready();page('Bina detayları');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.distribution-table tbody tr'))
+    check('Building tabs show one view, preserve spatial drafts, and retain save/discard/stay protection')
     for theme in ('nature','night','earth'):
-        assert css('#theme-select').is_displayed() and not d.execute_script("return !!arguments[0].closest('.account-menu')",css('#theme-select'))
-        Select(css('#theme-select')).select_by_value(theme);shot('theme-'+theme)
+        css('.settings-button').click();wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'))
+        Select(css('.settings-dialog select[aria-label="Ayarlar teması"]')).select_by_value(theme)
+        css('.settings-dialog .icon-button').click();shot('theme-'+theme)
     d.refresh();ready();assert d.execute_script('return document.documentElement.dataset.theme')=='earth'
     check('Independent project/building context, first data positions and three themes persist on reload')
     # Preferences must not remount forms or modify the calculation context.
@@ -84,7 +107,7 @@ try:
     Select(css('.settings-dialog select[aria-label="TR / EN"]')).select_by_value('en')
     wait.until(lambda _:css('#settings-title').text=='Settings');assert css('input[name=budget_try]').get_attribute('value')==str(int(saved_budget)+1)
     css('.settings-dialog .icon-button').click()
-    assert 'Scenario inputs' in css('.page-heading h1').text and css('.workspace-theme').text.startswith('Theme')
+    assert 'Scenario inputs' in css('.page-heading h1').text and not d.find_elements(By.CSS_SELECTOR,'.topbar select')
     draft_budget=css('input[name=budget_try]');draft_budget.send_keys(Keys.CONTROL,'a');draft_budget.send_keys(saved_budget)
     wait.until(lambda _:not css('.scenario-panel form button').is_enabled())
     d.refresh();ready();assert d.execute_script('return document.documentElement.lang')=='en';assert d.execute_script('return document.documentElement.dataset.reduceMotion')=='true'
@@ -100,7 +123,7 @@ try:
     viewport(1440);click('Settings');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.settings-dialog[open]'));shot('settings-en')
     click('Open project settings');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.project-settings details[open]'))
     assert css('.project-settings').is_displayed()
-    Select(css('.topbar select[aria-label="TR / EN"]')).select_by_value('tr')
+    change_language('tr')
     context_after=api('/api/campus/snapshot')['body']['context'];assert context_before==context_after
     click('Ayarlar');shot('settings-tr');css('.settings-dialog .icon-button').click()
     check('Project selectors moved into workspace; Settings and TR/EN work, preferences persist, drafts and API context remain unchanged')
@@ -110,7 +133,7 @@ try:
     project(office);page('Bina detayları');assert d.find_elements(By.CSS_SELECTOR,'.single-building')
     # Recoverable read error: block only the QA browser's package requests.
     d.execute_cdp_cmd('Network.enable',{});d.execute_cdp_cmd('Network.setBlockedURLs',{'urls':['*api/buildings/B07/packages*']})
-    page('Proje özeti');page('Bina detayları');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.package-panel .error-box'));shot('recoverable-package-error','.package-panel')
+    page('Proje özeti');page('Bina detayları');click('Yatırım seçenekleri');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.package-panel .error-box'));shot('recoverable-package-error','.package-panel')
     d.execute_cdp_cmd('Network.setBlockedURLs',{'urls':[]});click('Tekrar dene');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.package-table tbody tr'))
     check('Housing A/B and single office; failed package request keeps application usable and retries')
     page('Senaryo girdileri')
@@ -132,11 +155,26 @@ try:
               'gas':after['heating_kwh_year']+after['non_heating_gas_kwh_year']-baseline['heating_kwh_year']-baseline['non_heating_gas_kwh_year'],
               'carbon':after['emissions_kg_year']-baseline['emissions_kg_year']}
     for metric,value in expected.items():assert abs(float(css(f'dd[data-metric="{metric}"]').get_attribute('data-value'))-value)<1e-6
-    Select(css('.topbar select[aria-label="TR / EN"]')).select_by_value('en')
+    change_language('en')
     for width in (390,1536):
         viewport(width);assert d.execute_script('return document.documentElement.scrollWidth<=innerWidth+1');shot('english-calculated-results-'+str(width));shot('electrification-en-'+str(width),'.electrification-impact')
-    Select(css('.topbar select[aria-label="TR / EN"]')).select_by_value('tr');viewport(1440)
+    change_language('tr');viewport(1440)
     check('Electrification electricity/gas/carbon deltas equal API values; English forms retain canonical enum values and current results')
+    evidence=css('.result-evidence>summary');d.execute_script("arguments[0].scrollIntoView({block:'center'})",evidence);evidence.click()
+    assert len(d.find_elements(By.CSS_SELECTOR,'.decision-evidence tbody tr'))==3
+    assert d.find_elements(By.CSS_SELECTOR,'.sensitivity-results tbody tr')
+    for width in (390,768,1536):viewport(width);assert d.execute_script('return document.documentElement.scrollWidth<=innerWidth+1')
+    css('.result-evidence>summary').click();viewport(1440)
+    click('Paketleri gör');wait.until(lambda _:css('#detail-view-packages').is_displayed());assert not css('#detail-view-floors').is_displayed()
+    page('Proje özeti');summary=css('.scenario-map-disclosure>summary');d.execute_script("arguments[0].scrollIntoView({block:'center'})",summary);summary.click()
+    css('.model-toggle button[data-mode=after]').click()
+    selected=current['calculation']['selected_packages'][0]
+    assert float(css('[data-testid=map-investment]').get_attribute('data-value'))==selected['investment_try']
+    assert float(css('[data-testid=map-savings]').get_attribute('data-value'))==selected['energy_savings_kwh_year']
+    for width in (390,768,1536):viewport(width);assert d.execute_script('return document.documentElement.scrollWidth<=innerWidth+1')
+    viewport(1440);click('Paketleri karşılaştır');wait.until(lambda _:css('#detail-view-packages').is_displayed())
+    page('Optimizasyon sonucu')
+    check('Collapsed comparison/sensitivity retain real tables; after-map values match API; result/map links open the investment tab')
     click('Karar özeti indir')
     report_file=wait.until(lambda _:next((p for p in DOWNLOADS.glob('*.html') if p not in existing_downloads),None))
     content=report_file.read_text(encoding='utf-8');assert current['calculation_id'] in content and current['campus']['name'] in content
@@ -155,7 +193,7 @@ try:
     check('Actual decision-brief download matches API context; stale UI removes download, backend rejects old context, recalculation restores current plan')
     page('Model ve veri');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.synthetic-prediction select'))
     for width in WIDTHS:viewport(width);assert d.execute_script('return document.documentElement.scrollWidth<=innerWidth+1');shot('model-'+str(width))
-    viewport(1440);page('Bina detayları');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.synthetic-prediction select option') and css('.synthetic-prediction button').is_enabled())
+    viewport(1440);page('Bina detayları');click('ML / fizik karşılaştırması');wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.synthetic-prediction select option') and css('.synthetic-prediction button').is_enabled())
     select=Select(css('.synthetic-prediction select'));select.select_by_index(len(select.options)-1);click('ML ve fizik sonucunu karşılaştır')
     wait.until(lambda _:d.find_elements(By.CSS_SELECTOR,'.synthetic-prediction>.table-scroll'));combined=css('.synthetic-prediction>.table-scroll').text
     assert 'Tahmin sunulmadı' not in combined;assert 'Göreli fark' in combined;assert d.find_elements(By.CSS_SELECTOR,'.ml-large-gap')
@@ -176,7 +214,7 @@ finally:
     except Exception:pass
     d.quit()
     if uid:
-        db=sqlite3.connect(ROOT/'backend/data/accounts.sqlite3');row=db.execute('SELECT email FROM users WHERE id=?',(uid,)).fetchone()
+        db=sqlite3.connect(DATA/'accounts.sqlite3');row=db.execute('SELECT email FROM users WHERE id=?',(uid,)).fetchone()
         if row and row[0]==email:
             # The backend records the same timestamp for the email and IP attempt.
             # Remove only this QA identity's paired attempts, preserving other users.
@@ -184,8 +222,8 @@ finally:
             moments=[r[0] for r in db.execute('SELECT moment FROM attempts WHERE bucket=?',(bucket,))]
             db.executemany('DELETE FROM attempts WHERE moment=? AND (bucket=? OR bucket=?)',[(moment,bucket,'ip:127.0.0.1') for moment in moments])
             db.execute('DELETE FROM sessions WHERE user_id=?',(uid,));db.execute('DELETE FROM users WHERE id=?',(uid,));db.commit()
-            parent=(ROOT/'backend/data/users').resolve();target=(parent/uid).resolve();assert target.parent==parent and len(uid)==32
-            if target.exists():shutil.copytree(target,OUT/'temporary-account-records',dirs_exist_ok=True);shutil.rmtree(target)
+            parent=(DATA/'users').resolve();target=(parent/uid).resolve();assert target.parent==parent and len(uid)==32
+            if target.exists():shutil.rmtree(target)
         db.close()
     report['original_records_preserved']=all(Path(p).exists() and hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in original.items());assert report['original_records_preserved']
     (OUT/'browser-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

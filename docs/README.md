@@ -15,8 +15,7 @@
 | Modelin ne öğrendiği ve hata metrikleri | [Sentetik model](model-card-synthetic.md), [ComStock modeli](model-card.md) |
 | Mevcut LLM akışlarının sınırları | [AI mimarisi](ai-architecture.md) |
 | Kapsam ve sonraki araştırma | [Ürün kapsamı](product-spec.md), [yol haritası](product-roadmap.md) |
-| Temizlik, korunanlar ve Git dışı yerel arşiv | [Temizlik kaydı](repository-cleanup.md) |
 
-`system-audit.md` önceki kaynak incelemesi, `data-audit.md` eski dışa aktarım tutarsızlığı incelemesidir; güncel hata listesi değildir. İkisi hesap doğruluğunun nedenleri için korundu. `sample-campus.json` ve `sample-calculation.json` kişisel kayıt değil, yeniden üretilebilir belgelenmiş sentetik örneklerdir; uygulama bunları hardcoded sonuç olarak okumaz.
+`sample-campus.json` ve `sample-calculation.json` kişisel kayıt değil, testlerde de kullanılan sentetik sözleşme örnekleridir. Uygulama bunları sabit hesap sonucu olarak okumaz.
 
-Tekrarlanan aşama raporları ve eski demo metinleri Git çalışma ağacından çıkarıldı. Yerel byte kopyaları `artifacts/repository-cleanup/` altında Git dışındadır. Önceki [c41071b belge ağacı](https://github.com/BnymGnc/Portfolio25/tree/c41071b/docs) da geçmişi korur. Kaldırılan raporlara kalan bağlantılar bu sabit Git commit'ine yönelir; yeni çalıştırma talimatı olarak kullanılmamalıdır.
+Eski sistem/veri incelemeleri ve temizlik günlüğü güncel talimatlarla karışmaması için çalışma ağacından çıkarıldı. [Önceki belge ağacı](https://github.com/BnymGnc/Portfolio25/tree/52a4e6288876c2e017aba31db9a18b143657fd38/docs) geçmişi korur. Yerel kopyalar Git dışındaki `artifacts/ui-review/retired/` içindedir. Çalışan kaynaklar, testler, model artefaktları ve yeniden üretim araçları korunur.

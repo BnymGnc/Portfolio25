@@ -83,8 +83,10 @@ Tarayıcı kontrolleri Selenium/Chrome gerektirir. `scripts/check_live_deploymen
 
 [API](docs/api-inventory.md) · [Veri sözleşmesi](docs/data-contract.md) · [Varsayımlar](docs/assumptions.md) · [Pilot](docs/pilot-kayseri.md) · [Sentetik model](docs/model-card-synthetic.md) · [ComStock](docs/model-card.md) · [Form yanıtları / kısa demo](docs/task3-submission.md)
 
-[Belge dizini](docs/README.md) · [Climathon değerlendirmesi ve öneriler](docs/product-review.md) · [Depo temizliği](docs/repository-cleanup.md)
+[Belge dizini](docs/README.md) · [Climathon değerlendirmesi ve öneriler](docs/product-review.md)
 
-Proje ve bina seçimi içerikteki çalışma alanındadır. Üst çubukta TR/EN, hesap ve Ayarlar bulunur; masaüstünde tema ayrıca görünür, mobilde Ayarlar'dan değiştirilir. Dil/görünüm/hareket tercihleri tarayıcıda saklanır, proje verisini değiştirmez. Ana akış çevirileri yereldir; kullanıcı adları ve özgün API kaynak/teknik açıklamaları korunur. Karar özeti bu sürümde Türkçedir.
+Proje ve bina seçimi sayfa başlığının altındadır. Tema, TR/EN ve hareket tercihleri tek **Ayarlar** penceresindedir: giriş kartının alt sağında, oturum açıkken üst sağda. Tercihler tarayıcıda saklanır ve taslakları/proje verisini değiştirmez. Mobil ana menü altta sabittir. Kullanıcı adları ve özgün API kaynak/teknik açıklamaları çevrilmeden korunur; karar özeti bu sürümde Türkçedir.
 
-Bina sayfasında kat, yatırım ve ML bölüm bağlantıları vardır. Model ve veri sayfasında pilotun sentetik modeli öndedir; ComStock ayrı ABD kapsamlı ayrıntıdır. Sonuçtaki elektrifikasyon kartı API hesabından elektrik/gaz/karbon farkını ve pompa/kazan faydalı ısısını gösterir. [Ürün gerekçesi](docs/electrification-positioning.md) · [PDR taslağı](docs/pdr-draft.md); özgün Task 1 veya ölçülmüş baseline yerine geçmez.
+Bina sayfasında kat/kullanım, yatırım seçenekleri ve ML/fizik karşılaştırması ayrı sekmelerdir; sekme değişimi taslağı silmez. Özet ekranında bina tablosu öndedir; koordinatsız şema isteğe bağlı açılır. Senaryoda hesapla eylemi başlıktadır; mobilde alt menünün hemen üstünde sabit kalır. Sonuçta yatırım kararı ve seçilen paketler öndedir; karşılaştırma/duyarlılık ve çözücü kanıtı açılır bölümlerdedir. [Ürün gerekçesi](docs/electrification-positioning.md) · [PDR taslağı](docs/pdr-draft.md); özgün Task 1 veya ölçülmüş baseline yerine geçmez.
+
+Git yalnız kaynak kodu, lock dosyalarını, dağıtım/migration dosyalarını, testleri, gerekli model artefaktlarını ve güncel belgeleri içerir. `.env`, kullanıcı/oturum/proje kayıtları, özel yedekler, yerel QA görüntüleri, loglar, `node_modules` ve `dist` dışlanır. Eski tek seferlik raporlar Git geçmişinde ve yerelde Git dışı arşivde korunur; model dosyaları çalışan çıkarım için gereklidir.
