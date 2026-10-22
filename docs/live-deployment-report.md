@@ -1,4 +1,34 @@
-# Canlı Render / Vercel doğrulaması — 21 Ekim 2026
+# Canlı PostgreSQL kabulü — 22 Ekim 2026
+
+Frontend: https://buildingportfolio25.vercel.app · Backend: https://portfolio25-api.onrender.com.
+
+**Sonuç: canlı ana akış ve kontrollü yeniden yayın sonrası kalıcılık geçti.** Gerçek Chrome kontrolü 22 Ekim 2026 **12:26:10–12:28:46 Türkiye saati** arasında tamamlandı. Backend commit'i doğrudan Render ve Vercel `/api/health` yanıtında `29621834b1dc523e9d38e3b1552b84a2c243ef9b`; `storage.status=postgresql`. Üretim frontend asset'i `/assets/index-COwvB1eI.js` beklentisi doğrulanmadan QA kaydı başlatılmadı.
+
+| Kontrol | Gerçek sonuç |
+| --- | --- |
+| PostgreSQL ve şema | Her iki origin'de sağlık JSON 200; şema kontrolü geçti. Fizik/çözücü hazır durumu yalnız health'ten çıkarılmadı. |
+| Kayıt, giriş ve çıkış | Ayrı geçici QA hesabıyla gerçek form; aynı kullanıcı/projeler tekrar açıldı. Logout eski çerezi 401 ile reddetti. |
+| Cookie / CSRF / Origin | Secure + HttpOnly + SameSite=Lax + Path=/ ve Vercel host-only cookie; yanlış CSRF ve Origin 403. |
+| Özel pilot | Dört proje / sekiz bina; doğru project_id ile ofis hesabı. |
+| Optimizasyon | Gerçek API/MILP sonucu arayüzde; proje/revizyon/hesap kimliği aynı. |
+| Saatlik grafik | Aynı hesap kimliğiyle 8.760 zaman damgası ve önce/sonra profil. |
+| Sonuç dışa aktarımı | Güncel JSON ve HTML karar özeti aynı hesap kimliği; attachment/no-store. |
+| ML/fizik | Gerçek sentetik model inference `available`, model `synthetic-annual-1.1`; fizik bağlamı eşleşti. |
+| API yönlendirmesi | Gözlemlenen tarayıcı API isteklerinin tamamı Vercel aynı origin `/api`; SPA fallback API hatasını HTML'e çevirmedi. |
+| Girdi değişikliği | Yalnız QA projesinin revizyonu arttırıldı; eski sonuç güncel değil olarak işaretlendi. Yeniden hesaplamayla farklı güncel hesap kimliği üretildi. |
+| Gerçek yeniden yayın | Kullanıcı aynı commit'i Render'da yeniden yayımladı. Süreç boot kimliği `454bc10e…` → `80427a38…` değişti. |
+| Yayın sonrası kalıcılık | Aynı oturum/kullanıcı, düzenlenmiş proje belgesi/revizyonu, son hesap kimliği ve JSON dışa aktarımı korundu. Yeni süreçte parolayla tekrar giriş ve sonuç ekranı geçti. |
+| Tarayıcı hataları | Yakalanmamış JavaScript hatası: 0. Sonuç ekranları görsel olarak incelendi. |
+
+Sentetik ofis QA hesabı **1.307.500 TL yatırım**, **230.681,6 kWh/yıl nihai enerji tasarrufu**, **154.119,8 TL/yıl net ekonomik tasarruf** üretti; motor `4.0.0`. Bu saha tasarrufu veya ML doğruluk kanıtı değildir. İkinci hesap da aynı fiziksel girdilerle yeniden üretildi; başarı öyküsü için veri değiştirilmedi.
+
+Kanıtlar Git dışında `artifacts/live-deployment/report.json`, `live-result.png`, `postgres-after-redeploy.png`. Rapor `completed=true`, `redeploy_persistence.completed=true`, `different_boot=true`, `fresh_password_login=true` içerir. Parola, session cookie değeri, CSRF ve DATABASE_URL yalnız süreç/servis ortamında kaldı; rapor veya Git'e yazılmadı. Test sonunda QA oturumu kapatıldı. Hesap silme API'si olmadığı için bu ayrı QA hesabı ve sentetik projeleri sunucuda kaldı; diğer kullanıcı kayıtlarına dokunulmadı.
+
+Eski kullanıcının 401 nedenini bu kabul testi belirlemez. Yanlış parola ile bulunamayan hesabın aynı cevabı vermesi korunur. Asıl eski SQLite/JSON kayıtlarının aktarıldığı veya kurtarıldığı iddia edilmez; aktarım aracı yalnız açık yedekle çalışır. Canlı PostgreSQL kasıtlı durdurulmadı: kesinti/fallback reddi ve toparlanma yalnız ayrı yerel gerçek PostgreSQL testinde doğrulandı. Ücretli LLM çağrısı, ML eğitimi, yeni özellik veya ücretli kaynak yok. Neon paneli ve gizli DSN okunmadığından plan/branch/role seçimi panel kanıtı olarak sunulmaz.
+
+## Önceki kabul kaydı — 21 Ekim 2026
+
+Aşağıdaki bulgular önceki SQLite tabanlı yayına aittir; 22 Ekim PostgreSQL kalıcılık kanıtı yukarıdadır.
 
 Frontend: https://buildingportfolio25.vercel.app
 

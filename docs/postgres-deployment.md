@@ -1,6 +1,6 @@
 # Render Free + Neon PostgreSQL geçişi
 
-21 Ekim 2026. Ücretli instance/disk kararı iptal edildi. Mevcut frontend Vercel'de, backend Render Free Docker'da kalır. Yeni üretim bağlantısı kullanıcı tarafından Render'a eklenmeden main push / otomatik deploy başlatılmayacak.
+22 Ekim 2026. Ücretli instance/disk kararı iptal edildi. Mevcut frontend Vercel'de, backend Render Free Docker'da kalır. Kullanıcı bağlantıyı yalnız Render'a eklediğini bildirdikten sonra normal push yapıldı. Backend `2962183` sürümünde PostgreSQL bağlantısı ve gerçek tarayıcı/kontrollü yeniden yayın kabulü geçti. Gizli bağlantı okunmadı veya istenmedi. [Güncel canlı rapor](live-deployment-report.md).
 
 ## 401 için doğrulanabilenler
 
@@ -88,7 +88,7 @@ Ek Docker kabulü `scripts/test_postgres.py --docker-api portfolio25-api:postgre
 - İlk kesinti testinde Docker'ın rastgele yayın portunu stop/start ile değiştirdiği ayrıldı. QA sabit uygun portla çalıştırılınca gerçek aynı adrese yeniden bağlanma doğrulandı; üretim kodunda hatayı gizleyen fallback eklenmedi.
 - Gerçek `.env`, kullanıcı kayıtları ve model artefaktları değiştirilmedi; eğitim/ücretli LLM çağrısı yok. Kaynak kullanıcı kayıtlarında toplu aktarım veya tam yedek çalıştırılmadı; aktarım testleri yalnız geçici örnek kayıtlarla yapıldı.
 
-**Bekleyen:** Kullanıcının Neon projesi/pooled TLS bağlantısı, Render ortam ayarı, normal push ve yeni üretim yayını sonrası aynı QA hesabı/proje/revizyon/hesapla yeniden deploy kabulü. Eski kullanıcının 401'inin nedeni bu kontrollerle henüz kesinleştirilmedi. Backend'in tam üretim commit'i eski sağlık sözleşmesinden okunamadı; frontend doğrulaması backend commit kanıtı gibi sunulmaz.
+**22 Ekim canlı kabulü:** Kullanıcının bildirdiği Neon ortamına gerçek backend bağlantısı, şema ve `29621834b1dc523e9d38e3b1552b84a2c243ef9b` commit'i hem Render hem Vercel sağlık yanıtından doğrulandı. Gerçek Chrome'da kayıt/çıkış/giriş, dört özel proje/sekiz bina, optimizasyon, 8.760 saatlik profil, sentetik ML ve sonuç dışa aktarımı geçti. QA projesi revizyonu artırılıp önceki sonuç tarihsel işaretlendi ve yeniden hesaplandı. Kullanıcının başlattığı ikinci Render yayını farklı `boot_id` üretti; aynı QA hesabı/oturumu, proje belgesi/revizyonu ve hesap/dışa aktarım kimliği korundu. Yeni süreçte parolayla tekrar giriş başarılı. Yakalanmamış tarayıcı hatası yok; LLM çağrısı veya model eğitimi yapılmadı. Eski kullanıcı hesabının 401 nedeni veya asıl kayıtların aktarılmış olduğu hâlâ doğrulanmadı.
 
 ## Doğrulama komutları ve bekleyen canlı kabul
 
@@ -100,4 +100,4 @@ npm.cmd test
 npm.cmd run build
 ```
 
-İlk komuttaki PostgreSQL testleri `TEST_DATABASE_URL` yokken açıkça skip edilir; SQLite başarısı PostgreSQL kanıtı sayılmaz. İkinci komut Docker'daki mevcut `postgres:16-alpine` imajıyla rastgele localhost portunda ayrı QA veritabanı çalıştırır. Mevcut konteynerlere dokunmaz. Kaynak kayıtları/gerçek `.env` okunmaz, geçici parolalar yazdırılmaz; sonunda yalnız kendi QA konteyneri/volume silinir. Rapor `artifacts/postgres-acceptance/report.json` içinde Git dışındadır. Gerçek PostgreSQL sürümü raporda bulunur; Neon TLS/PgBouncer ve Render yeniden deploy kabulü ayrıca canlı ortam gerektirir.
+İlk komuttaki PostgreSQL testleri `TEST_DATABASE_URL` yokken açıkça skip edilir; SQLite başarısı PostgreSQL kanıtı sayılmaz. İkinci komut Docker'daki mevcut `postgres:16-alpine` imajıyla rastgele localhost portunda ayrı QA veritabanı çalıştırır. Mevcut konteynerlere dokunmaz. Kaynak kayıtları/gerçek `.env` okunmaz, geçici parolalar yazdırılmaz; sonunda yalnız kendi QA konteyneri/volume silinir. Yerel rapor `artifacts/postgres-acceptance/report.json`, 22 Ekim gerçek HTTPS/yeniden yayın raporu `artifacts/live-deployment/report.json` içinde Git dışındadır. Canlı veritabanı kesintisi kasıtlı oluşturulmadı; kesinti ve aynı havuzda toparlanma kontrolü yalnız ayrı yerel PostgreSQL'de yapıldı.
