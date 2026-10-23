@@ -1,4 +1,7 @@
-"""Nullable user-entered building drafts; conversion never fills unknowns silently."""
+"""Private nullable building drafts; PostgreSQL retains them across application restarts.
+
+Publishing is transactional and never fills unknown measurements silently.
+"""
 from datetime import date
 from typing import Literal
 from uuid import uuid4
