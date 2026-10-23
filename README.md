@@ -155,3 +155,9 @@ Final karar araçları: sonuçlarda yöntem karşılaştırması ve LLM gerektir
 **22 Ekim 2026 son bağlantı kontrolü:** Bu çalışma ortamında frontend TLS hatası yeniden üretildi; `vercel.com` HTTPS yanıtı verdi. Render sağlık kontrolü 200 ve PostgreSQL bağlantısı/şema doğrulaması döndürdü (backend `e378f18`). İlk backend isteği 20 saniyede zaman aşımına uğradı, sonraki deneme başarılı oldu. Frontend'in ağ/alan adı düzeyindeki kesin SSL nedeni ve farklı ağdan erişimi henüz doğrulanmadı; önceki kabul raporları güncel erişim garantisi değildir.
 
 [Vercel resmî bağlantı teşhisi](https://vercel.com/kb/guide/troubleshooting-connectivity-issues).
+
+### Güncel AI kullanıcı akışı
+
+Bina ekranındaki **Seçenekleri AI ile incele** uygun müdahaleleri ve veri eksiklerini açıklamak içindir. Sonuç ekranındaki **Planı AI ile incele**, güncel hesaba bağlı soruları yanıtlar; henüz hesap yoksa plan oluşturmaya yönlendirir. **Alternatif dene** içinde kullanıcı değişikliği tarif eder, hazırlanan değerleri inceler, ayrı hesabı çalıştırır ve isterse girdileri uygular. Aynı ekranda bütçe/hedef/tarife elle de değiştirilebilir; bu seçenek AI yanıtı değildir. Taslak hazırlandığında giriş bölümü kapanır, değişiklik ve karşılaştırma öne geçer. Eski sonuçlar girdi değişince güncel sayılmaz.
+
+Anahtar, son çağrı ve sağlayıcı test durumu kullanıcı çalışma alanında gösterilmez. AI kota, bağlantı ve yanıt doğrulama hataları kısa mesajlarla belirtilir; ham sağlayıcı/proxy yanıtları gösterilmez. Bu düzenleme sağlayıcı erişiminin çalıştığını kanıtlamaz. Yerel kabulde AI yanıtı/hatası taklit edilmiş, alternatifin fizik hesabı gerçek backend ile çalıştırılmıştır; ücretli LLM çağrısı yapılmamıştır.
