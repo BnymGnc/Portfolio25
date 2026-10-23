@@ -147,7 +147,7 @@ class PostgresStore:
     def health(self):
         with self.connection() as connection:
             row = connection.execute('SELECT max(version) AS version FROM portfolio25.schema_migrations').fetchone()
-            if row['version'] != SCHEMA_VERSION:
+            if row['version'] < SCHEMA_VERSION:
                 raise DatabaseUnavailable()
 
     def project(self, uid, project_id):
