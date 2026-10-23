@@ -102,6 +102,35 @@ class StorageAdminTests(unittest.TestCase):
             backup(self.data, archive)
         self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), digest)
 
+    def test_single_account_backup_excludes_other_users_sessions_and_unowned_data(self):
+        other_credentials = Credentials(email='another@example.test', password='other-temporary-password-123')
+        other = self.accounts.register(other_credentials)
+        self.accounts.issue(Response(), other)
+        foreign = self.data / 'users' / other / 'projects' / 'project-111111111111.json'
+        foreign.parent.mkdir(parents=True)
+        foreign.write_text('{"private":"other-account"}', encoding='utf-8')
+        self.data.joinpath('campus.json').write_text('{"unowned":true}', encoding='utf-8')
+        source_files = {p:hashlib.sha256(p.read_bytes()).hexdigest() for p in self.data.rglob('*') if p.is_file()}
+        archive = self.root / 'selected.portfolio25-backup.zip'
+        backup(self.data, archive, email=self.credentials.email.upper())
+        with zipfile.ZipFile(archive) as z:
+            self.assertEqual(json.loads(z.read('backup-manifest.json'))['scope'], 'single-account')
+            self.assertNotIn('campus.json', z.namelist())
+            self.assertFalse(any(other in name for name in z.namelist()))
+            self.assertIn(self.project.relative_to(self.data).as_posix(), z.namelist())
+        restored = self.root / 'selected-restored'
+        restore(archive, restored)
+        account = Accounts(lambda: restored / 'accounts.sqlite3')
+        self.assertEqual(account.login(self.credentials), self.uid)
+        with account.db() as db:
+            self.assertEqual(db.execute('SELECT count(*) FROM users').fetchone()[0], 1)
+            self.assertEqual(db.execute('SELECT count(*) FROM sessions').fetchone()[0], 0)
+        with self.assertRaises(HTTPException): account.login(other_credentials)
+        self.assertTrue(all(p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==digest for p,digest in source_files.items()))
+        missing = self.root / 'missing.portfolio25-backup.zip'
+        with self.assertRaises(ValueError): backup(self.data, missing, email='missing@example.test')
+        self.assertFalse(missing.exists())
+
     def test_operator_password_reset_only_changes_target_hash_and_sessions(self):
         other = self.accounts.register(Credentials(email='other@example.test', password='other-temporary-password-123'))
         self.accounts.issue(Response(), other)

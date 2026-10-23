@@ -4,6 +4,9 @@ No .env reads, no implicit owner assignment and no password rehash. Use
 storage_admin.py backup first. Reusing the same archive never duplicates data.
 """
 import argparse
+import getpass
+import os
+import warnings
 from contextlib import closing
 import hashlib
 import json
@@ -137,11 +140,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive', type=Path, required=True)
     parser.add_argument('--apply', action='store_true')
+    parser.add_argument('--prompt-database-url', action='store_true', help='Read PostgreSQL connection privately; never reads .env or echoes the URL.')
     args = parser.parse_args()
     try:
+        if args.prompt_database_url:
+            os.environ['DATABASE_URL'] = getpass.getpass('Neon pooled bağlantısı (gizli; kaydedilmez): ').strip()
+            os.environ['STORAGE_BACKEND'] = 'postgres'
         store = get_store()
         if store is None: raise DatabaseUnavailable()
         print(json.dumps(import_archive(store, args.archive, apply=args.apply)))
         store.close()
-    except (DatabaseUnavailable, ValueError, OSError, sqlite3.Error, psycopg.Error, zipfile.BadZipFile, KeyError):
+    except (DatabaseUnavailable, ValueError, OSError, sqlite3.Error, psycopg.Error, zipfile.BadZipFile, KeyError, getpass.GetPassWarning):
         raise SystemExit('Aktarım tamamlanmadı. Kaynak yedeği, sahiplik ve hedef çakışmalarını kontrol edin. Var olan kayıtlar ezilmedi; bağlantı veya parola ayrıntılarını paylaşmayın.') from None

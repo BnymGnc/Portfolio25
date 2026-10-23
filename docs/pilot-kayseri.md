@@ -4,6 +4,19 @@
 
 Veri seti `kayseri-synthetic-v1`, ana seed **25**. Gerçek kurum/işletme, sayaç, mimari plan veya hava dosyası kullanılmadı. Pilot üretiminde LLM veya ML kullanılmadı. Sonuçlar tanımlı varsayımlar altında aritmetik senaryolardır; gerçekleşmiş tasarruf veya konfor kanıtı değildir.
 
+## Hesaplara özel aynı başlangıç şablonu — 23 Ekim 2026
+
+Bu davranış zaten mevcuttur; pilot üretimi veya kayıt mantığı değiştirilmedi. `pilot_samples()` her hesap için aynı `kayseri-synthetic-v1`/seed 25 verisini kullanır; yalnız proje kimlikleri sahip kimliğine göre ayrılır. Alanlar, tüketimler, kat/zon bilgileri, fiyatlar, bütçeler, bağlantılar ve performans varsayımları kullanıcıya göre rastgeleleştirilmez. PostgreSQL kayıtları `owner_id + project_id` ile ayrılır. `seed_pilot()` mevcut projeyi korur, yalnız eksik kopyayı oluşturur; yeniden giriş düzenlemeleri sıfırlamaz.
+
+İki hesapla yerel regresyon ve canlı Vercel `/api` → Render → PostgreSQL kontrolü tamamlandı:
+
+- Her hesapta aynı dört proje ve toplam sekiz bina; proje kimliği dışında bütün başlangıç belgeleri eşit.
+- Hesaplanan başlangıç sonuçları ve saatlik profil denetimleri eşit.
+- Bir QA hesabında bütçe/bina adı düzenlemesi ve revizyon artışı diğer hesabı değiştirmedi; diğer hesaptan proje erişimi 404 döndü.
+- Pilot tekrar yükleme ve çıkış/yeniden giriş, düzenlemeyi korudu ve proje çoğaltmadı.
+
+Kontrol yalnız ayrı QA hesaplarına yazdı; mevcut kullanıcı projelerini sıfırlamadı. Hesap kurtarma yedeği değişmedi, Neon kurtarma aktarımı çalıştırılmadı. Yerel test `backend/test_accounts.py` içinde kalıcıdır; canlı kabul kanıtı Git dışında `artifacts/pilot-isolation/report.json` dosyasındadır. Bu kontrol için yeni dağıtım veya AI çağrısı gerekmedi.
+
 ## Ekli pilot kapsamının yeniden doğrulanması — 20 Ekim 2026
 
 Kapsam güncel kaynakta zaten uygulandığından uygulama veya pilot baştan oluşturulmadı. Mevcut kampüs, dört pilot ve kullanıcı kayıtları korundu. Bu oturumda LLM API çağrısı ve ML eğitimi **yapılmadı**; önceki ayrı AI/ML özellikleri de silinmedi. Saatlik enerji, müdahale, karşılaştırma ve duyarlılık kontrolleri fizik/MILP motorunda yürütüldü.

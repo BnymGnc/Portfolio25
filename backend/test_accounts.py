@@ -40,6 +40,45 @@ class AccountTests(unittest.TestCase):
         # Reopen database using a new store: onboarding and identity survive restart.
         from auth import Accounts
         self.assertEqual(Accounts(lambda:Path(self.temp.name)/'accounts.sqlite3').public_user(ua['id'])['onboarding_version'],1)
+    def test_two_accounts_share_versioned_pilot_values_but_never_edits(self):
+        from copy import deepcopy
+        from pilot_kayseri import create_pilot, DATASET
+        a,_=self.account('pilot-a');b,_=self.account('pilot-b')
+        def snapshots(client):
+            projects=client.get('/api/projects').json()['projects']
+            return {value['campus']['pilot']['project_key']:value for value in
+                    [client.get('/api/campus/snapshot',params={'project_id':p['id']}).json() for p in projects]}
+        def canonical(document):
+            value=deepcopy(document);value.pop('id');return value
+        aa,bb=snapshots(a),snapshots(b)
+        expected={p.pilot['project_key']:p.model_dump(mode='json') for p in create_pilot()}
+        self.assertEqual(set(aa),set(expected));self.assertEqual(sum(len(x['campus']['buildings']) for x in aa.values()),8)
+        for key in expected:
+            self.assertEqual(aa[key]['campus']['pilot']['dataset'],DATASET)
+            self.assertEqual(canonical(aa[key]['campus']),canonical(expected[key]))
+            self.assertEqual(canonical(aa[key]['campus']),canonical(bb[key]['campus']))
+            self.assertEqual(aa[key]['baseline'],bb[key]['baseline'])
+            self.assertEqual(aa[key]['profile_audit'],bb[key]['profile_audit'])
+            self.assertNotEqual(aa[key]['campus']['id'],bb[key]['campus']['id'])
+        original_b=deepcopy(bb)
+        edit=deepcopy(aa['campus']['campus']);pid=edit['id']
+        edit['scenario']['budget_try']+=12345
+        edit['buildings'][0]['name']='Only account A edit'
+        saved=a.put('/api/campus',params={'project_id':pid},json={k:edit[k] for k in main.CampusUpdate.model_fields})
+        self.assertEqual(saved.status_code,200,saved.text)
+        own=a.get('/api/campus/snapshot',params={'project_id':pid}).json()['campus']
+        self.assertEqual(own['revision'],2)
+        self.assertEqual(snapshots(b),original_b)
+        self.assertEqual(b.get('/api/campus/snapshot',params={'project_id':pid}).status_code,404)
+        reloaded=a.post('/api/examples/kayseri/load',json={})
+        self.assertEqual(reloaded.status_code,200,reloaded.text)
+        self.assertEqual(reloaded.json()['created'],[])
+        a.headers['X-CSRF-Token']=a.post('/api/auth/logout',json={}).json()['csrf']
+        login=a.post('/api/auth/login',json={'email':'pilot-a@example.test','password':'test-only-password-123'})
+        self.assertEqual(login.status_code,200)
+        self.assertEqual(a.get('/api/campus/snapshot',params={'project_id':pid}).json()['campus'],own)
+        self.assertEqual(canonical(create_pilot()[0].model_dump(mode='json')),canonical(expected['campus']))
+
     def test_csrf_cookie_and_revocation(self):
         c,user=self.account('csrf');token=c.cookies.get('portfolio25_session')
         response=c.get('/api/projects');self.assertIn('no-store',response.headers['cache-control'])

@@ -101,3 +101,27 @@ npm.cmd run build
 ```
 
 İlk komuttaki PostgreSQL testleri `TEST_DATABASE_URL` yokken açıkça skip edilir; SQLite başarısı PostgreSQL kanıtı sayılmaz. İkinci komut Docker'daki mevcut `postgres:16-alpine` imajıyla rastgele localhost portunda ayrı QA veritabanı çalıştırır. Mevcut konteynerlere dokunmaz. Kaynak kayıtları/gerçek `.env` okunmaz, geçici parolalar yazdırılmaz; sonunda yalnız kendi QA konteyneri/volume silinir. Yerel rapor `artifacts/postgres-acceptance/report.json`, 22 Ekim gerçek HTTPS/yeniden yayın raporu `artifacts/live-deployment/report.json` içinde Git dışındadır. Canlı veritabanı kesintisi kasıtlı oluşturulmadı; kesinti ve aynı havuzda toparlanma kontrolü yalnız ayrı yerel PostgreSQL'de yapıldı.
+
+## Tek eski hesabı kurtarma
+
+Tüm hesapları aktararak farklı kişilerin verilerini birleştirmeyin. Kaynak e-posta ve sahiplik eşleştirildikten sonra yalnız o hesap için özel yedek oluşturulabilir:
+
+```powershell
+.\.venv\Scripts\python.exe backend/storage_admin.py backup --data-dir backend/data --output backups/account-recovery/selected-account.portfolio25-backup.zip --email kendi-adresiniz@example.com
+```
+
+Bu seçenek kaynak SQLite/JSON dosyalarını değiştirmez. Yalnız geçici kopyada diğer kullanıcılar çıkarılır, SQLite boş sayfaları temizlenir; anonim oturumlar, oturumlar ve giriş denemeleri taşınmaz. Arşiv yalnız seçilmiş sahibin JSON belgelerini içerir. Ortak/sahipsiz kampüs atanmaz. Var olan yedek ezilmez. Aynı parola hash'i ve kullanıcı kimliği korunur; parola istenmez veya sıfırlanmaz. Proje dosyaları için bakım aralığı kullanın; kaynağa eşzamanlı yazılırken dosya tutarlılığı varsaymayın.
+
+**Bu vaka için yedek zaten hazırlanmışsa tekrar oluşturmayın.** Mevcut yedeği kullanın. Neon hedefi, Render'ın `DATABASE_URL` ayarında kullandığı aynı branch/database olmalıdır. Bağlantı yalnız gizli terminal istemine yapıştırılır; sohbete, komut satırı argümanına, Git'e veya frontend'e yazılmaz. `.env` okunmaz.
+
+```powershell
+# Yalnız kaynak arşivini doğrular; hedef çatışmalarını önceden kontrol etmez.
+.\.venv\Scripts\python.exe backend/import_postgres.py --archive backups/account-recovery/selected-account.portfolio25-backup.zip --prompt-database-url
+
+# Seçili hesabı transaction içinde aktarır; bağlantıyı gizli istemde tekrar girin.
+.\.venv\Scripts\python.exe backend/import_postgres.py --archive backups/account-recovery/selected-account.portfolio25-backup.zip --prompt-database-url --apply
+```
+
+Terminalde gizli giriş desteklenmiyorsa devam etmeyin; bağlantı metnini ekrana yazdırmayın. Neon pooled adresindeki TLS parametrelerini koruyun. Hedefte migration uygulanmış olmalıdır; canlı backend bunu normal başlangıçta yapar. Aktarım hedefte aynı kimlik/e-posta veya projede farklı veri görürse durur, üzerine yazmaz. Aynı arşiv yeniden uygulanırsa çoğaltılmaz. Yeni bir hesaba rastgele proje atama veya farklı kullanıcı kimliklerini otomatik birleştirme yapılmaz.
+
+Başarılı aktarımdan sonra sabit üretim adresinde eski e-posta ve eski parolayla giriş yapın, dört projenin görünmesini doğrulayın. Eski oturumlar taşınmadığı için yeniden giriş gerekir. Giriş başarılı olana kadar hesabın kurtarıldığı kabul edilmez. İlgili yerel kayıtta sonuç yoksa geçmiş hesaplar geri getirilmiş gibi sunulmaz. Bu işlem için push veya Render yeniden yayını gerekmez; kullanıcı verisi Git/Docker imajına konmaz.

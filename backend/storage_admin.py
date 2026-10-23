@@ -39,7 +39,7 @@ def private_file(path):
         path.chmod(0o600)
 
 
-def backup(data_dir, output):
+def backup(data_dir, output, *, email=None):
     directory, database = existing_database(data_dir)
     output = Path(output).resolve()
     if output.is_relative_to(directory):
@@ -52,8 +52,20 @@ def backup(data_dir, output):
             with tempfile.TemporaryDirectory() as temp:
                 snapshot = Path(temp) / 'accounts.sqlite3'
                 snapshot.touch(mode=0o600)
-                with connect_existing(database) as source, closing(sqlite3.connect(snapshot)) as target:
+                selected_uid = None
+                with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=15)) as source, closing(sqlite3.connect(snapshot)) as target:
                     source.backup(target)
+                    if email is not None:
+                        row = target.execute('SELECT id FROM users WHERE email=?', (email.strip().lower(),)).fetchone()
+                        if not row:
+                            raise ValueError('Seçilen hesap kaynakta bulunamadı; yedek oluşturulmadı.')
+                        selected_uid = row[0]
+                        # Only the temporary snapshot is changed. Never revive old sessions.
+                        target.execute('DELETE FROM sessions')
+                        target.execute('DELETE FROM attempts')
+                        target.execute('DELETE FROM users WHERE id<>?', (selected_uid,))
+                        target.commit()
+                        target.execute('VACUUM')  # Excluded rows must not remain in free pages.
                     if target.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
                         raise ValueError('SQLite yedeği doğrulanamadı.')
                 private_file(snapshot)
@@ -64,11 +76,14 @@ def backup(data_dir, output):
                     for path in sorted(directory.rglob('*.json')):
                         if path == directory / 'backup-manifest.json':
                             continue
+                        if selected_uid is not None and not path.is_relative_to(directory / 'users' / selected_uid):
+                            continue
                         if path.is_symlink() or not path.resolve().is_relative_to(directory):
                             raise ValueError('Veri dizininde sembolik bağlantı bulundu; yedek durduruldu.')
                         archive.write(path, path.relative_to(directory).as_posix())
                     archive.writestr('backup-manifest.json', json.dumps({
                         'format': 'portfolio25-storage-v1',
+                        'scope': 'single-account' if selected_uid is not None else 'all-accounts',
                         'created_at': datetime.now(timezone.utc).isoformat(),
                         'consistency': 'SQLite backup API; project files require a maintenance window',
                     }))
@@ -142,6 +157,7 @@ def main():
     p = commands.add_parser('backup')
     p.add_argument('--data-dir', required=True)
     p.add_argument('--output', required=True)
+    p.add_argument('--email', help='Only this existing account and its owned JSON documents; no sessions or unowned projects.')
     p = commands.add_parser('restore')
     p.add_argument('--archive', required=True)
     p.add_argument('--data-dir', required=True)
@@ -151,7 +167,7 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == 'backup':
-            backup(args.data_dir, args.output)
+            backup(args.data_dir, args.output, email=args.email)
             print('Özel yedek oluşturuldu. Git’e veya herkese açık dizine koymayın.')
         elif args.command == 'restore':
             restore(args.archive, args.data_dir)
