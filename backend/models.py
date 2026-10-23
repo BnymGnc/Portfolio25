@@ -10,7 +10,7 @@ class Model(BaseModel):
 
 
 class Provenance(Model):
-    kind: Literal["measured", "external_simulation", "synthetic"]
+    kind: Literal["measured", "external_simulation", "synthetic", "user_estimate", "unspecified"]
     source: str = Field(min_length=1, max_length=500)
     seed: int | None = None
 
@@ -45,18 +45,31 @@ class ProfileSettings(Model):
     source: str = "Yıllık enerjiye normalize edilen sentetik profil v1; ölçülmüş yük veya hava verisi değildir."
 
 
+class CostQuote(Model):
+    amount_try: float = Field(ge=0, le=1e12)
+    kind: Literal['synthetic','user_quote','reference']
+    source: str = Field(min_length=1,max_length=500)
+    reference_date: date
+    scope: str = Field(min_length=1,max_length=500)
+    currency: Literal['TRY']='TRY'
+    vat_included: bool | None = None
+    labor_included: bool | None = None
+
+
 class Building(Model):
+    cost_quotes: dict[Literal['roof','insulation','heat_pump','lighting','schedule'],CostQuote] = Field(default_factory=dict)
+    input_metadata: dict = Field(default_factory=dict)
     field_sources: dict[str, SourceKind] = Field(default_factory=dict, max_length=30)
     interventions:list[InterventionDecision]|None=None
     id: str = Field(pattern=r"^B[0-9]{2}$")
     name: str = Field(min_length=1, max_length=100, pattern=r"\S")
     use_type: Literal["Eğitim", "Araştırma", "İdari", "Sosyal", "Konaklama", 'Konut', 'Ofis', 'Otel']
     area_m2: float = Field(gt=0, le=1_000_000)
-    year_built: int = Field(ge=1800, le=2100)
+    year_built: int | None = Field(default=None,ge=1800, le=2100)
     electricity_kwh_year: float = Field(ge=0, le=1_000_000_000)
     heating_kwh_year: float = Field(ge=0, le=1_000_000_000)
     non_heating_gas_kwh_year: float = Field(default=0, ge=0, le=1_000_000_000)
-    peak_electric_kw: float = Field(ge=0, le=1_000_000)
+    peak_electric_kw: float|None = Field(default=None,ge=0, le=1_000_000)
     connection_limit_kw: float = Field(default=500, gt=0, le=1_000_000)
     retrofit: RetrofitAssumptions = Field(default_factory=RetrofitAssumptions)
     provenance: Provenance
@@ -133,7 +146,7 @@ class CampusUpdate(Model):
         if len({b.id for b in self.buildings}) != len(self.buildings):
             raise ValueError('Bina kimlikleri benzersiz olmalıdır.')
         for building in self.buildings:
-            if building.provenance.kind != "synthetic" or building.provenance.seed != 25:
+            if building.provenance.kind == "synthetic" and building.provenance.seed != 25:
                 raise ValueError("Örnek kampüsün sentetik veri kaynağı korunmalıdır.")
         if self.connection_groups is not None:
             ids = [g.id for g in self.connection_groups]
@@ -229,6 +242,7 @@ PackageName = Literal["none", "insulation", "heat_pump", "combined"]
 
 
 class PackageResult(Model):
+    emissions_change_kg_year: float|None = None
     candidate_id:str|None=None
     interventions:list[InterventionDecision]=Field(default_factory=list)
     intervention_costs:dict[str,float]=Field(default_factory=dict)

@@ -6,7 +6,7 @@ import type {AIStatus,Explanation,ScenarioDraft,ScenarioChange,ScenarioEvaluatio
 import type {ModelStatus,Prediction} from './ModelData';
 import type {SyntheticStatus,SyntheticResult} from './SyntheticPrediction';
 import {aiServiceFailure} from './aiPresentation';
-import {hasJsonContent,readJsonObject,unavailable} from './http';
+import {hasJsonContent,readJsonObject,unavailable,isListResponse} from './http';
 
 // Production always uses the Vercel same-origin /api rewrite, including auth.
 export const API_BASE = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -41,7 +41,7 @@ export async function installPilot():Promise<PilotStatus>{return (await request(
 export async function loadSpatial(id:string):Promise<SpatialAnalysis>{return (await request(`/api/buildings/${encodeURIComponent(id)}/spatial`,{},30000)).json();}
 export async function previewSpatial(id:string,revision:number,selection:SpatialSelection,spatial:SpatialModel,packageName:PackageName,interventions:InterventionDecision[]|null):Promise<SpatialPreview>{return (await request(`/api/buildings/${encodeURIComponent(id)}/spatial/evaluate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision,selection,spatial,package:packageName,interventions})},30000)).json();}
 
-async function request(path: string, options: RequestInit = {}, timeout = 30000, projectId=activeProject) {
+export async function request(path: string, options: RequestInit = {}, timeout = 30000, projectId=activeProject) {
   const requestedGeneration=sessionGeneration;
   let response: Response;
   try {
@@ -64,7 +64,9 @@ async function request(path: string, options: RequestInit = {}, timeout = 30000,
     const detail = typeof body?.detail === 'string' ? body.detail : Array.isArray(body?.detail) ? body.detail.map((e: {loc?: (string | number)[]}) => `${labels[String(e.loc?.at(-1))] ?? 'Girdi'}: değer veya biçim geçerli değil; formdaki sınırları kontrol edin.`).join(' · ') : 'Girilen değerleri kontrol edin.';
     throw new Error(`İşlem tamamlanamadı (${response.status}). ${detail}`);
   }
-  if(!path.startsWith('/api/export/'))await readJsonObject(response.clone());
+  if(isListResponse(path,options.method)){
+    if(!hasJsonContent(response)||!Array.isArray(await response.clone().json().catch(()=>null)))throw unavailable(response.status);
+  }else if(!path.startsWith('/api/export/'))await readJsonObject(response.clone());
   if((path!=='/api/projects'||options.method==='POST')&&projectId!==activeProject)throw new Error('Proje değişti; geç gelen yanıt uygulanmadı.');
   return response;
 }

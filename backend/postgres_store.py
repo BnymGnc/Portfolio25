@@ -22,7 +22,7 @@ from fastapi import HTTPException
 from models import Campus, CalculationResult
 from calculation_context import stale_reason
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 # Driver exceptions can contain server details/DSNs. Emit only our safe errors.
 for _logger_name in ('psycopg', 'psycopg.pool'):
     _pool_logger = logging.getLogger(_logger_name)

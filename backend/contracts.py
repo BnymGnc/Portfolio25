@@ -173,6 +173,7 @@ class ExcludedPackage(Model):
 
 
 class BuildingPackages(Model):
+    group_impacts:dict[str,list[CapacityCheck]]=Field(default_factory=dict)
     context:Context
     input_revision:int
     building_id:str

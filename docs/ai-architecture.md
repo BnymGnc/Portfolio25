@@ -71,3 +71,7 @@ LLM yokken de açıkça “manuel” etiketli bütçe taslağıyla aynı geçici
 ## Resmî kaynaklar
 
 20 Ekim2026'da okunarak uygulandı: [OpenAI function calling](https://developers.openai.com/api/docs/guides/function-calling), [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs). Bu kaynaklar araç çağrısı ve yapılandırılmış metin sözleşmesini ayırır; uygulama ayrıca kendi fiziksel/bağlamsal doğrulamalarını yapar. RAG koleksiyonu/embedding/arama servisi yoktur; kaynaklı belge cevabı iddiası eklenmedi.
+
+## 4.2 kullanıcı bina akışı
+
+Sürüm `grid-tr-2.1`, katalog `grid-catalog-1.0`: dört sayısal senaryo alanına ek olarak bina müdahalesi aday/zorunlu/hariç taslağı desteklenir. Bina/uygunluk, uygulanmış fiziksel durum ve tam kombinasyon sunucuda kontrol edilir. Belirsiz çok bina sorusu veya geçersiz bina kodu hesap öncesinde reddedilir. Model ek bilgi isterse changes boş + clarification döner; frontend çalıştır/uygula eylemi sunmaz. Kullanıcının ilk eksik bina taslağı manuel/CSV ile tamamlanır; AI doğal dil taslağı güncel ana plan üzerinden çalışır. Bedelsiz manuel yol aynı `/api/scenarios/evaluate` motorunu kullanır. ML bu seçimlere bağlanmadı. [Uçtan uca kapsam](own-building-flow.md).

@@ -29,3 +29,8 @@ export function safeError(error: unknown) {
   if (error instanceof SyntaxError) return unavailable().message;
   return error instanceof Error ? error.message : 'İşlem tamamlanamadı. Lütfen tekrar deneyin.';
 }
+
+// Only declared GET collections return arrays; POST to the same URL returns an object.
+export function isListResponse(path:string,method='GET'){
+ return method==='GET'&&(path==='/api/intakes'||/^\/api\/buildings\/B[0-9]{2}\/catalog$/.test(path)||path==='/api/scenarios/saved');
+}

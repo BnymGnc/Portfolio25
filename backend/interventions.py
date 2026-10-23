@@ -41,6 +41,7 @@ def raw_combination(b,profile,scenario,actions):
             if action in actions:
                 single=candidate.model_copy(deep=True);single.spatial_selection=SpatialSelection(**{action:True},zone_ids=b.spatial_selection.zone_ids,schedule_review_ack=b.spatial_selection.schedule_review_ack)
                 costs[action]=build_components(single,settings,single.spatial_selection)['investment_try']
+    costs={k:b.cost_quotes[k].amount_try if k in b.cost_quotes else v for k,v in costs.items()}
     return result,costs
 
 
@@ -50,7 +51,7 @@ def baseline_profile(b,profile,scenario):
     applied={k for k,s in policy(b).items() if s=='applied'}
     base,_=raw_combination(b,profile,scenario,applied)
     r=base.report;r.investment_try=0;r.spatial_investment_try=0;r.maintenance_cost_try_year=0
-    r.energy_savings_kwh_year=0;r.net_savings_try_year=0;r.simple_payback_years=None;r.candidate_id='none'
+    r.energy_savings_kwh_year=0;r.net_savings_try_year=0;r.simple_payback_years=None;r.candidate_id='none';r.emissions_change_kg_year=0
     r.interventions=[InterventionDecision(kind=k,state='applied') for k in KINDS if k in applied]
     r.intervention_costs={k:0. for k in applied}
     return base
@@ -69,6 +70,7 @@ def evaluate_combination(b,profile,scenario,actions,base=None):
     old=base.report
     r.energy_savings_kwh_year=old.electricity_kwh_year+old.heating_gas_kwh_year-r.electricity_kwh_year-r.heating_gas_kwh_year
     r.net_savings_try_year=(old.electricity_kwh_year-r.electricity_kwh_year)*scenario.electricity_price_try_kwh+(old.heating_gas_kwh_year-r.heating_gas_kwh_year)*scenario.heating_price_try_kwh-r.maintenance_cost_try_year
+    r.emissions_change_kg_year=(r.electricity_kwh_year-old.electricity_kwh_year)*scenario.electricity_emission_kg_kwh+(r.heating_gas_kwh_year-old.heating_gas_kwh_year)*scenario.gas_emission_kg_kwh
     r.simple_payback_years=payback(r.investment_try,r.net_savings_try_year)
     r.useful_heat_before_kwh_year=old.useful_heat_after_kwh_year
     r.candidate_id='+'.join(k for k in KINDS if k in new) or 'none'

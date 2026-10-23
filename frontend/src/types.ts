@@ -1,23 +1,26 @@
 export type SourceKind='measured'|'user_estimate'|'default'|'synthetic'|'unspecified';
 import type {SpatialModel,SpatialSelection} from './spatialTypes';
 export interface Provenance {
-  kind: 'measured' | 'external_simulation' | 'synthetic';
+  kind: 'measured' | 'external_simulation' | 'synthetic' | 'user_estimate' | 'unspecified';
   source: string;
   seed: number | null;
 }
 
+export interface CostQuote {amount_try:number;kind:'synthetic'|'user_quote'|'reference';source:string;reference_date:string;scope:string;currency:'TRY';vat_included:boolean|null;labor_included:boolean|null}
 export interface Building {
+  cost_quotes?:Record<string,CostQuote>;
+  input_metadata?:Record<string,unknown>;
   field_sources?:Record<string,SourceKind>;
   interventions?:InterventionDecision[]|null;
   id: string;
   name: string;
   use_type: 'Eğitim' | 'Araştırma' | 'İdari' | 'Sosyal' | 'Konaklama' | 'Konut' | 'Ofis' | 'Otel';
   area_m2: number;
-  year_built: number;
+  year_built: number | null;
   electricity_kwh_year: number;
   heating_kwh_year: number;
   non_heating_gas_kwh_year: number;
-  peak_electric_kw: number;
+  peak_electric_kw: number|null;
   connection_limit_kw: number;
   retrofit: RetrofitAssumptions;
   provenance: Provenance;
@@ -131,6 +134,7 @@ export interface ProfileAudit {
 
 export type PackageName = 'none' | 'insulation' | 'heat_pump' | 'combined';
 export interface PackageResult {
+  emissions_change_kg_year?:number|null;
   candidate_id?:string|null;interventions?:InterventionDecision[];intervention_costs?:Record<string,number>;
   spatial_investment_try:number;spatial_interventions:string[];
   building_id: string; building_name: string; package: PackageName; investment_try: number;
@@ -178,6 +182,7 @@ export interface CampusProfiles {
 }
 
 export interface BuildingPackages {
+  group_impacts?:Record<string,CapacityCheck[]>;
   input_revision: number; building_id: string; kind: 'synthetic'; packages: PackageResult[];
   excluded_packages: {package:PackageName;reason:string}[];
   scope:'heating_only';

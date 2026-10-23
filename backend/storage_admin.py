@@ -63,6 +63,8 @@ def backup(data_dir, output, *, email=None):
                         # Only the temporary snapshot is changed. Never revive old sessions.
                         target.execute('DELETE FROM sessions')
                         target.execute('DELETE FROM attempts')
+                        if target.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='building_intakes'").fetchone():
+                            target.execute('DELETE FROM building_intakes WHERE owner_id<>?', (selected_uid,))
                         target.execute('DELETE FROM users WHERE id<>?', (selected_uid,))
                         target.commit()
                         target.execute('VACUUM')  # Excluded rows must not remain in free pages.

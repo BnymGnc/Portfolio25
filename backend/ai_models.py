@@ -40,8 +40,10 @@ class Explanation(Model):
 
 
 class ScenarioChange(Model):
-    field:Literal['budget_try','savings_target_pct','electricity_price_try_kwh','heating_price_try_kwh']
-    value:float
+    field:Literal['budget_try','savings_target_pct','electricity_price_try_kwh','heating_price_try_kwh','intervention']
+    value:float|Literal['candidate','mandatory','excluded']
+    building_id:str|None=None
+    intervention:Literal['roof','insulation','lighting','schedule','heat_pump']|None=None
 
 
 class ScenarioDraftRequest(Model):
@@ -50,17 +52,18 @@ class ScenarioDraftRequest(Model):
 
 
 class ScenarioDraft(Model):
+    clarification:str|None=Field(default=None,max_length=500)
     context:Context
     model:str
     prompt_version:str
-    changes:list[ScenarioChange]=Field(min_length=1,max_length=4)
+    changes:list[ScenarioChange]=Field(max_length=20)
     explanation:str
     cached:bool=False
 
 
 class ScenarioRun(Model):
     context:Context
-    changes:list[ScenarioChange]=Field(min_length=1,max_length=4)
+    changes:list[ScenarioChange]=Field(min_length=1,max_length=20)
     mode:Literal['A','B']='A'
     time_limit_s:float=Field(default=5,ge=.01,le=15)
 

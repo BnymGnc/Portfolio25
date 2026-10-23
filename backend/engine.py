@@ -52,8 +52,8 @@ def calculate_package(b: Building, profile: AnnualProfiles, s: Scenario, package
     annual_electricity = float(electricity.sum()) if pump or (b.spatial and apply_spatial) else b.electricity_kwh_year
     if package == "none" and not actions:
         heating_gas = b.heating_kwh_year
-    investment = (b.area_m2 * a.insulation_cost_try_m2 if insulated else 0) + (
-        a.heat_pump_capacity_kw_thermal * a.heat_pump_cost_try_kw + a.heat_pump_fixed_cost_try if pump else 0)
+    investment = ((b.cost_quotes['insulation'].amount_try if 'insulation' in b.cost_quotes else b.area_m2 * a.insulation_cost_try_m2) if insulated else 0) + (
+        (b.cost_quotes['heat_pump'].amount_try if 'heat_pump' in b.cost_quotes else a.heat_pump_capacity_kw_thermal * a.heat_pump_cost_try_kw + a.heat_pump_fixed_cost_try) if pump else 0)
     investment+=spatial_cost
     maintenance = investment * a.annual_maintenance_fraction
     before_energy = b.electricity_kwh_year + b.heating_kwh_year + b.non_heating_gas_kwh_year
@@ -62,6 +62,7 @@ def calculate_package(b: Building, profile: AnnualProfiles, s: Scenario, package
     after_cost = annual_electricity * s.electricity_price_try_kwh + (heating_gas + b.non_heating_gas_kwh_year) * s.heating_price_try_kwh + maintenance
     net = before_cost - after_cost
     report = PackageResult(
+        emissions_change_kg_year=(annual_electricity-b.electricity_kwh_year)*s.electricity_emission_kg_kwh+(heating_gas-b.heating_kwh_year)*s.gas_emission_kg_kwh,
         candidate_id=package,
         interventions=[InterventionDecision(kind=k,state='mandatory' if k in actions else 'candidate') for k in ('roof','insulation','lighting','schedule','heat_pump') if k in set(actions)|({'insulation'} if insulated else set())|({'heat_pump'} if pump else set())],
         building_id=b.id, building_name=b.name, package=package, investment_try=investment,

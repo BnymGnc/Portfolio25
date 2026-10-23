@@ -5,6 +5,11 @@ from models import Building, PackageName
 def exclusion_reason(building: Building, package: PackageName) -> str | None:
     if package == 'none':
         return None
+    if building.provenance.kind != 'synthetic':
+        actions={'insulation','heat_pump'} if package=='combined' else {package}
+        if any(k not in building.cost_quotes for k in actions):return 'Maliyet kapsamı belirtilmiş teklif veya kaynaklı referans maliyet gerekli.'
+        if building.input_metadata.get('scope')=='apartment' and (package in ('insulation','combined') or building.input_metadata.get('system_scope')!='individual'):
+            return 'Tek daire kapsamı ortak kabuk veya merkezî sistem yatırımını yetkilendirmez; bina yönetimi/uzman incelemesi gerekli.'
     if building.spatial_selection.roof and package in ('insulation','combined'):
         return 'Çatı müdahalesi aktif; aynı çatıya ait yatırımı tekrar içeren kabuk paketi birlikte seçilemez.'
     if building.heating_system != 'gas_boiler':

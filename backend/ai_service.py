@@ -12,7 +12,7 @@ from ai_models import Finding,Explanation,ScenarioDraft,ScenarioChange,Fact
 from models import Scenario
 from auth import user_context
 
-PROMPT_VERSION='grid-tr-1.0'
+PROMPT_VERSION='grid-tr-2.1'
 _lock=threading.Lock();_cache={};_inflight=set();_requests=deque()
 _status={}
 
@@ -152,15 +152,27 @@ def explain(campus,result,request,current_context):
 def draft(campus,request,current_context):
     def run():
         fields=['budget_try','savings_target_pct','electricity_price_try_kwh','heating_price_try_kwh']
-        schema={'type':'object','properties':{'changes':{'type':'array','minItems':1,'maxItems':4,'items':{'type':'object','properties':{'field':{'type':'string','enum':fields},'value':{'type':'number'}},'required':['field','value'],'additionalProperties':False}},'explanation':{'type':'string'}},'required':['changes','explanation'],'additionalProperties':False}
-        response=provider_call({'instructions':'Kullanıcının Türkçe sorusunu izinli yıllık senaryo alanlarına dönüştür. Değerler mutlak son değerlerdir; yüzde değişimini mevcut değerden hesapla. Taslak öner; araç çalıştırma veya veri kaydetme. Bilinmeyen alan ekleme.',
-            'input':json.dumps({'question':request.question,'current':{k:getattr(campus.scenario,k) for k in fields}},ensure_ascii=False),
-            'tools':[{'type':'function','name':'propose_scenario','description':'Yalnız kullanıcıya gösterilecek senaryo değişiklik taslağı; kayıt veya hesap yapmaz.','strict':True,'parameters':schema}],
-            'tool_choice':{'type':'function','name':'propose_scenario'},'parallel_tool_calls':False,'max_output_tokens':700})
+        from catalog import catalogue
+        items={b.id:{'name':b.name,'actions':[{'id':i.id,'status':i.status,'reason':i.reason} for i in catalogue(b)]} for b in campus.buildings}
+        properties={'field':{'type':'string','enum':fields+['intervention']},'value':{'anyOf':[{'type':'number'},{'type':'string','enum':['candidate','mandatory','excluded']}]},'building_id':{'type':['string','null'],'enum':list(items)+[None]},'intervention':{'type':['string','null'],'enum':['roof','insulation','lighting','schedule','heat_pump',None]}}
+        schema={'type':'object','properties':{'changes':{'type':'array','minItems':0,'maxItems':20,'items':{'type':'object','properties':properties,'required':list(properties),'additionalProperties':False}},'explanation':{'type':'string'},'clarification':{'type':['string','null']}},'required':['changes','explanation','clarification'],'additionalProperties':False}
+        if set(re.findall(r'B[0-9]{2}',request.question.upper()))-set(items):raise HTTPException(422,'Belirtilen bina bu projede bulunamadı; bina seçimini kontrol edin.')
+        # Do not guess a building when a multi-building instruction has no identifying name.
+        if len(campus.buildings)>1 and not any(b.name.casefold() in request.question.casefold() or b.id.casefold() in request.question.casefold() for b in campus.buildings) and any(w in request.question.casefold() for w in ['çatı','yalıtım','pompa','aydınlat','program']):
+            raise HTTPException(422,'Hangi bina için? Bina adını veya kodunu soruya ekleyin; kapsam seçilmeden taslak hazırlanmadı.')
+        response=provider_call({'instructions':'Türkçe isteği yalnız verilen bina ve uygun katalog seçeneklerine çevir. field=intervention için value candidate/mandatory/excluded, bina kimliği ve müdahale kimliği zorunlu. Diğer alanlarda value mutlak sayısal son değer, bina ve müdahale null. Belirsiz veya eksik teknik veride changes boş, clarification karar için gereken tek soru olsun; fiyat/tasarruf rakamı yazma. Uygulanmış yatırım oluşturma. Önce çatı, pompa sonra ifadesi çatıyı mandatory, pompayı excluded yapar. Tasarruf, fiyat teklifi, karbon veya kapasite rakamı uydurma. Araç taslaktır; hesap/kayıt yapmaz.',
+            'input':json.dumps({'question':request.question,'buildings':items,'current':{k:getattr(campus.scenario,k) for k in fields}},ensure_ascii=False),
+            'tools':[{'type':'function','name':'propose_scenario','description':'Kullanıcı onayına sunulan izinli değişiklikler.','strict':True,'parameters':schema}],
+            'tool_choice':{'type':'function','name':'propose_scenario'},'parallel_tool_calls':False,'max_output_tokens':1200})
         calls=[x for x in response.get('output',[]) if x.get('type')=='function_call']
         if len(calls)!=1 or calls[0].get('name')!='propose_scenario':raise HTTPException(503,'İzin verilen tek senaryo aracı yanıtı alınamadı.')
         try:
             data=json.loads(calls[0]['arguments']);changes=[ScenarioChange.model_validate(c) for c in data['changes']]
+            if not changes:
+                clarification=data.get('clarification')
+                if not isinstance(clarification,str) or not clarification.strip():raise ValueError('Missing question')
+                if re.search(r'\d|[%₺$€]',clarification):clarification='Hangi bina, müdahale ve kapsam için ilerlemek istiyorsunuz? Eksik teknik bilgileri bina ekranında tamamlayın.'
+                return ScenarioDraft(context=current_context,model=model(),prompt_version=PROMPT_VERSION,changes=[],explanation='Hesap veya kayıt yapılmadı; ek bilgi gerekli.',clarification=clarification).model_dump(mode='json')
             validate_changes(campus,changes)
             return ScenarioDraft(context=current_context,model=model(),prompt_version=PROMPT_VERSION,changes=changes,
                 explanation='Alan ve sınırları doğrulanmış değişiklik taslağıdır. Tasarruf henüz hesaplanmadı; tablodaki mutlak değerleri inceleyip çalıştırın.').model_dump(mode='json')
@@ -168,7 +180,32 @@ def draft(campus,request,current_context):
     return bounded_call(cache_key(current_context,'scenario',request.question,[]),run)
 
 
-def validate_changes(campus,changes):
-    if len({c.field for c in changes})!=len(changes):raise ValueError('Bir alan taslakta yalnız bir kez değiştirilebilir.')
-    raw=campus.scenario.model_dump(mode='json');raw.update({c.field:c.value for c in changes})
-    return Scenario.model_validate(raw)
+def changed_campus(campus,changes):
+    from interventions import policy
+    from spatial_models import InterventionDecision
+    from catalog import catalogue
+    keys=[(c.field,c.building_id,c.intervention) for c in changes]
+    if len(set(keys))!=len(keys):raise ValueError('Bir alan taslakta yalnız bir kez değiştirilebilir.')
+    alternative=campus.model_copy(deep=True)
+    numeric={}
+    for c in changes:
+        if c.field!='intervention':
+            if c.building_id is not None or c.intervention is not None or not isinstance(c.value,(int,float)):raise ValueError('Senaryo alanı sayısal ve bina kapsamından bağımsız olmalı.')
+            numeric[c.field]=c.value;continue
+        b=next((b for b in alternative.buildings if b.id==c.building_id),None)
+        if not b or c.intervention is None or c.value not in ('candidate','mandatory','excluded'):raise ValueError('Bina, müdahale veya karar durumu geçersiz.')
+        states=policy(b)
+        if states.get(c.intervention)=='applied':raise ValueError('Uygulanmış fiziksel başlangıç AI taslağıyla değiştirilemez.')
+        item=next(i for i in catalogue(b) if i.id==c.intervention)
+        if c.value!='excluded' and item.status!='calculable':raise ValueError(item.reason)
+        states[c.intervention]=c.value
+        b.interventions=[InterventionDecision(kind=k,state=v) for k,v in states.items()]
+    raw=alternative.scenario.model_dump(mode='json');raw.update(numeric);alternative.scenario=Scenario.model_validate(raw)
+    if {'electricity_price_try_kwh','heating_price_try_kwh'} & set(numeric):
+        alternative.scenario.price_basis.kind='user_estimate'
+        alternative.scenario.price_basis.source='Alternatif tarife varsayımı; piyasa/fatura ölçümü değildir. Önceki dayanak: '+campus.scenario.price_basis.source[:350]
+    from engine import prepare
+    prepare(alternative)
+    return alternative
+
+def validate_changes(campus,changes):return changed_campus(campus,changes).scenario

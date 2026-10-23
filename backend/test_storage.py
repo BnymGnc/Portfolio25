@@ -110,6 +110,10 @@ class StorageAdminTests(unittest.TestCase):
         foreign.parent.mkdir(parents=True)
         foreign.write_text('{"private":"other-account"}', encoding='utf-8')
         self.data.joinpath('campus.json').write_text('{"unowned":true}', encoding='utf-8')
+        with self.accounts.db() as db:
+            db.execute('CREATE TABLE building_intakes(owner_id TEXT,intake_id TEXT,document TEXT)')
+            db.execute('INSERT INTO building_intakes VALUES(?,?,?)',(self.uid,'mine','{}'))
+            db.execute('INSERT INTO building_intakes VALUES(?,?,?)',(other,'other','{"private":true}'))
         source_files = {p:hashlib.sha256(p.read_bytes()).hexdigest() for p in self.data.rglob('*') if p.is_file()}
         archive = self.root / 'selected.portfolio25-backup.zip'
         backup(self.data, archive, email=self.credentials.email.upper())
@@ -125,6 +129,7 @@ class StorageAdminTests(unittest.TestCase):
         with account.db() as db:
             self.assertEqual(db.execute('SELECT count(*) FROM users').fetchone()[0], 1)
             self.assertEqual(db.execute('SELECT count(*) FROM sessions').fetchone()[0], 0)
+            self.assertEqual(db.execute('SELECT count(*) FROM building_intakes').fetchone()[0],1)
         with self.assertRaises(HTTPException): account.login(other_credentials)
         self.assertTrue(all(p.exists() and hashlib.sha256(p.read_bytes()).hexdigest()==digest for p,digest in source_files.items()))
         missing = self.root / 'missing.portfolio25-backup.zip'

@@ -82,6 +82,7 @@ def error_response(status,message,code=None,fields=None):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_error(request,error):
+    if isinstance(error.detail,dict):return error_response(error.status_code,error.detail.get('message','Girdileri kontrol edin.'),error.detail.get('code'),error.detail.get('fields'))
     return error_response(error.status_code,str(error.detail),getattr(error,'code',None))
 
 
@@ -136,7 +137,7 @@ async def select_project(request, call_next):
         return error_response(422,'Geçersiz proje kimliği.')
     token=project_context.set(project_id)
     try:
-        global_route=public or auth_route or request.url.path in ('/api/projects','/api/examples/kayseri','/api/examples/kayseri/load')
+        global_route=public or auth_route or request.url.path.startswith('/api/intakes') or request.url.path in ('/api/projects','/api/examples/kayseri','/api/examples/kayseri/load')
         try:
             if not global_route and request.method!='OPTIONS' and not await run_in_threadpool(project_exists) and (uid or project_id!='campus-demo-25'):
                 return error_response(404,'Proje bulunamadı veya bu hesaba ait değil.')
@@ -544,13 +545,21 @@ def get_building_packages(building_id: str):
     if building is None:
         raise HTTPException(404, "Bina bulunamadı.")
     profile = generate_profiles(building, campus.profile_settings)
-    from interventions import candidates
+    from interventions import candidates,baseline_profile
+    from engine import capacity_checks
     options=candidates(building,profile,campus.scenario)
+    base=[baseline_profile(b,generate_profiles(b,campus.profile_settings),campus.scenario) for b in campus.buildings]
+    index=next(i for i,b in enumerate(campus.buildings) if b.id==building_id)
+    impacts={}
+    relevant={g.id for g in campus.connection_groups if building_id in g.building_ids}
+    for option in options:
+        trial=base.copy();trial[index]=option
+        impacts[option.report.candidate_id or option.report.package]=[c for c in capacity_checks(campus.buildings,trial,campus.scenario,campus.connection_groups) if c.kind=='group' and c.id in relevant]
     exclusion_building=building.model_copy(deep=True)
     if building.interventions is not None:exclusion_building.spatial_selection.roof=False
     return {'context':context(campus,read_result(campus)),"input_revision": campus.revision, "building_id": building_id, "kind": "synthetic",
             'scope':'bounded_intervention_templates' if building.interventions is not None else 'heating_only', 'excluded_packages':[{'package':name,'reason':exclusion_reason(exclusion_building,name)} for name in PACKAGES if exclusion_reason(exclusion_building,name)],
-            "packages": [p.report for p in options]}
+            "packages": [p.report for p in options],"group_impacts":impacts}
 
 
 @app.get("/api/calculations/last",response_model=contracts.LastResult)
@@ -708,8 +717,7 @@ def scenario_draft(request:ScenarioDraftRequest):
 @app.post('/api/scenarios/evaluate',response_model=ScenarioEvaluation)
 def scenario_evaluate(request:ScenarioRun):
     campus,result,current=require_context(request.context,True)
-    alternative=campus.model_copy(deep=True)
-    alternative.scenario=ai_service.validate_changes(campus,request.changes)
+    alternative=ai_service.changed_campus(campus,request.changes)
     if not compute_lock.acquire(blocking=False):raise HTTPException(409,'Başka bir hesap sürüyor; tamamlanmasını bekleyin.')
     try:calculated=calculate(alternative,CalculationRequest(revision=campus.revision,mode=request.mode,time_limit_s=request.time_limit_s))
     finally:compute_lock.release()
@@ -721,8 +729,8 @@ def scenario_evaluate(request:ScenarioRun):
 def scenario_apply(request:ScenarioRun):
     with lock:
         campus,result,_=require_context(request.context,True)
-        scenario=ai_service.validate_changes(campus,request.changes)
-        return update_campus(CampusUpdate(revision=campus.revision,buildings=campus.buildings,scenario=scenario))
+        alternative=ai_service.changed_campus(campus,request.changes)
+        return update_campus(CampusUpdate.model_validate({k:alternative.model_dump()[k] for k in CampusUpdate.model_fields}))
 
 
 @app.post('/api/scenarios/counterfactual',response_model=ScenarioEvaluation)
@@ -801,3 +809,30 @@ install_openapi(app)
 import named_scenarios
 import sys
 named_scenarios.install(app, sys.modules[__name__])
+
+
+import intakes
+intakes.install(sys.modules[__name__])
+from catalog import catalogue,CatalogItem
+
+@app.get('/api/buildings/{building_id}/catalog',response_model=list[CatalogItem])
+def building_catalog(building_id:str):
+    b=next((b for b in read_campus().buildings if b.id==building_id),None)
+    if not b:raise HTTPException(404,'Bina bulunamadı.')
+    return catalogue(b)
+
+@app.get('/api/intakes/csv/template')
+def intake_template():
+    text=io.StringIO();writer=csv.writer(text);writer.writerow(intakes.CSV_HEADER)
+    writer.writerow(['Binam','building','Konut','', '',2025,'','','','','gas_boiler','unknown','unknown','',''])
+    return Response(text.getvalue(),media_type='text/csv',headers={'Content-Disposition':'attachment; filename="building-input-template.csv"'})
+
+@app.post('/api/intakes/csv/preview')
+def intake_csv_preview(body:intakes.CSVBody):return intakes.csv_preview(body)
+
+
+@app.get('/api/intakes/options')
+def intake_options():
+    from models import RetrofitAssumptions
+    return {'catalog_version':intakes.CATALOG_VERSION,'heating_systems':[{'id':k,'status':'calculable' if k=='gas_boiler' else 'data_required' if k=='unknown' else 'unsupported','label':v} for k,v in {'unknown':'Bilmiyorum','gas_boiler':'Doğalgaz kazanı','electric_resistance':'Elektrik dirençli ısıtma','existing_heat_pump':'Mevcut ısı pompası','coal':'Kömür','lpg':'LPG','district':'Bölgesel ısıtma','other':'Diğer'}.items()],
+        'example_assumptions':RetrofitAssumptions(kind='default',source='Proje uzman varsayımları v1; yerinde doğrulanmadı, resmî performans değeri değildir.').model_dump(mode='json')}

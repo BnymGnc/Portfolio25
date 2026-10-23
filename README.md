@@ -161,3 +161,9 @@ Final karar araçları: sonuçlarda yöntem karşılaştırması ve LLM gerektir
 Bina ekranındaki **Seçenekleri AI ile incele** uygun müdahaleleri ve veri eksiklerini açıklamak içindir. Sonuç ekranındaki **Planı AI ile incele**, güncel hesaba bağlı soruları yanıtlar; henüz hesap yoksa plan oluşturmaya yönlendirir. **Alternatif dene** içinde kullanıcı değişikliği tarif eder, hazırlanan değerleri inceler, ayrı hesabı çalıştırır ve isterse girdileri uygular. Aynı ekranda bütçe/hedef/tarife elle de değiştirilebilir; bu seçenek AI yanıtı değildir. Taslak hazırlandığında giriş bölümü kapanır, değişiklik ve karşılaştırma öne geçer. Eski sonuçlar girdi değişince güncel sayılmaz.
 
 Anahtar, son çağrı ve sağlayıcı test durumu kullanıcı çalışma alanında gösterilmez. AI kota, bağlantı ve yanıt doğrulama hataları kısa mesajlarla belirtilir; ham sağlayıcı/proxy yanıtları gösterilmez. Bu düzenleme sağlayıcı erişiminin çalıştığını kanıtlamaz. Yerel kabulde AI yanıtı/hatası taklit edilmiş, alternatifin fizik hesabı gerçek backend ile çalıştırılmıştır; ücretli LLM çağrısı yapılmamıştır.
+
+## Kendi binanızla değerlendirme
+
+**Binalarım → Kendi binamı ekle** ile pilot kopyalamadan tek daire, tüm bina veya çok bina tanımı kaydedebilirsiniz. Bilinmeyen alanlar boş kalır; eksik taslak hesabınıza saklanır ve hesaplanamayan alanlara yönlendirir. Yıllık/aylık kWh ve kaynaklı m³ dönüşümü, bağımsız bağlantılar, teknik varsayımlar ve toplam tutarlı teklifler ayrı tutulur. Yeni binaya kat/zon uydurulmaz.
+
+Doğalgaz/sulu sistem için uygun kabuk ve ısı pompası seçenekleri hesaplanabilir. Desteklenmeyen yakıtlar ve eksik geometri/program için sayısal tasarruf verilmez. İlk projede saatlik profil ölçülmüş değildir; model profili kullanıcı kabulüyle kullanılır. **Motor 4.2.0**, **katalog grid-catalog-1.0**, **migration 003 building_intakes**. Yeni migration kayıtları temizlemez; eski sonuçlar tarihsel olarak korunur. [Veri, maliyet, AI ve kapsam ayrıntısı](docs/own-building-flow.md).

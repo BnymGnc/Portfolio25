@@ -60,6 +60,7 @@ def read_archive(path):
             users = [dict(r) for r in source.execute('SELECT id,email,password_hash,onboarding_version FROM users')]
             sessions = [dict(r) for r in source.execute('SELECT digest,user_id,csrf,expires FROM sessions')]
             attempts = [dict(r) for r in source.execute('SELECT bucket,moment FROM attempts')]
+            intakes = [dict(r) for r in source.execute('SELECT owner_id,intake_id,document FROM building_intakes')] if source.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='building_intakes'").fetchone() else []
         ids = {u['id'] for u in users}
         for user in users:
             if not re.fullmatch(r'[a-f0-9]{32}', user['id']): raise ValueError('Invalid owner')
@@ -86,12 +87,18 @@ def read_archive(path):
                     rid = result.calculation_id or 'legacy-' + hashlib.sha256(archive.read(result_name)).hexdigest()
                     results.append((uid, campus.id, rid, raw, result_name == latest))
         # Legacy global campus/projects stay in the backup. Never assign to the first user.
-        return dict(digest=digest, users=users, sessions=sessions, attempts=attempts, projects=projects, results=results)
+        from intakes import Intake
+        for item in intakes:
+            draft=Intake.model_validate_json(item['document'])
+            if item['owner_id'] not in ids or draft.id!=item['intake_id']:raise ValueError('Draft owner mismatch')
+            if draft.project_id and not any(uid==item['owner_id'] and c.id==draft.project_id for uid,c in projects):raise ValueError('Draft project missing from archive')
+            item['document']=draft.model_dump(mode='json')
+        return dict(intakes=intakes,digest=digest, users=users, sessions=sessions, attempts=attempts, projects=projects, results=results)
 
 
 def import_archive(store, path, *, apply=False):
     data = read_archive(path)
-    counts = {k: len(data[k]) for k in ('users', 'sessions', 'projects', 'results')}
+    counts = {k: len(data[k]) for k in ('users', 'sessions', 'projects', 'results', 'intakes')}
     if not apply:
         return {'status':'validated_only', **counts}
     with store.connection() as db:
@@ -128,6 +135,10 @@ def import_archive(store, path, *, apply=False):
                 db.execute('INSERT INTO portfolio25.calculations(owner_id,project_id,calculation_id,document) VALUES(%s,%s,%s,%s)', (uid, pid, rid, Jsonb(raw)))
             if latest:
                 db.execute('UPDATE portfolio25.projects SET latest_calculation_id=%s WHERE owner_id=%s AND project_id=%s AND latest_calculation_id IS NULL', (rid, uid, pid))
+        for item in data['intakes']:
+            existing=db.execute('SELECT document FROM portfolio25.building_intakes WHERE owner_id=%s AND intake_id=%s',(item['owner_id'],item['intake_id'])).fetchone()
+            if existing and existing['document']!=item['document']:raise ValueError('Draft conflict')
+            if not existing:db.execute('INSERT INTO portfolio25.building_intakes(owner_id,intake_id,revision,document) VALUES(%s,%s,%s,%s)',(item['owner_id'],item['intake_id'],item['document']['revision'],Jsonb(item['document'])))
         for attempt in data['attempts']:
             db.execute('''INSERT INTO portfolio25.attempts(bucket,moment) SELECT %s,%s
                 WHERE NOT EXISTS(SELECT 1 FROM portfolio25.attempts WHERE bucket=%s AND moment=%s)''',

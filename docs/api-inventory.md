@@ -87,3 +87,19 @@ LLM mimarisi/gerçek429 testi [ai-architecture.md](ai-architecture.md); model ka
 
 ## Adlandırılmış senaryolar
 GET /api/scenarios/saved: sahip/proje bazlı özet liste. POST aynı yol: {name, context}, güncel girdiler ve varsa hesap snapshot; eski bağlam 409. GET /api/scenarios/saved/{id}: tarihsel snapshot, ana kayıt değişmez. Oturum/CSRF ve project_id sözleşmesi korunur; başkasının kaydı 404. Proje başına 50 kayıt; PostgreSQL migration 002.
+
+## Kullanıcının kendi binası (motor 4.2.0)
+
+Tüm uçlar oturum sahibine özeldir; yazmalar Origin/CSRF korumalıdır. `/api/intakes` uçları seçili pilot projesinden bağımsızdır.
+
+| Uç | İşlev |
+|---|---|
+| GET/POST /api/intakes | Taslak listele/oluştur; null değerler korunur |
+| PUT /api/intakes/{id} | Beklenen revizyonla taslak düzenle |
+| POST /api/intakes/{id}/publish | Fiziksel ön kontrol sonrası özel proje oluştur; PostgreSQL'de tek transaction |
+| GET /api/intakes/options | Desteklenen ısıtma kaynakları ve açık örnek teknik varsayımlar |
+| GET /api/intakes/csv/template | Basit kWh/m²/yıl CSV şablonu |
+| POST /api/intakes/csv/preview | Kaydetmeden satır hataları ve bina önizlemesi |
+| GET /api/buildings/{id}/catalog?project_id=… | Seçili sahibin binasına ait sürümlü uygunluk/maliyet kuralları |
+
+Mevcut `/api/ai/scenario-draft`, `/api/scenarios/evaluate`, `/api/scenarios/apply` sözleşmesi müdahale kararlarını da kabul eder: `field=intervention`, bina/katalog kimliği ve `candidate/mandatory/excluded`. Diğer alanlarda numeric value, bina/müdahale null. Eski sayısal istekler geçerlidir. Uygulanmış yatırım AI tarafından oluşturulmaz/değiştirilmez. Yeni bina ve teklif alanları mevcut proje JSONB belgesindedir. Kapsam: [kendi bina akışı](own-building-flow.md).

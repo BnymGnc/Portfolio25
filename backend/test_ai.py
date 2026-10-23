@@ -53,6 +53,30 @@ class AITests(unittest.TestCase):
         self.assertEqual(value['calculation']['calculation_id'],self.ctx['calculation_id'])
         self.assertEqual(len(self.client.get('/api/scenarios/saved').json()),1)
 
+    def test_intervention_draft_preview_is_context_bound_and_never_applies_itself(self):
+        change={'field':'intervention','building_id':'B07','intervention':'insulation','value':'mandatory'}
+        reply={'status':'completed','output':[{'type':'function_call','name':'propose_scenario','arguments':json.dumps({'changes':[change],'explanation':'Only a draft'})}]}
+        before=self.client.get('/api/campus/snapshot').json()
+        with patch('ai_service.provider_call',return_value=reply):
+            draft=self.client.post('/api/ai/scenario-draft',json={'context':self.ctx,'question':'Ofis kabuk yalıtımı önce yapılsın.'})
+            self.assertEqual(draft.status_code,200,draft.text)
+        self.assertEqual(self.client.get('/api/campus/snapshot').json(),before)
+        question={'status':'completed','output':[{'type':'function_call','name':'propose_scenario','arguments':json.dumps({'changes':[],'explanation':'More information needed','clarification':'Çatı alanı ve teklif kapsamı belli mi?'})}]}
+        with patch('ai_service.provider_call',return_value=question):
+            reply=self.client.post('/api/ai/scenario-draft',json={'context':self.ctx,'question':'Ek bilgi sorusu'})
+            self.assertEqual(reply.status_code,200,reply.text);self.assertEqual(reply.json()['changes'],[]);self.assertTrue(reply.json()['clarification'])
+        self.assertEqual(self.client.get('/api/campus/snapshot').json(),before)
+        evaluated=self.client.post('/api/scenarios/evaluate',json={'context':self.ctx,'changes':[change]})
+        self.assertEqual(evaluated.status_code,200,evaluated.text)
+        self.assertTrue(any(d['kind']=='insulation' for d in evaluated.json()['alternative']['selected_packages'][0]['interventions']))
+        self.assertEqual(self.client.get('/api/campus/snapshot').json(),before)
+        invalid={**change,'building_id':'B99'}
+        self.assertEqual(self.client.post('/api/scenarios/evaluate',json={'context':self.ctx,'changes':[invalid]}).status_code,422)
+        self.assertEqual(self.client.post('/api/scenarios/evaluate',json={'context':self.ctx,'changes':[{**change,'value':'applied'}]}).status_code,422)
+        applied=self.client.post('/api/scenarios/apply',json={'context':self.ctx,'changes':[change]})
+        self.assertEqual(applied.status_code,200,applied.text)
+        self.assertEqual(applied.json()['campus']['revision'],2)
+
     def test_missing_key_status_and_openapi(self):
         with patch.dict('os.environ',{'OPENAI_API_KEY':''}):
             self.assertFalse(self.client.get('/api/ai/status').json()['configured'])

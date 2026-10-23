@@ -253,3 +253,13 @@ Sunucu dışa aktarım için değişmez anlık görüntüyü kilit altında doğ
 
 
 Final ekleri: Building.field_sources isteğe bağlı alan grubu → kaynak etiketi sözlüğüdür. Reference.kind varsayılan unspecified; measured/user_estimate/default/synthetic/unspecified değerleri kabul edilir. Eski kayıtlara ölçülmüş varsayımı yapılmaz. Adlandırılmış senaryo name/id/created_at/context/inputs/calculation içerir ve proje belgesinden bağımsız değişmez kopyadır.
+
+## Kendi bina girişi — 4.2.0
+
+Geriye uyumlu Campus 3.0 belgesinde `Building.cost_quotes` ve `input_metadata` opsiyoneldir; eski kayıtlar boş sözlükle okunur. `year_built` ve kullanılmayan eski referans `peak_electric_kw` bilinmiyorsa null olabilir; hesaplanan profil piki ayrıdır. Provenance kullanıcı girişi için `user_estimate/unspecified` kabul eder; yıllık alan kaynakları `field_sources`, ham tüketim/dönüşüm/ısıtma payı kaynakları özgün intake anlık görüntüsünde saklanır. Sonraki proje düzenlemeleri güncel bina değerlerine uygulanır; metadata özgün girişin audit kaydıdır.
+
+Nullable bina taslakları `Intake`/`BuildingInput` modelleridir. Intakeler sonuç/ölçüm belgesi değildir. Tüketim annual/monthly, kWh/m3, 12 nullable ay ve kaynaklı dönüşüm içerir. Isıtma ayrımı türetilen değerlerdir; toplam gaz faturası ölçülmüş olsa da ısıtma gazı kendiliğinden ölçülmüş sayılmaz. `IntakeView.readiness` yapılandırılmış alan eksiklerini döndürür. Proje üretimi için zorunlu bilgiler tamamlanmalıdır. Çok bina ilk aşamada bağımsız bağlantı ve bina içi ısıtma sistemleriyle çalışır; bloklar arası ortak kazan maliyetini kopyalayarak desteklenmiş sayılmaz.
+
+`CostQuote`: tutar TRY, tür synthetic/user_quote/reference, kaynak, tarih, kapsam, KDV/işçilik dahil nullable bool. Girilen tutar yatırımın dayanağıdır; vergi/işçilik kapsam dışında ise otomatik ek tutar uydurulmaz. Paket karbon değişimi backend `emissions_change_kg_year` alanında; azaltım negatiftir. `group_impacts` diğer binalar mevcut fiziksel durumdayken aynı saatlerde toplanan grup pikidir; portföy optimumu yerine geçmez.
+
+AI taslağında değişiklik listesi boş ve `clarification` dolu olabilir; bu durumda çalıştırılabilir hesap yoktur. `ScenarioRun` en az bir gerçek değişiklik ister. `intervention` değişikliğinde yalnız mevcut bina/katalog kimliği ve candidate/mandatory/excluded kabul edilir. Applied değişikliği reddedilir. Geçici tarife değeri ölçülmüş fiyat olarak yeniden etiketlenmez.

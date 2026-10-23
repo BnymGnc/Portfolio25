@@ -86,6 +86,8 @@ def sensitivity(campus, result):
                         'insulation':['insulation_reduction_fraction'],'roof':[]}[parameter]
                 for field in fields:
                     a[field]*=multiplier
+                if parameter=='investment':
+                    for quote in building.get('cost_quotes',{}).values():quote['amount_try']*=multiplier
                 if parameter=='investment' and building.get('spatial'):
                     for field in ('roof_cost_try_m2','lighting_cost_try_m2','schedule_control_cost_try'):
                         building['spatial'][field]*=multiplier

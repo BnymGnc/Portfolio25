@@ -79,6 +79,27 @@ class PostgresTests(unittest.TestCase):
     def assert_no_files(self):
         self.assertFalse(main.DATA_FILE.parent.exists(),'PostgreSQL production must not write local accounts/projects/results')
 
+    def test_real_building_draft_publish_quotes_survive_reopen(self):
+        from test_intakes import IntakeTests
+        client,_,uid=self.account();other,_,_=self.account()
+        draft=IntakeTests.ready(self,client).model_dump(mode='json')
+        saved=client.post('/api/intakes',json=draft)
+        self.assertEqual(saved.status_code,200,saved.text);draft=saved.json()['draft']
+        self.assertEqual(other.get('/api/intakes').json(),[])
+        published=client.post('/api/intakes/'+draft['id']+'/publish',json=draft)
+        self.assertEqual(published.status_code,200,published.text);value=published.json()['draft']
+        params={'project_id':value['project_id']}
+        run=client.post('/api/calculate',params=params,json={'revision':1,'mode':'A','time_limit_s':3})
+        self.assertEqual(run.status_code,200,run.text)
+        self.assertGreater(run.json()['energy_savings_kwh_year'],0)
+        before=client.get('/api/campus/snapshot',params=params).json()
+        self.store.close();self.store=PostgresStore(os.environ['TEST_DATABASE_URL']);self.addCleanup(self.store.close)
+        self.store.migrate();self.store.migrate()
+        self.assertEqual(client.get('/api/intakes').json()[0]['draft'],value)
+        self.assertEqual(client.get('/api/campus/snapshot',params=params).json(),before)
+        self.assertEqual(other.get('/api/campus/snapshot',params=params).status_code,404)
+        self.assert_no_files()
+
     def test_named_scenario_immutable_owner_isolation_restart(self):
         a,_,uid=self.account();b,_,_=self.account()
         params,snapshot=self.office(a)
@@ -232,6 +253,11 @@ class PostgresTests(unittest.TestCase):
         project.with_name(project.stem+'.result.json').write_text(result.model_dump_json(),encoding='utf-8')
         # A shared legacy campus is backed up, but never assigned to this owner.
         (data/'campus.json').write_text(create_pilot()[0].model_dump_json(),encoding='utf-8')
+        from intakes import Intake
+        own_draft=Intake(name='Legacy private draft')
+        with accounts.db() as db:
+            db.execute('CREATE TABLE building_intakes(owner_id TEXT,intake_id TEXT,revision INTEGER,document TEXT)')
+            db.execute('INSERT INTO building_intakes VALUES(?,?,?,?)',(uid,own_draft.id,1,own_draft.model_dump_json()))
         source_hash=hashlib.sha256(project.read_bytes()).hexdigest()
         archive=backup(data,Path(self.temp)/'legacy.portfolio25-backup.zip')
         self.assertEqual(import_archive(self.store,archive)['status'],'validated_only')
@@ -243,6 +269,7 @@ class PostgresTests(unittest.TestCase):
             self.assertTrue(db.execute('SELECT password_hash FROM portfolio25.users WHERE id=%s',(uid,)).fetchone()['password_hash']==original_hash,'Original password hash must be retained')
         client=self.client();client.cookies.set(COOKIE,token)
         self.assertEqual(client.get('/api/auth/session').json()['user']['id'],uid)
+        self.assertEqual(client.get('/api/intakes').json()[0]['draft'],own_draft.model_dump(mode='json'))
         self.assertEqual(client.get('/api/calculations/last',params={'project_id':campus.id}).json()['calculation']['calculation_id'],result.calculation_id)
         self.assertEqual(hashlib.sha256(project.read_bytes()).hexdigest(),source_hash)
         self.assert_no_files()

@@ -44,7 +44,7 @@ def render_brief(snapshot: CampusResponse, metadata: dict) -> str:
     esc = lambda value: escape(str(value), quote=True)
     source_notice = ('Sentetik örnek proje — sonuçlar model varsayımlarına dayanır. Saha ölçümü değildir.'
                      if campus.provenance.kind == 'synthetic' else
-                     'Bina girdilerinin veri türü: ' + {'measured': 'ölçülmüş', 'external_simulation': 'harici simülasyon'}[campus.provenance.kind] + '. Saatlik profil sentetiktir; dönüşüm varsayımları ayrıca doğrulanmalıdır.')
+                     'Bina girdilerinin veri türü: ' + {'measured': 'ölçülmüş', 'external_simulation': 'harici simülasyon','user_estimate':'kullanıcı girişi; alan kaynakları ayrıca kayıtlı','unspecified':'belirtilmemiş'}.get(campus.provenance.kind,'belirtilmemiş') + '. Saatlik profil sentetiktir; dönüşüm varsayımları ayrıca doğrulanmalıdır.')
     rows = ''
     indicators = [('Toplam nihai enerji', before.total_energy_kwh_year, after.total_energy_kwh_year if after else None, 'kWh/yıl'),
                   ('Enerji yoğunluğu', before.intensity_kwh_m2_year, after.intensity_kwh_m2_year if after else None, 'kWh/m²-yıl'),

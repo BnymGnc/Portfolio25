@@ -16,17 +16,10 @@ export async function authRequest(path:AuthPath,body?:unknown){
  const value=await requestAuth(API_BASE,path,body,getCSRF());
  if(value.csrf)setCSRF(value.csrf);return value;
 }
-const steps=[
- ['Enerji yatırımını birlikte değerlendirin','Bütçe, enerji tasarrufu ve elektrik bağlantı sınırları aynı hesapta değerlendirilir.'],
- ['Dört proje, sekiz örnek bina','Kampüs, konut sitesi, ofis ve otelin size ait kopyaları hazır. Veriler sentetiktir; saha ölçümü değildir.'],
- ['İnceleyin, kaydedin, hesaplayın','Proje ve binayı seçin. Varsayımları düzenleyip yatırım planını hesaplayın; etkileri karşılaştırın.'],
- ['Hangi sonucu kim üretiyor?','Fizik ve optimizasyon yatırım planını hesaplar. Deneysel ML yıllık tüketimi tahmin eder. İsteğe bağlı LLM hesapları açıklar.']
-];
-
 function Onboarding({busy,error,onFinish}:{busy:boolean;error:string;onFinish:()=>void}){
- const [step,setStep]=useState(0);const dialog=useRef<HTMLDialogElement>(null);
+ const dialog=useRef<HTMLDialogElement>(null);
  useEffect(()=>{dialog.current?.showModal();return()=>dialog.current?.close()},[]);
- return <main className="onboarding-stage"><div className="onboarding-welcome"><span className="auth-brand">Portfolio25<span>GRID</span></span><p>Projenizi tanımak için kısa bir başlangıç.</p></div><dialog ref={dialog} className="onboarding" aria-labelledby="tour-title" onCancel={e=>{e.preventDefault();if(!busy)onFinish()}}><svg viewBox="0 0 240 80" aria-hidden="true"><path d="M12 65H228"/><rect x="25" y="22" width="38" height="43"/><rect x="83" y="8" width="44" height="57"/><rect x="147" y="30" width="52" height="35"/><path className="onboarding-flow" d="M12 75L65 45L110 55L165 20L225 12"/></svg><p className="tour-progress" aria-live="polite">Adım {step+1} / {steps.length}</p><progress value={step+1} max={steps.length} aria-label="Tanıtım ilerlemesi"/><h1 id="tour-title">{steps[step][0]}</h1><p>{steps[step][1]}</p>{error&&<p className="error-box" role="alert">{error}</p>}<div className="dialog-actions"><button className="button secondary" disabled={busy} onClick={onFinish}>{t("Tanıtımı atla")}</button>{step>0&&<button className="button secondary" disabled={busy} onClick={()=>setStep(step-1)}>{t("Geri")}</button>}<button autoFocus className="button primary" disabled={busy} onClick={()=>step===steps.length-1?onFinish():setStep(step+1)}>{busy?t("Kaydediliyor…"):step===steps.length-1?t("Projeyi aç"):t("İleri")}</button></div></dialog></main>;
+ return <main className="onboarding-stage"><dialog ref={dialog} className="onboarding" onCancel={e=>{e.preventDefault();if(!busy)onFinish()}}><h1>{t('Enerji yatırımınıza başlayın')}</h1><p>{t('Kendi binanızı tanıtabilir veya size özel sentetik pilotu deneyebilirsiniz.')}</p>{error&&<p role="alert">{error}</p>}<div className="dialog-actions"><button className="button secondary" disabled={busy} onClick={onFinish}>{t('Atla')}</button><button className="button primary" disabled={busy} onClick={onFinish}>{t('Başla')}</button></div></dialog></main>;
 }
 
 let bootstrap:Promise<AuthReply>|null=null;
@@ -109,7 +102,7 @@ export default function AuthGate(){
   {originRejected&&<a className="button secondary full production-link" href={PRODUCTION_ORIGIN}>{t("Üretim adresinde giriş yap")}</a>}
   {connectionError&&<button className="button secondary full auth-reconnect" disabled={busy} onClick={()=>void reconnect()}>{t("Bağlantıyı yeniden dene")}</button>}
   <button className="text-button auth-switch" disabled={busy} onClick={()=>{setMode(mode==='login'?'register':'login');setError('');setConnectionError(false);setLoginRejected(false);setPassword('');setVisible(false)}}>{mode==='login'?t("Hesabınız yok mu? Kayıt olun"):t("Hesabınız var mı? Giriş yapın")}</button>
-  <p className="auth-demo">{t("Size ait sentetik pilotla deneyin; saha verisi gerekmez.")}</p>
+  <p className="auth-demo">{t("Kendi binanızı ekleyin veya sentetik pilotla deneyin.")}</p>
   <ColdStartNote/>
   <div className="auth-footer"><details className="auth-help"><summary>{t("Demo rehberi ve sınırlar")}</summary><DemoGuide/><p>{t("E-posta doğrulama ve parola sıfırlama bu sürümde bulunmaz.")}</p></details><button className="text-button" onClick={()=>setSettings(true)}><Icon name="sliders" size={15}/>{t('Ayarlar')}</button></div>
  </section>{settings&&<Settings theme={theme} onTheme={setTheme} preferences={preferences} onPreferences={setPreferences} onClose={()=>setSettings(false)}/>}</main>;
